@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""This code is a part of Hydra Toolkit (HydraTK)
+"""This code is a part of Yoda extension
 
 .. module:: hydratk.extensions.yoda.testobject
    :platform: Unix

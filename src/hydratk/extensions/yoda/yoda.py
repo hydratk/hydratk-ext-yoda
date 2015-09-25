@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""This code is a part of Hydra Toolkit (HydraTK)
+"""This code is a part of Yoda extension
 
 .. module:: hydratk.extensions.yoda.yoda
    :platform: Unix
@@ -9,9 +9,9 @@
 """
 
 events = {  
-  'yoda_before_start'          : 'hydra.extensions.yoda',  '''yoda_onbefore_start'''
-  'yoda_on_start'                : 'hydra.extensions.yoda',  '''yoda_on_start'''
-  'yoda_on_stop'                 : 'hydra.extensions.yoda'  '''yoda_on_stop''' 
+  'yoda_before_start'          : 'hydra.extensions.yoda.yoda',  '''yoda_onbefore_start'''
+  'yoda_on_start'                : 'hydra.extensions.yoda.yoda',  '''yoda_on_start'''
+  'yoda_on_stop'                 : 'hydra.extensions.yoda.yoda'  '''yoda_on_stop''' 
 };
 
 import os;
@@ -20,16 +20,16 @@ import traceback;
 import sys;
 import pprint;
 import traceback;
-from hydra.core import extension;
-from hydra.core import const;
+from hydratk.core import extension;
+from hydratk.core import const;
 from hydra.translation import messages;
-from pyx.console.commandlinetool import CommandlineTool;
-from pyx.console.commandlinetool import rprint;
-from hx.yoda.testobject import TestRun;
-from hx.yoda.testobject import TestSet;
-from hx.yoda.testobject import TestScenario;
-from hx.yoda.testobject import TestCase;
-from hx.yoda.testobject import TestCondition;
+from hydratk.lib.console.commandlinetool import CommandlineTool;
+from hydratk.lib.console.commandlinetool import rprint;
+from hydratk.extensions.yoda.testobject import TestRun;
+from hydratk.extensions.yoda.testobject import TestSet;
+from hydratk.extensions.yoda.testobject import TestScenario;
+from hydratk.extensions.yoda.testobject import TestCase;
+from hydratk.extensions.yoda.testobject import TestCondition;
 
 class Extension(extension.Extension):
     _test_repo              = None;
@@ -38,7 +38,7 @@ class Extension(extension.Extension):
     def _init_extension(self):
         self._ext_name = 'Yoda';
         self._ext_version = '0.1.0';
-        self._ext_author = 'Petr Czaderna <pc@headz.cz>';
+        self._ext_author = 'Petr Czaderna <pc@hydratk.org>';
         self._ext_year = '2014 - 2015';  
         
     def _check_dependencies(self):
@@ -65,7 +65,18 @@ class Extension(extension.Extension):
 
     def init_check(self, oevent):        
         pass
-               
+    
+    """Method returs all found test in path
+           
+           Test files are filtered by .yoda file extension
+        
+        Args:
+           test_path (str): test path
+        
+        Returns:            
+           test_files (list)
+                  
+        """           
     def get_all_tests_from_path(self, test_path):
         test_files = [];        
         root_dir = test_path;
