@@ -1,0 +1,44 @@
+###########################################################################################
+##   Example test scenario                                                               ##
+###########################################################################################
+
+Test-Scenario-1:
+    Path: test1
+    Name: Example test scenario
+    Desc: |
+      Contains sample test cases  
+    Author: Petr Czaderna <pc@hydratk.org>
+    Version: 1.0
+  
+    Pre-Req: |
+       print("Initializing Test Scenario prerequirements...")
+
+    Test-Case-1:
+      Name: Check 1
+      Desc: Testing positive and negative results
+      
+      Test-Condition-1:
+        Name: Condition A)
+        Desc: Testing the condition which will fail
+        Test: |
+          x = 5
+          y = 5
+          test_condition.test_result = x - y;
+      
+        Validate: |
+          '''This condition will fail''';         
+          assert (test_condition.test_result != 0), "Condition not equal to 0";
+         
+      Test-Condition-2:
+        Name: Condition B)
+        Desc: Testing the condition which will pass
+        Test: |          
+          a = 1;
+          b = 3;
+          test_condition.test_result = a + b;
+        Validate: |
+          '''This condition will pass'''; 
+          assert (test_condition.test_result == 4),"Condition must be equal to 4";         
+      
+    Post-Req: |
+        print("Cleaning up after tests...")

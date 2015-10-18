@@ -10,8 +10,7 @@ classifiers = [
     "Environment :: Other Environment",
     "Intended Audience :: Developers",
     "License :: Freely Distributable",
-    "Operating System :: OS Independent",
-    "Framework :: HydraTk",
+    "Operating System :: OS Independent",   
     "License :: OSI Approved :: BSD License",
     "Programming Language :: Python",    
     "Programming Language :: Python :: 2.7",
@@ -27,16 +26,22 @@ classifiers = [
 packages=[
           'hydratk.extensions.yoda', 
          ];
+         
+data_files=[
+            ('/etc/hydratk/conf.d', ['config/yoda.conf']),
+            ('/var/local/hydratk/yoda/templates/test1',['var/local/hydratk/yoda/templates/test1/example1.yoda'])
+           ];         
                 
-setup(name='Hydratk-Yoda',
-      version='0.1.0',
+setup(name='Yoda Tester',
+      version='0.1.1a',
       description='Test Automation Tool',
       long_description=readme,
       author='Petr Czaderna',
       author_email='pc@hydratk.org',
-      url='http://www.hydratk.org',
+      url='http://extensions.hydratk.org/yoda',
       license='BSD',
       packages=packages,
       package_dir={'' : 'src'},
-      classifiers=classifiers
+      classifiers=classifiers,
+      data_files=data_files      
      )

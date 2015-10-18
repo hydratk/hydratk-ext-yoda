@@ -19,17 +19,45 @@ class TestRun():
     tset                   = []; '''Test Sets'''
     
     def __init__(self):
-        pass
-    
-    def reset_data(self):
-        self.current_test_base_path = None;
         self.total_test_sets        = 0;
         self.total_tests            = 0;
         self.failed_tests           = 0;
         self.passed_tests           = 0;
+        self.failures               = False;
         self.start_time             = None;
         self.end_time               = None;
-        self.ts                          = [];
+        self.tset                   = [];
+    
+    def reset_data(self):
+        self.total_test_sets        = 0;
+        self.total_tests            = 0;
+        self.failed_tests           = 0;
+        self.passed_tests           = 0;
+        self.failures               = False;
+        self.start_time             = None;
+        self.end_time               = None;
+        self.tset                   = [];
+        
+    def __repr__(self):
+        return ( """
+                 total_test_sets = {0}\n
+                 total_tests     = {1};
+                 failed_tests    = {2};
+                 passed_tests    = {3};
+                 failures        = {4};
+                 start_time      = {5};
+                 end_time        = {6};
+                 tset            = {7}
+                 """.format(self.total_test_sets,
+                            self.total_tests,
+                            self.failed_tests,
+                            self.passed_tests,
+                            self.failures,
+                            self.start_time,
+                            self.end_time,
+                            self.tset)
+                 )
+
         
 class TestSet():
     current_test_base_path  = None;
@@ -46,9 +74,32 @@ class TestSet():
     
     
     def __init__(self):
-        pass
+        self.current_test_base_path  = None;
+        self.current_test_set_file   = None;
+        self.total_tests             = 0;
+        self.failed_tests            = 0;
+        self.passed_tests            = 0;
+        self.failed_ts               = 0;
+        self.passed_ts               = 0;
+        self.failures                = False;
+        self.start_time              = None;
+        self.end_time                = None;
+        self.ts                      = []; '''Test Scenarios'''
+    
+    def reset_data(self):
+        self.current_test_base_path  = None;
+        self.current_test_set_file   = None;
+        self.total_tests             = 0;
+        self.failed_tests            = 0;
+        self.passed_tests            = 0;
+        self.failed_ts               = 0;
+        self.passed_ts               = 0;
+        self.failures                = False;
+        self.start_time              = None;
+        self.end_time                = None;
+        self.ts                      = []; '''Test Scenarios'''
         
-class TestScenario(object):
+class TestScenario():
     _id             = None;
     path            = None;
     name            = None;
@@ -66,8 +117,38 @@ class TestScenario(object):
     end_time        = None;
 
     def __init__(self, ts_id):
-        self._id = ts_id;
-          
+        self._id             = ts_id;
+        self.path            = None;
+        self.name            = None;
+        self.desc            = None;
+        self.author          = None;
+        self.version         = None;
+        self.total_tests     = 0;
+        self.failed_tests    = 0;
+        self.passed_tests    = 0;
+        self.failures        = False;
+        self.tca             = []; '''Test Cases'''
+        self.prereq_passed   = None;
+        self.test_log        = '';
+        self.start_time      = None;
+        self.end_time        = None;
+    
+    def reset(self):
+        self._id             = None;
+        self.path            = None;
+        self.name            = None;
+        self.desc            = None;
+        self.author          = None;
+        self.version         = None;
+        self.total_tests     = 0;
+        self.failed_tests    = 0;
+        self.passed_tests    = 0;
+        self.failures        = False;
+        self.tca             = []; '''Test Cases'''
+        self.prereq_passed   = None;
+        self.test_log        = '';
+        self.start_time      = None;
+        self.end_time        = None;
         
 class TestCase():
     _id             = None;
@@ -81,7 +162,26 @@ class TestCase():
     end_time        = None;
     
     def __init__(self, tca_id):
-        self._id = tca_id;
+        self._id         = tca_id;
+        self.name        = None; 
+        self.desc        = None;
+        self.failures    = False;
+        self.failed_tco  = 0;
+        self.passed_tco  = 0;
+        self.tco         = []; '''Test Conditions'''
+        self.start_time  = None;
+        self.end_time    = None;
+    
+    def reset(self):
+        self._id         = None;
+        self.name        = None; 
+        self.desc        = None;
+        self.failures    = False;
+        self.failed_tco  = 0;
+        self.passed_tco  = 0;
+        self.tco         = []; '''Test Conditions'''
+        self.start_time  = None;
+        self.end_time    = None;
 
 class TestCondition():
     _id             = None;
@@ -99,4 +199,28 @@ class TestCondition():
     
     def __init__(self, tco_id):
         self._id = tco_id;
+        self.name            = None;
+        self.desc            = None;
+        self.expected_result = None;    
+        self.test_resolution = False;
+        self.test_result     = None;
+        self.test_output     = '';
+        self.test_assert     = None;
+        self.test_validate   = None;
+        self.test_log        = '';
+        self.start_time      = None;
+        self.end_time        = None; 
 
+    def reset(self):
+        self._id             = None;
+        self.name            = None;
+        self.desc            = None;
+        self.expected_result = None;    
+        self.test_resolution = False;
+        self.test_result     = None;
+        self.test_output     = '';
+        self.test_assert     = None;
+        self.test_validate   = None;
+        self.test_log        = '';
+        self.start_time      = None;
+        self.end_time        = None; 
