@@ -16,11 +16,12 @@ language = {
 
 ''' Yoda Commands '''
 help_cmd = {
-   'yoda-run' : 'spustí Yoda tester'              
+   'yoda-run' : 'spustí Yoda tester',
+   'yoda-simul' : 'spustí Yoda tester v režimu test simulace'               
 }
 
 ''' Yoda Options '''
 help_opt = {
-   'yoda-test-path' : { '{h}--yoda-test-path <cesta>{e}' : { 'description' : 'cesta k testovacímu scénáři', 'commands' : ('yoda-run')}},
-   'yoda-test-repo-root-dir' : { '{h}--yoda-test-repor-root-dir <cesta>{e}' : { 'description' : 'cesta ke kořenovému adresáři test. repositáře', 'commands' : ('yoda-run')}}
+   'yoda-test-path' : { '{h}--yoda-test-path <cesta>{e}' : { 'description' : 'cesta k testovacímu scénáři', 'commands' : ('yoda-run','yoda-simul')}},
+   'yoda-test-repo-root-dir' : { '{h}--yoda-test-repo-root-dir <cesta>{e}' : { 'description' : 'cesta ke kořenovému adresáři test. repozitáře', 'commands' : ('yoda-run','yoda-simul')}}
 }

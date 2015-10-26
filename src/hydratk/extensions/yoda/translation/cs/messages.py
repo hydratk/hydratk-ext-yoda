@@ -22,6 +22,8 @@ msg = {
     'yoda_invalid_test_repo_root' : 'Špatný kořenový adresář repositáře: %s',
     'yoda_added_helpers_dir' : 'Přidán adresář pomocných knihoven %s',
     'yoda_helpers_dir_not_exists' : 'Adresář pomocných knihoven %s neexistuje, vynecháno',
+    'yoda_added_lib_dir' : 'Přidán adresář sdílených knihoven %s',
+    'yoda_lib_dir_not_exists' : 'Adresář sdílených knihoven %s neexistuje, vynecháno', 
     'yoda_process_test_sets_total' : 'Nalezeno %d test setů pro zpracování',
     'yoda_no_tests_found_in_path' : 'Nebyly nalezeny žádné testy ve složce: %s',
     'yoda_process_test_set' : 'Zpracovávám test set: %s',

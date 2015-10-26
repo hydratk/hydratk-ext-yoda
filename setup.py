@@ -21,16 +21,18 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",    
     "Topic :: Software Development :: Libraries :: Application Frameworks",
     "Topic :: Utilities"
-];
+]
 
 packages=[
           'hydratk.extensions.yoda', 
-         ];
+         ]
          
 data_files=[
-            ('/etc/hydratk/conf.d', ['config/yoda.conf']),
-            ('/var/local/hydratk/yoda/templates/test1',['var/local/hydratk/yoda/templates/test1/example1.yoda'])
-           ];         
+            ('/etc/hydratk/conf.d', ['config/hydratk-ext-yoda.conf']),
+            ('/var/local/hydratk/yoda/yoda-tests/test1',['var/local/hydratk/yoda/yoda-tests/test1/example1.yoda']),
+            ('/var/local/hydratk/yoda/yoda-helpers',['var/local/hydratk/yoda/yoda-helpers/__init__.py']),
+            ('/var/local/hydratk/yoda/yoda-lib',['var/local/hydratk/yoda/yoda-lib/__init__.py'])
+           ]         
                 
 setup(name='Yoda Tester',
       version='0.1.1a',

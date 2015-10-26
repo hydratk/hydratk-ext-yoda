@@ -12,33 +12,53 @@ Test-Scenario-1:
   
     Pre-Req: |
        print("Initializing Test Scenario prerequirements...")
+       
+    Events:
+            before_start: |
+              print("Before start test scenario")
+              
+            after_finish:  
+              print("After finish test scenario")
 
     Test-Case-1:
       Name: Check 1
       Desc: Testing positive and negative results
-      
+      Events:
+            before_start: |
+              print("Before start test case code")
+              
+            after_finish:  
+              print("After finish test case code")
+              
       Test-Condition-1:
         Name: Condition A)
         Desc: Testing the condition which will fail
+        Events:
+            before_start: |
+              print("Before start test condition code")
+              
+            after_finish:  
+              print("After finish test condition code")
+              
         Test: |
           x = 5
           y = 5
-          test_condition.test_result = x - y;
+          test_condition.test_result = x - y
       
         Validate: |
-          '''This condition will fail''';         
-          assert (test_condition.test_result != 0), "Condition not equal to 0";
+          '''This condition will fail'''         
+          assert (test_condition.test_result != 0), "Condition not equal to 0"
          
       Test-Condition-2:
         Name: Condition B)
         Desc: Testing the condition which will pass
         Test: |          
-          a = 1;
-          b = 3;
-          test_condition.test_result = a + b;
+          a = 1
+          b = 3
+          test_condition.test_result = a + b
         Validate: |
-          '''This condition will pass'''; 
-          assert (test_condition.test_result == 4),"Condition must be equal to 4";         
+          '''This condition will pass''' 
+          assert (test_condition.test_result == 4),"Condition must be equal to 4"         
       
     Post-Req: |
         print("Cleaning up after tests...")

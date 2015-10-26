@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-languages      = ['cs','en'];
+languages      = ['cs','en']
 language_desc  = {
   'cs' : 'Čeština',
   'en' : 'English'                
-};
+}

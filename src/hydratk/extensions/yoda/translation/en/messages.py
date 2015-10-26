@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """This code is a part of Yoda extension
 
 .. module:: hydratk.extensions.yoda.translation.en
@@ -19,6 +20,8 @@ msg = {
     'yoda_invalid_test_repo_root' : 'Invalid test repository root directory: %s',
     'yoda_added_helpers_dir' : 'Added helpers directory %s',
     'yoda_helpers_dir_not_exists' : 'Helpers directory %s doesn\'t exists, skipping',
+    'yoda_added_lib_dir' : 'Added shared library directory %s',
+    'yoda_lib_dir_not_exists' : 'Shared library directory %s doesn\'t exists, skipping',    
     'yoda_process_test_sets_total' : 'Found %d test sets for processing',
     'yoda_no_tests_found_in_path' : 'No tests found in specified path: %s',
     'yoda_process_test_set' : 'Processing test set: %s',
