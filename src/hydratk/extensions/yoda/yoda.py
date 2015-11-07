@@ -37,6 +37,7 @@ from hydratk.extensions.yoda.testobject import TestSet
 from hydratk.extensions.yoda.testobject import TestScenario
 from hydratk.extensions.yoda.testobject import TestCase
 from hydratk.extensions.yoda.testobject import TestCondition
+from hydratk.extensions.yoda.testengine import TestEngine
 
 
 class Extension(extension.Extension):
@@ -47,8 +48,8 @@ class Extension(extension.Extension):
     _test_run               = None
     _current_test_base_path = None 
     _use_helpers_dir        = []
-    _use_lib_dir            = []
-    _test_simul_mode        = False   
+    _use_lib_dir            = []    
+    _test_engine            = None   
     
     def _init_extension(self):
         self._ext_name    = 'Yoda'
@@ -56,16 +57,16 @@ class Extension(extension.Extension):
         self._ext_author  = 'Petr Czaderna <pc@hydratk.org>'
         self._ext_year    = '2014 - 2015'
         
-        self._init_repos()  
+        self._init_repos()          
         
     def _check_dependencies(self):
         return True
     
     def _init_repos(self):
         self._test_repo_root = self._mh.cfg['Extensions']['Yoda']['test_repo_root']
-        self._libs_repo = self._mh.cfg['Extensions']['Yoda']['test_repo_root'] + '/yoda-lib'
+        self._libs_repo = self._mh.cfg['Extensions']['Yoda']['test_repo_root'] + '/lib'
         self._templates_repo = self._mh.cfg['Extensions']['Yoda']['test_repo_root'] + '/yoda-tests'
-        self._helpers_repo   = self._mh.cfg['Extensions']['Yoda']['test_repo_root'] + '/yoda-helpers'
+        self._helpers_repo   = self._mh.cfg['Extensions']['Yoda']['test_repo_root'] + '/helpers'
         
     def _do_imports(self):
         pass                 
@@ -83,7 +84,9 @@ class Extension(extension.Extension):
         self._mh.register_command_hook(hook)
         
         self._mh.match_long_option('yoda-test-path',True)
-        self._mh.match_long_option('yoda-test-repo-root-dir',True)                 
+        self._mh.match_long_option('yoda-test-repo-root-dir',True) 
+        
+        self._test_engine = TestEngine()                    
     
     def init_check(self, ev):
         """Event listener waiting for htk_on_cmd_options event
@@ -125,21 +128,21 @@ class Extension(extension.Extension):
         return test_files 
     
     def init_test_simul(self):
-        self._test_simul_mode = True
+        
+        self._test_engine.test_simul_mode = True              
         self.init_tests()
              
     def init_tests(self):
         """Method is initializing tests           
                   
-        """
+        """        
         ev = event.Event('yoda_before_init_tests')        
         self._mh.fire_event(ev)                    
         if ev.will_run_default():     
             test_path = CommandlineTool.get_input_option('--yoda-test-path')
             test_path = test_path if isinstance(test_path, str) else ''   
             self.init_libs();                     
-            self.init_helpers()
-            self._test_run = TestRun()
+            self.init_helpers()            
             if os.path.exists(self._test_repo_root):            
                 self._current_test_base_path = self._templates_repo + test_path
                 if os.path.exists(self._current_test_base_path):                
@@ -150,11 +153,11 @@ class Extension(extension.Extension):
                         test_files = ev.argv(0)
                     if ev.will_run_default():
                         self.process_tests(test_files)
-                    ev = event.Event('yoda_before_check_results', self._test_run)        
+                    ev = event.Event('yoda_before_check_results', self._test_engine.test_run)        
                     if (self._mh.fire_event(ev) > 0):                   
-                        self._test_run = ev.argv(0)
+                        self._test_engine.test_run = ev.argv(0)
                     if ev.will_run_default():    
-                        self.check_results(self._test_run)  
+                        self.check_results(self._test_engine.test_run)  
                 else:
                     self._mh.dmsg('htk_on_error', self._mh._trn.msg('yoda_invalid_test_base_path', self._current_test_base_path), self._mh.fromhere())                
             else:           
@@ -193,16 +196,20 @@ class Extension(extension.Extension):
                         self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_lib_dir_not_exists',lib_dir), self._mh.fromhere())
                              
     def process_tests(self, test_files):
+        print("Process tests up test_simul_mode {0}".format(self._test_engine._test_simul_mode))
         total_ts = len(test_files)
         if total_ts > 0:
-            self._test_run.total_test_sets = total_ts
+            self._test_engine.test_run.total_test_sets = total_ts
             self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_process_test_sets_total', total_ts), self._mh.fromhere())            
             for tf in test_files:
                 ev = event.Event('yoda_before_parse_test_file', tf)        
                 if (self._mh.fire_event(ev) > 0):
                     tf = ev.argv(0)
                 if ev.will_run_default():
-                    self.parse_test_file(tf)
+                    #self.parse_test_file(tf)                    
+                    self._test_engine.load_tset_from_file(tf)                    
+                    self._test_engine.parse_tset_struct();
+                    self._test_engine.run_tset();
         else:
             self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_no_tests_found_in_path', self._current_test_base_path), self._mh.fromhere())
             
@@ -386,7 +393,7 @@ class Extension(extension.Extension):
         for test_set in test_run.tset:
             print("\n  {0}".format(self._mh._trn.msg('yoda_test_set_summary', test_set.current_test_set_file)))                           
             for ts in test_set.ts:
-                print("    {0}".format(self._mh._trn.msg('yoda_test_scenario_summary', ts.name,ts.total_tests, ts.failed_tests,ts.passed_tests)))                                                                
+                print("    {0}".format(self._mh._trn.msg('yoda_test_scenario_summary', ts.name,ts.total_tests, ts.failed_tests,ts.passed_tests)))                                                                           
                 if ts.failures == True:
                     if ts.prereq_passed in (True,None):                        
                         if ts.prereq_passed == True: print("      {0}".format(self._mh._trn.msg('yoda_test_scenario_prereq_passed')))                         
@@ -400,5 +407,6 @@ class Extension(extension.Extension):
                                         print("            {}".format(self._mh._trn.msg('yoda_actual_result',str(tco.test_result))))
                                         print("            {}".format(self._mh._trn.msg('yoda_log',str(tco.test_log))))                                                                                 
                     else:
-                        print("      {0}\n   {1}".format(self._mh._trn.msg('yoda_test_scenario_prereq_failed')), ts.test_log)                       
+                        #print("      {0}\n   {1}".format(self._mh._trn.msg('yoda_test_scenario_prereq_failed',ts.test_log)))
+                        print(ts.test_log)                       
         

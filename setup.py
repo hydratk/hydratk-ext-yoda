@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 
 with open("README.md", "r") as f:
@@ -28,21 +28,21 @@ packages=[
          ]
          
 data_files=[
-            ('/etc/hydratk/conf.d', ['config/hydratk-ext-yoda.conf']),
+            ('/etc/hydratk/conf.d', ['etc/hydratk/conf.d/hydratk-ext-yoda.conf']),
             ('/var/local/hydratk/yoda/yoda-tests/test1',['var/local/hydratk/yoda/yoda-tests/test1/example1.yoda']),
-            ('/var/local/hydratk/yoda/yoda-helpers',['var/local/hydratk/yoda/yoda-helpers/__init__.py']),
-            ('/var/local/hydratk/yoda/yoda-lib',['var/local/hydratk/yoda/yoda-lib/__init__.py'])
+            ('/var/local/hydratk/yoda/helpers/yodahelpers',['var/local/hydratk/yoda/helpers/yodahelpers/__init__.py']),
+            ('/var/local/hydratk/yoda/lib/yodalib',['var/local/hydratk/yoda/lib/yodalib/__init__.py'])            
            ]         
                 
 setup(name='Yoda Tester',
-      version='0.1.1a',
+      version='0.1.2a',
       description='Test Automation Tool',
       long_description=readme,
       author='Petr Czaderna',
       author_email='pc@hydratk.org',
       url='http://extensions.hydratk.org/yoda',
       license='BSD',
-      packages=packages,
+      packages=find_packages('src'),
       package_dir={'' : 'src'},
       classifiers=classifiers,
       data_files=data_files      

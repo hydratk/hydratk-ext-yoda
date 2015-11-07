@@ -3,17 +3,20 @@
 ###########################################################################################
 
 Test-Scenario-1:
-    Path: test1
-    Name: Example test scenario
-    Desc: |
+    id: ts01
+    path: test1
+    name: Example test scenario
+    desc: |
       Contains sample test cases  
-    Author: Petr Czaderna <pc@hydratk.org>
-    Version: 1.0
+    author: Petr Czaderna <pc@hydratk.org>
+    version: 1.0
   
-    Pre-Req: |
+    pre-req: |
        print("Initializing Test Scenario prerequirements...")
+       from hydratk.lib.network.ftp import client
        
-    Events:
+       
+    events:
             before_start: |
               print("Before start test scenario")
               
@@ -21,9 +24,53 @@ Test-Scenario-1:
               print("After finish test scenario")
 
     Test-Case-1:
-      Name: Check 1
-      Desc: Testing positive and negative results
-      Events:
+      id: tc-01
+      name: Check 1
+      desc: Testing positive and negative results
+      events:
+            before_start: |
+              print("Before start test case code")              
+              
+            after_finish:  
+              print("After finish test case code")
+              
+      Test-Condition-1:
+        id: tcon-01
+        name: Condition A)
+        desc: Testing the condition which will fail
+        events:
+            before_start: |
+              print("Before start test condition code")
+              
+            after_finish:  
+              print("After finish test condition code")              
+              
+        test: |
+          x = 8
+          y = 5
+          this.test_result = x - y
+      
+        validate: |
+          '''This condition will fail'''         
+          assert (this.test_result != 0), "Condition not equal to 0"
+         
+      Test-Condition-2:
+        id: tcon-02
+        name: Condition B)
+        desc: Testing the condition which will pass
+        test: |          
+          a = 1
+          b = 3
+          this.test_result = a + b
+        validate: |
+          '''This condition will pass''' 
+          assert (this.test_result == 4),"Condition must be equal to 4"         
+
+    Test-Case-2:
+      id: tc-02
+      name: Check 1
+      desc: Testing positive and negative results
+      events:
             before_start: |
               print("Before start test case code")
               
@@ -31,34 +78,36 @@ Test-Scenario-1:
               print("After finish test case code")
               
       Test-Condition-1:
-        Name: Condition A)
-        Desc: Testing the condition which will fail
-        Events:
+        id: tcon-01
+        name: Condition A)
+        desc: Testing the condition which will fail
+        events:
             before_start: |
               print("Before start test condition code")
               
             after_finish:  
-              print("After finish test condition code")
+              print("After finish test condition code")              
               
-        Test: |
+        test: |
           x = 5
           y = 5
-          test_condition.test_result = x - y
+          this.test_result = x - y
       
-        Validate: |
+        validate: |
           '''This condition will fail'''         
-          assert (test_condition.test_result != 0), "Condition not equal to 0"
+          assert (this.test_result != 0), "Condition not equal to 0"
          
       Test-Condition-2:
-        Name: Condition B)
-        Desc: Testing the condition which will pass
-        Test: |          
+        id: tcon-02
+        name: Condition B)
+        desc: Testing the condition which will pass
+        test: |          
           a = 1
           b = 3
-          test_condition.test_result = a + b
-        Validate: |
+          this.test_result = a + b
+        validate: |
           '''This condition will pass''' 
-          assert (test_condition.test_result == 4),"Condition must be equal to 4"         
+          assert (this.test_result == 4),"Condition must be equal to 4"
       
-    Post-Req: |
+    post-req: |
         print("Cleaning up after tests...")
