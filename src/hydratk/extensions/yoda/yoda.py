@@ -28,6 +28,7 @@ import os
 import yaml
 import traceback
 import sys
+import re
 from hydratk.core import extension
 from hydratk.core import event
 from hydratk.lib.console.commandlinetool import CommandlineTool
@@ -49,11 +50,13 @@ class Extension(extension.Extension):
     _current_test_base_path = None 
     _use_helpers_dir        = []
     _use_lib_dir            = []    
-    _test_engine            = None   
+    _test_engine            = None
+    _test_file_ext          = ['yoda','jedi']
+    _test_template_ext      = ['padavan']   
     
     def _init_extension(self):
         self._ext_name    = 'Yoda'
-        self._ext_version = '0.1.1b'
+        self._ext_version = '0.1.3b'
         self._ext_author  = 'Petr Czaderna <pc@hydratk.org>'
         self._ext_year    = '2014 - 2015'
         
@@ -65,7 +68,7 @@ class Extension(extension.Extension):
     def _init_repos(self):
         self._test_repo_root = self._mh.cfg['Extensions']['Yoda']['test_repo_root']
         self._libs_repo = self._mh.cfg['Extensions']['Yoda']['test_repo_root'] + '/lib'
-        self._templates_repo = self._mh.cfg['Extensions']['Yoda']['test_repo_root'] + '/yoda-tests'
+        self._templates_repo = self._mh.cfg['Extensions']['Yoda']['test_repo_root'] + '/yoda-tests/'
         self._helpers_repo   = self._mh.cfg['Extensions']['Yoda']['test_repo_root'] + '/helpers'
         
     def _do_imports(self):
@@ -113,18 +116,49 @@ class Extension(extension.Extension):
         Returns:            
            test_files (list)
                   
-        """     
-        test_files = []        
-        root_dir = test_path
-        for dirname, _, filelist in os.walk(root_dir): # subdir_list not used            
-            for fname in filelist:
-                if fname.split('.')[1] == 'yoda':
-                    test_file = dirname + '/' + fname
-                    ev = event.Event('yoda_before_append_test_file', test_file)        
-                    if (self._mh.fire_event(ev) > 0):
-                        test_file = ev.argv(0)
-                    if ev.will_run_default():
-                        test_files.append(test_file)
+        """  
+               
+        test_files = []
+        
+        if re.search(':', test_path):
+            tokens     = test_path.split(':')
+            test_path  = tokens[0]
+            ts_filter  = None if tokens[1] == '' else tokens[1]
+            if ts_filter is not None:            
+                self._test_engine.ts_filter.append(ts_filter)
+            tca_filter = None
+            tco_filter = None
+            if len(tokens) > 2:
+                tca_filter = None if tokens[2] == '' else tokens[2]
+                if tca_filter is not None:
+                    self._test_engine.tca_filter.append(tca_filter)
+            if len(tokens) > 3:
+                tco_filter = None if tokens[3] == '' else tokens[3]
+                if tco_filter is not None:
+                    self._test_engine.tco_filter.append(tco_filter)
+            self._mh.dmsg('htk_on_debug_info', 'Filter parameters:\n\ttest_path: {0}\n\tts_filter: {1}\n\ttca_filter: {2}\n\ttco_filter: {3}'.format(test_path,ts_filter,tca_filter,tco_filter), self._mh.fromhere())                              
+            
+        if os.path.isfile(test_path):
+            self._test_engine.run_mode_src = 'singlefile'
+            file_ext                       = os.path.splitext(test_path)[1]
+            file_ext                       = file_ext[1:]
+            
+            if file_ext in self._test_file_ext:
+                test_files.append(test_path) 
+            else:
+                self._mh.dmsg('htk_on_debug_info', 'Unsupported file extension: {0} in {1}'.format(file_ext, test_path), self._mh.fromhere()) 
+        else:
+            self._test_engine.run_mode_src = 'folder'        
+            root_dir = test_path
+            for dirname, _, filelist in os.walk(root_dir): # subdir_list not used            
+                for fname in filelist:
+                    if fname.split('.')[1] in self._test_file_ext:
+                        test_file = dirname + '/' + fname
+                        ev = event.Event('yoda_before_append_test_file', test_file)        
+                        if (self._mh.fire_event(ev) > 0):
+                            test_file = ev.argv(0)
+                        if ev.will_run_default():
+                            test_files.append(test_file)
         return test_files 
     
     def init_test_simul(self):
@@ -142,26 +176,40 @@ class Extension(extension.Extension):
             test_path = CommandlineTool.get_input_option('--yoda-test-path')
             test_path = test_path if isinstance(test_path, str) else ''   
             self.init_libs();                     
-            self.init_helpers()            
-            if os.path.exists(self._test_repo_root):            
-                self._current_test_base_path = self._templates_repo + test_path
-                if os.path.exists(self._current_test_base_path):                
-                    self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_start_test_from', self._current_test_base_path), self._mh.fromhere())
-                    test_files = self.get_all_tests_from_path(self._current_test_base_path)                
-                    ev = event.Event('yoda_before_process_tests', test_files)        
-                    if (self._mh.fire_event(ev) > 0):
-                        test_files = ev.argv(0)
-                    if ev.will_run_default():
-                        self.process_tests(test_files)
-                    ev = event.Event('yoda_before_check_results', self._test_engine.test_run)        
-                    if (self._mh.fire_event(ev) > 0):                   
-                        self._test_engine.test_run = ev.argv(0)
-                    if ev.will_run_default():    
-                        self.check_results(self._test_engine.test_run)  
-                else:
-                    self._mh.dmsg('htk_on_error', self._mh._trn.msg('yoda_invalid_test_base_path', self._current_test_base_path), self._mh.fromhere())                
-            else:           
-                self._mh.dmsg('htk_on_error', self._mh._trn.msg(' yoda_invalid_test_repo_root', self._test_repo_root), self._mh.fromhere())            
+            self.init_helpers()
+            if test_path[0] == '/': # global test set
+                self._test_engine.run_mode_area = 'global'                
+                self._mh.dmsg('htk_on_debug_info', 'Running test set {0} out of the workspace'.format(test_path), self._mh.fromhere())
+            else:
+                self._test_engine.run_mode_area = 'inrepo' 
+                test_path                       = self._templates_repo + test_path                                                  
+                                          
+            test_files = self.get_all_tests_from_path(test_path)
+                            
+            ev = event.Event('yoda_before_process_tests', test_files)        
+            if (self._mh.fire_event(ev) > 0):
+                test_files = ev.argv(0)
+            if ev.will_run_default():
+                self.process_tests(test_files)
+            ev = event.Event('yoda_before_check_results', self._test_engine.test_run)        
+            if (self._mh.fire_event(ev) > 0):                   
+                self._test_engine.test_run = ev.argv(0)
+            if ev.will_run_default():    
+                self.check_results(self._test_engine.test_run)  
+             
+    
+    def init_global_tests(self,test_base_path):        
+        pass
+    
+    def init_inrepo_tests(self, test_base_path):
+        
+        if os.path.exists(self._test_repo_root):
+            if os.path.exists(self.test_base_path):
+                self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_start_test_from', test_base_path), self._mh.fromhere())
+            else:
+                self._mh.dmsg('htk_on_error', self._mh._trn.msg('yoda_invalid_test_base_path', self._current_test_base_path), self._mh.fromhere())                
+        else:           
+            self._mh.dmsg('htk_on_error', self._mh._trn.msg(' yoda_invalid_test_repo_root', self._test_repo_root), self._mh.fromhere())      
     
     def init_helpers(self):        
         """ Add default helpers repo directory"""

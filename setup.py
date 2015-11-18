@@ -34,8 +34,8 @@ data_files=[
             ('/var/local/hydratk/yoda/lib/yodalib',['var/local/hydratk/yoda/lib/yodalib/__init__.py'])            
            ]         
                 
-setup(name='Yoda Tester',
-      version='0.1.2a',
+setup(name='hydratk-ext-yoda',
+      version='0.1.3b',
       description='Test Automation Tool',
       long_description=readme,
       author='Petr Czaderna',

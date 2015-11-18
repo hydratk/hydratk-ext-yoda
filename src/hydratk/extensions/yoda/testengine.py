@@ -18,7 +18,7 @@ import re
 import traceback
 from pip.status_codes import PREVIOUS_BUILD_DIR_ERROR
 
-class This():
+class This(object):
     _obj = None
     
     def __init__(self, map_obj = None):                
@@ -40,7 +40,7 @@ class This():
                 return f                  
         else: raise AttributeError('Undefined attribute "{0}"'.format(name))       
 
-class Current():
+class Current(object):
     _tset  = None
     _ts    = None
     _tca   = None
@@ -103,7 +103,7 @@ class Current():
         self._tco = tco 
 
     
-class Parent():
+class Parent(object):
     _tset  = None
     _ts    = None
     _tca   = None    
@@ -167,17 +167,26 @@ class TestScenario(testobject.TestScenario):
     _tc = []
     _next = None
     
+    def repeat(self):
+        self._action = 'repeat' 
+    
 
 class TestCase(testobject.TestCase):
     '''Test Condition list'''
     _tco = []
     _next = None
     
+    def repeat(self):
+        self._action = 'repeat' 
+    
 
 class TestCondition(testobject.TestCondition):
     _next = None
+    
+    def repeat(self):
+        self._action = 'repeat'     
 
-class TestEngine():
+class TestEngine(object):
     _mh              = None
     _test_run        = False
     _tset_struct     = None
@@ -187,12 +196,59 @@ class TestEngine():
     _parent          = None
     _current         = None
     _test_simul_mode = False
-    _code_stack      = None      
+    _code_stack      = None 
+    _run_mode_area   = 'inrepo' # available modes: inrepo, global  
+    _run_mode_src    = 'folder' # available modes: folder, singlefile
+    _ts_filter       = []
+    _tca_filter      = []
+    _tco_filter      = []   
+    
+    @property
+    def ts_filter(self):
+        return self._ts_filter;
+    
+    @ts_filter.setter
+    def ts_filter(self, fltr):
+        self._ts_filter = fltr
+    
+    @property
+    def tca_filter(self):
+        return self._tca_filter;
+    
+    @tca_filter.setter
+    def tca_filter(self, fltr):
+        self._tca_filter = fltr
+        
+    @property
+    def tco_filter(self):
+        return self._tco_filter;
+    
+    @tco_filter.setter
+    def tco_filter(self, fltr):
+        self._tco_filter = fltr
+    
+    @property
+    def run_mode_area(self):        
+        return self._run_mode
+    
+    @run_mode_area.setter
+    def run_mode_area(self, mode):        
+        if mode in ('inrepo','global'):
+            self._run_mode_src = mode
+    
+    @property
+    def run_mode_src(self):
+        return self._run_mode_src
+    
+    @run_mode_src.setter
+    def run_mode_src(self, mode):        
+        if mode in ('folder','singlefile'):
+            self._run_mode_src = mode
     
     @property
     def test_simul_mode(self):        
         return self._test_simul_mode
-    
+            
     @test_simul_mode.setter
     def test_simul_mode(self, mode):        
         if mode in (True,False):
@@ -216,7 +272,12 @@ class TestEngine():
         self._current         = Current()
         self._mh              = MasterHead.get_head();
         self._test_simul_mode = False 
-        self._code_stack      = CodeStack()  
+        self._code_stack      = CodeStack()
+        self._run_mode_area   = 'inrepo'
+        self._run_mode_src    = 'folder'
+        self._ts_filter       = []
+        self._tca_filter      = []
+        self._tco_filter      = []     
         
     def load_tset_from_file(self, tset_file):        
         result = False
@@ -416,15 +477,25 @@ class TestEngine():
                     print(tca.test_log)            
             
             self._parent.tca  = tca              
-            for tco in tca.tco:                
-                tco.status     = 'started'
-                self._this     = tco                
-                while tco.status != 'finished':
-                    if tco.status in ('started','repeat'):                        
-                        self.run_tco(tco)
-                    elif tco.status == 'break':
-                        break;
-                    
+            for tco in tca.tco:
+                run_tco = True
+                if self.tco_filter is not None and type(self.tco_filter).__name__ == 'list' and len(self.tco_filter) > 0:
+                    if tco.id is not None and tco.id != '' and tco.id not in self.tco_filter:
+                        run_tco = False
+                
+                if run_tco:
+                    print("Running test condition {0}".format(tco.id))                                                
+                    tco.status     = 'started'
+                    self._this     = tco                
+                    while tco.status != 'finished':
+                        if tco.status in ('started','repeat'):                        
+                            self.run_tco(tco)
+                        elif tco.status == 'break':
+                            break;
+                    tco.resolution = 'completed'
+                else:
+                    tco.resolution = 'skipped'
+                    print("Filter: Skippind test condition {0}".format(tco.id))    
             if tca.action == None:
                 tca.status = "finished" 
                
@@ -498,14 +569,26 @@ class TestEngine():
                 
             self._parent.ts  = ts  
             for tca in ts.tca:
-                tca.status     = 'started'
-                self._this     = tca               
-                while tca.status != 'finished':
-                    if tca.status in ('started','repeat'):
-                        self.run_tca(tca)
-                    elif tca.status == 'break':
-                        break;
-                #tca finished event here
+                run_tca = True
+                if self.tca_filter is not None and type(self.tca_filter).__name__ == 'list' and len(self.tca_filter) > 0:
+                    if tca.id is not None and tca.id != '' and tca.id not in self.tca_filter:
+                        run_tca = False
+                
+                if run_tca:
+                    print("Running test case {0}".format(tca.id))  
+                    tca.status     = 'started'
+                    self._this     = tca               
+                    while tca.status != 'finished':
+                        if tca.status in ('started','repeat'):
+                            self.run_tca(tca)
+                        elif tca.status == 'break':
+                            break;
+                    #tca finished event here
+                    tca.resolution = 'completed'
+                else:
+                    tca.resolution = 'skipped'
+                    print("Filter: Skippind test case {0}".format(tca.id))
+                                    
             if ts.action == None:
                 ts.status = "finished"
           
@@ -515,15 +598,27 @@ class TestEngine():
             self._current.tset = self._tset_obj
             self._current.test_set = self._tset_obj                
             for ts in self._tset_obj.ts:
-                ts.status          = 'started'
-                self._this         = ts
-                           
-                while ts.status != 'finished':
-                    if ts.status in ('started','repeat'):
-                        self.run_ts(ts)
-                    elif ts.status == 'break':
-                        break;
-            
+                run_ts = True
+                if self.ts_filter is not None and type(self.ts_filter).__name__ == 'list' and len(self.ts_filter) > 0:                    
+                    if ts.id is not None and ts.id != '' and ts.id not in self.ts_filter:
+                        print(ts.id)
+                        pprint.pprint(self.ts_filter)
+                        run_ts = False
+                    
+                if run_ts:
+                    print("Running test scenario {0}".format(ts.id)) 
+                    ts.status          = 'started'
+                    self._this         = ts
+                               
+                    while ts.status != 'finished':
+                        if ts.status in ('started','repeat'):
+                            self.run_ts(ts)
+                        elif ts.status == 'break':
+                            break;
+                    ts.resolution = 'completed'
+                else:
+                    ts.resolution = 'skipped'
+                    print("Filter: Skippind test scenario {0}".format(ts.id))
             self._test_run.tset.append(self._tset_obj)
                 
         

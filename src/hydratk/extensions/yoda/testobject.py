@@ -8,7 +8,7 @@
 
 """
 
-class TestRun():
+class TestRun(object):
     _total_test_sets        = 0
     _total_tests            = 0
     _failed_tests           = 0
@@ -114,7 +114,7 @@ class TestRun():
                  )
 
          
-class TestSet():
+class TestSet(object):
     _current_test_base_path  = 'xxxx'
     _current_test_set_file   = 'ffff'
     _total_tests             = 0
@@ -259,11 +259,12 @@ class TestSet():
         '''Test Scenarios'''
         self.ts                      = [] 
         
-class TestScenario():
+class TestScenario(object):
     _num            = None
     _attr           = {}
     _tca            = []
-    _status         = None
+    _resolution     = None
+    _status         = None    
     _statuses       = ['started','finished','repeat','break']
     _action         = None
     _prereq_passed  = None
@@ -280,7 +281,8 @@ class TestScenario():
         self._num            = ts_num
         self._id             = None
         self._attr           = {}
-        self._tca            = [] 
+        self._tca            = []
+        self._resolution     = None 
         self._status         = None
         self._statuses       = ['started','finished','repeat','break']    
         self._action         = None              
@@ -313,6 +315,14 @@ class TestScenario():
     def tca(self):
         return self._tca;
     
+    @property
+    def resolution(self):
+        return self._resolution;
+    
+    @resolution.setter
+    def resolution(self,res):
+        self._resolution = res
+        
     @property
     def status(self):
         return self._status;
@@ -395,9 +405,10 @@ class TestScenario():
         self._end_time = end_time
 
                                     
-class TestCase():
+class TestCase(object):
     _num            = None
     _attr           = {}
+    _resolution     = None
     _status         = None
     _statuses       = ['started','finished','repeat','break']    
     _tco            = []
@@ -411,6 +422,7 @@ class TestCase():
         self._num        = tca_num
         self._id         = None
         self._attr       = {} 
+        self._resolution = None
         self._status     = None
         self._statuses   = ['started','finished','repeat','break']
         self._tco        = []    
@@ -440,6 +452,14 @@ class TestCase():
     def tco(self):
         return self._tco;
     
+    @property
+    def resolution(self):
+        return self._resolution;
+    
+    @resolution.setter
+    def resolution(self,res):
+        self._resolution = res
+        
     @property
     def status(self):
         return self._status;
@@ -489,10 +509,11 @@ class TestCase():
     def passed_tco(self, passed_tco):
         self._passed_tco = passed_tco           
     
-class TestCondition():
+class TestCondition(object):
     _num             = None
     _id              = None
     _attr            = {} 
+    _resolution      = None
     _status          = None
     _statuses        = ['started','finished','repeat','break']    
     _action          = None
@@ -509,6 +530,7 @@ class TestCondition():
         self._num             = tco_num
         self._id              = None
         self._attr            = {} 
+        self._resolution      = None
         self._status          = None
         self._statuses        = ['started','finished','repeat','break']    
         self._action          = None
@@ -532,6 +554,15 @@ class TestCondition():
         if name in self._attr:
             result = self._attr[name]
         return result
+    
+    @property
+    def resolution(self):
+        return self._resolution;
+    
+    @resolution.setter
+    def resolution(self,res):
+        self._resolution = res
+    
         
     @property
     def status(self):
