@@ -359,7 +359,7 @@ class TestEngine(object):
                     tco.test = ev.argv(0)
                 if ev.will_run_default():
                     if self.test_simul_mode == False:
-                        self._parent.ts.total_tests += 1                                                                                                                        
+                        self._parent.ts.total_tests += 1                                                                                                                                                
                         self._code_stack.execute(tco.test, locals())                          
                     else:
                         print("Simulation: Running Test case: %s, Test condition: %s" % (self._parent.tca.name, tco.name))
@@ -368,6 +368,7 @@ class TestEngine(object):
                 exc_info = sys.exc_info()
                 tco.test_log += "Exception: %s\n" % exc_info[0]
                 tco.test_log += "Value: %s\n" % str(exc_info[1])
+                tco.test_log += tco.test
                 formatted_lines = traceback.format_exc().splitlines()
                 trace = ''
                 for line in formatted_lines:

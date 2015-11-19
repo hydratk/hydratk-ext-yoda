@@ -177,7 +177,7 @@ class Extension(extension.Extension):
             test_path = test_path if isinstance(test_path, str) else ''   
             self.init_libs();                     
             self.init_helpers()
-            if test_path[0] == '/': # global test set
+            if test_path != '' and test_path[0] == '/': # global test set
                 self._test_engine.run_mode_area = 'global'                
                 self._mh.dmsg('htk_on_debug_info', 'Running test set {0} out of the workspace'.format(test_path), self._mh.fromhere())
             else:

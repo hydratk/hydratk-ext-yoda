@@ -53,7 +53,7 @@ Test-Scenario-1:
           this.test_result = x - y
           if test_var < 5:
               print("Repeat test condition {0}".format(test_var)) 
-              this.repeat_until()
+              this.repeat()
               test_var += 1
       
         validate: |
