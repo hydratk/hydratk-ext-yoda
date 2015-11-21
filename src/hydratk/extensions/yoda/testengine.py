@@ -393,8 +393,7 @@ class TestEngine(object):
                             self._code_stack.execute(tco.validate, locals())     
                         else:
                             print("Simulation: Validating result, Test case: %s, Test condition: %s" % (self._parent.tca.name, tco.name))
-                            compile(tco.validate,'<string>','exec')
-                                
+                            compile(tco.validate,'<string>','exec')                                
                     self._parent.ts.passed_tests += 1
                     self._parent.tca.passed_tco += 1                            
                     tco.test_resolution = 'Passed'
@@ -404,12 +403,12 @@ class TestEngine(object):
                     self._parent.ts.failed_tests += 1
                     self._parent.tca.failed_tco += 1
                     self._tset_obj.failures = True
-                    self._test_run.failed_tests += 1
+                    self._test_run.failed_tests += 1                    
                     self._parent.ts.failures = True
                     self._parent.tca.failures = True
                     tco.test_log += bytes(ae)
                     tco.test_resolution = 'Failed'
-                    tco.expected_result = ae     
+                    tco.expected_result = ae                         
                         
                 except Exception as exc:
                     exc_info = sys.exc_info()

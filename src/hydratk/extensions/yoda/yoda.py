@@ -70,6 +70,13 @@ class Extension(extension.Extension):
         self._libs_repo = self._mh.cfg['Extensions']['Yoda']['test_repo_root'] + '/lib'
         self._templates_repo = self._mh.cfg['Extensions']['Yoda']['test_repo_root'] + '/yoda-tests/'
         self._helpers_repo   = self._mh.cfg['Extensions']['Yoda']['test_repo_root'] + '/helpers'
+        dmsg = '''
+        Init repos: test_repo_root: {0}
+                    libs_repo: {1}
+                    templates_repo: {2}
+                    helpers_repo: {3}
+        '''.format(self._test_repo_root, self._libs_repo, self._templates_repo, self._helpers_repo)
+        self._mh.dmsg('htk_on_debug_info', dmsg, self._mh.fromhere())
         
     def _do_imports(self):
         pass                 
@@ -119,6 +126,8 @@ class Extension(extension.Extension):
         """  
                
         test_files = []
+        if os.path.exists(test_path) == False:
+            self._mh.dmsg('htk_on_warning', "Test path {0} doesn't exists".format(test_path), self._mh.fromhere())
         
         if re.search(':', test_path):
             tokens     = test_path.split(':')
@@ -174,15 +183,19 @@ class Extension(extension.Extension):
         self._mh.fire_event(ev)                    
         if ev.will_run_default():     
             test_path = CommandlineTool.get_input_option('--yoda-test-path')
-            test_path = test_path if isinstance(test_path, str) else ''   
+            
+            if test_path == False:
+                test_path = ''           
+                                
             self.init_libs();                     
             self.init_helpers()
             if test_path != '' and test_path[0] == '/': # global test set
                 self._test_engine.run_mode_area = 'global'                
                 self._mh.dmsg('htk_on_debug_info', 'Running test set {0} out of the workspace'.format(test_path), self._mh.fromhere())
-            else:
-                self._test_engine.run_mode_area = 'inrepo' 
-                test_path                       = self._templates_repo + test_path                                                  
+            else:                
+                self._test_engine.run_mode_area = 'inrepo'                    
+                test_path                       = self._templates_repo + test_path                
+                self._mh.dmsg('htk_on_debug_info', 'Running test sets in repository: {0}'.format(test_path), self._mh.fromhere())                                                  
                                           
             test_files = self.get_all_tests_from_path(test_path)
                             

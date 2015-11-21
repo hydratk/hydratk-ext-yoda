@@ -386,7 +386,7 @@ class TestScenario(object):
     
     @failed_tests.setter
     def failed_tests(self, passed):
-        self._passed_tests = passed
+        self._failed_tests = passed
                 
     @property
     def start_time(self):
