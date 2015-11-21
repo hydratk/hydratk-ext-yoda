@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 """This code is a part of Yoda extension
 
-.. module:: hydratk.extensions.yoda.testengine
+.. module:: yoda.testengine
    :platform: Unix
    :synopsis: Providing automated testing functionality
 .. moduleauthor:: Petr Czaderna <pc@hydratk.org>
 
 """
+
 import os
 import sys
 from hydratk.core.masterhead import MasterHead
