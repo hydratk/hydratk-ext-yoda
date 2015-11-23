@@ -303,10 +303,12 @@ class TestScenario(object):
     def setattr(self,key,val):
         if key != '':
             key = key.replace('-','_')
+            key = key.lower()
             self._attr[key]  = val
     
     def __getattr__(self,name):        
         result = None
+        name = name.lower();
         if name in self._attr:
             result = self._attr[name]
         return result
@@ -440,10 +442,12 @@ class TestCase(object):
     def setattr(self,key,val):
         if key != '':
             key = key.replace('-','_')
+            key = key.lower()
             self._attr[key] = val
             
     def __getattr__(self,name):        
         result = None
+        name = name.lower()
         if name in self._attr:
             result = self._attr[name]
         return result
@@ -545,12 +549,14 @@ class TestCondition(object):
     
     def setattr(self,key,val):
         if key != '':
+            key = key.lower();
             key = key.replace('-','_')
             self._attr[key] = val
     
             
     def __getattr__(self,name):        
         result = None
+        name = name.lower()
         if name in self._attr:
             result = self._attr[name]
         return result

@@ -301,19 +301,22 @@ class TestEngine(object):
     def _parse_ts_node(self,ts_node, ts):
         for ts_key, ts_val in ts_node.items():
             if not (re.match('Test-Case', ts_key)):
+                self._mh.dmsg('htk_on_debug_info',"Parsing Test-Scenario attributes {0}={1}".format(ts_key,ts_val), self._mh.fromhere())
                 #print("Test-Scenario {0}={1}").format(ts_key,ts_val)
-                ts.setattr(ts_key,ts_val)
+                ts.setattr(ts_key.lower(),ts_val)
             
     def _parse_tca_node(self, tca_node, tca):        
         for tca_key, tca_val in tca_node.items():
-            if not (re.match('Test-Condition', tca_key)):                
-                tca.setattr(tca_key,tca_val)
+            if not (re.match('Test-Condition', tca_key)):
+                self._mh.dmsg('htk_on_debug_info',"Parsing Test-Case attributes {0}={1}".format(tca_key,tca_val), self._mh.fromhere())                
+                tca.setattr(tca_key.lower(),tca_val)
     
     def _parse_tco_node(self, tco_node, tco):
         for tco_key, tco_val in tco_node.items():
             if tco_key == 'validate':
                 tco.expected_result = tco_val
-            tco.setattr(tco_key, tco_val)            
+            self._mh.dmsg('htk_on_debug_info',"Parsing Test-Condition attributes {0}={1}".format(tco_key,tco_val), self._mh.fromhere())    
+            tco.setattr(tco_key.lower(), tco_val)            
                 
     def run_tco(self, tco):        
         if isinstance(tco, TestCondition):
@@ -362,13 +365,13 @@ class TestEngine(object):
                     if self.test_simul_mode == False:
                         self._parent.ts.total_tests += 1                                                                                                                                                
                         self._code_stack.execute(tco.test, locals())                          
-                    else:
+                    else:                        
                         print("Simulation: Running Test case: %s, Test condition: %s" % (self._parent.tca.name, tco.name))
                         compile(tco.test,'<string>','exec')
             except Exception as exc:
                 exc_info = sys.exc_info()
                 tco.test_log += "Exception: %s\n" % exc_info[0]
-                tco.test_log += "Value: %s\n" % str(exc_info[1])
+                tco.test_log += "Value: {0}\n".format(str(exc_info[1]))
                 tco.test_log += tco.test
                 formatted_lines = traceback.format_exc().splitlines()
                 trace = ''
