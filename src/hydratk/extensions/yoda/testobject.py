@@ -15,7 +15,7 @@ class TestRun(object):
     _passed_tests           = 0
     _failures               = False
     _start_time             = None
-    _end_time               = None
+    _end_time               = None    
     '''Test Sets'''
     _tset                    = [] 
     
@@ -28,7 +28,7 @@ class TestRun(object):
         self._start_time             = None
         self._end_time               = None
         self._tset                   = []
-    
+       
     @property
     def total_test_sets(self):
         return self._total_test_sets
@@ -293,12 +293,7 @@ class TestScenario(object):
         self._failed_tests   = 0
         self._passed_tests   = 0        
         self._start_time     = None
-        self._end_time       = None
-    
-        
-    def append_tca(self, tca):
-        if isinstance(tca, TestCase):
-            self._tca.append(tca)
+        self._end_time       = None    
                 
     def setattr(self,key,val):
         if key != '':
@@ -434,10 +429,6 @@ class TestCase(object):
         self._failed_tco = 0 
         self._passed_tco = 0         
        
-    
-    def append_tco(self, tco):
-        if isinstance(tco, TestCondition):
-            self._tco.append(tco)
             
     def setattr(self,key,val):
         if key != '':

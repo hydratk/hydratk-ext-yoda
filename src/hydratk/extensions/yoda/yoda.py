@@ -52,11 +52,11 @@ class Extension(extension.Extension):
     _use_lib_dir            = []    
     _test_engine            = None
     _test_file_ext          = ['yoda','jedi']
-    _test_template_ext      = ['padavan']   
+    _test_template_ext      = ['padavan']    
     
     def _init_extension(self):
         self._ext_name    = 'Yoda'
-        self._ext_version = '0.1.3b'
+        self._ext_version = '0.2.0a'
         self._ext_author  = 'Petr Czaderna <pc@hydratk.org>'
         self._ext_year    = '2014 - 2015'
         
@@ -111,7 +111,8 @@ class Extension(extension.Extension):
         if isinstance(test_repo, str) and test_repo != '':
             self._test_repo_root = test_repo    
             self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_test_repo_root_override',test_repo), self._mh.fromhere())
-          
+            
+        
     def get_all_tests_from_path(self, test_path):
         """Method returs all found test in path
            
@@ -161,7 +162,8 @@ class Extension(extension.Extension):
             root_dir = test_path
             for dirname, _, filelist in os.walk(root_dir): # subdir_list not used            
                 for fname in filelist:
-                    if fname.split('.')[1] in self._test_file_ext:
+                    file_extension = extension = os.path.splitext(fname)[1][1:]
+                    if file_extension in self._test_file_ext:
                         test_file = dirname + '/' + fname
                         ev = event.Event('yoda_before_append_test_file', test_file)        
                         if (self._mh.fire_event(ev) > 0):
@@ -178,12 +180,17 @@ class Extension(extension.Extension):
     def init_tests(self):
         """Method is initializing tests           
                   
-        """        
+        """
+        
+        self._test_engine.test_repo_root = self._test_repo_root
+        self._test_engine.libs_repo      =  self._libs_repo
+        self._test_engine.templates_repo = self._templates_repo
+        self._test_engine.helpers_repo   = self._helpers_repo
+                  
         ev = event.Event('yoda_before_init_tests')        
         self._mh.fire_event(ev)                    
         if ev.will_run_default():     
-            test_path = CommandlineTool.get_input_option('--yoda-test-path')
-            
+            test_path = CommandlineTool.get_input_option('--yoda-test-path')            
             if test_path == False:
                 test_path = ''           
                                 

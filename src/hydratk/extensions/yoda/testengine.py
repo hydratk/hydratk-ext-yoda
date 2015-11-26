@@ -17,7 +17,8 @@ from hydratk.extensions.yoda import testobject
 import pprint
 import re
 import traceback
-from pip.status_codes import PREVIOUS_BUILD_DIR_ERROR
+from xtermcolor import colorize
+from hydratk.lib.system import fs
 
 class This(object):
     _obj = None
@@ -170,7 +171,11 @@ class TestScenario(testobject.TestScenario):
     
     def repeat(self):
         self._action = 'repeat' 
-    
+        
+    def append_tca(self, tca):
+        if isinstance(tca, TestCase):                                   
+            self._tca.append(tca)            
+        
 
 class TestCase(testobject.TestCase):
     '''Test Condition list'''
@@ -180,14 +185,46 @@ class TestCase(testobject.TestCase):
     def repeat(self):
         self._action = 'repeat' 
     
-
+    def append_tco(self, tco):
+        if isinstance(tco, TestCondition):
+            self._tco.append(tco)
+            
 class TestCondition(testobject.TestCondition):
     _next = None
     
     def repeat(self):
         self._action = 'repeat'     
 
-class TestEngine(object):
+
+class MacroParser(object):
+    _hooks = {}
+    
+    def mp_add_hooks(self,*args, **kwargs):        
+        for hdata in args:
+            for mdef,cb in hdata.items():
+                if type(mdef).__name__ == 'str' and mdef != '' and callable(cb):
+                    self._hooks[mdef] = cb  
+                    
+        for mdef, cb in kwargs.items():
+            if type(mdef).__name__ == 'str' and mdef != '' and callable(cb):
+                self._hooks[mdef] = cb    
+    
+    def mp_add_hook(self, name, cb):
+        if type(name).__name__ == 'str' and callable(cb):
+            self._hooks[name] = cb
+    
+    def mp_parse(self, content):
+        return re.sub(r'#<<(.*)::(.*)>>#',self._mp_processor,content)
+    
+    def _mp_processor(self,match):
+        mdef = match.group(1).strip()
+        mval = match.group(2).strip()
+        if mdef in self._hooks:
+            return self._hooks[mdef](mval)
+        else: return '<<{mdef} is undefined>>'.format(mdef=mdef) 
+        
+        
+class TestEngine(MacroParser):
     _mh              = None
     _test_run        = False
     _tset_struct     = None
@@ -202,8 +239,48 @@ class TestEngine(object):
     _run_mode_src    = 'folder' # available modes: folder, singlefile
     _ts_filter       = []
     _tca_filter      = []
-    _tco_filter      = []   
+    _tco_filter      = [] 
+    _config          = {
+                         'cache.tset.active' : False,
+                         'cache.tset.location' : 'inrepo' #possible: inrepo, customdir, memcache                        
+                        }
+    _test_repo_root  = None
+    _libs_repo       = None
+    _templates_repo  = None
+    _helpers_repo    = None
+              
+    @property
+    def test_repo_root(self):
+        return self._test_repo_root
     
+    @test_repo_root.setter
+    def test_repo_root(self, path):
+        self._test_repo_root = path
+    
+    @property
+    def libs_repo(self):
+        return self._libs_repo
+    
+    @libs_repo.setter
+    def libs_repo(self, path):
+        self._libs_repo = path
+    
+    @property
+    def templates_repo(self):
+        return self._templates_repo
+    
+    @templates_repo.setter
+    def templates_repo(self, path):
+        self._templates_repo = path
+
+    @property
+    def helpers_repo(self):
+        return self._helpers_repo
+    
+    @helpers_repo.setter
+    def helpers_repo(self, path):
+        self._helpers_repo = path
+
     @property
     def ts_filter(self):
         return self._ts_filter;
@@ -278,24 +355,40 @@ class TestEngine(object):
         self._run_mode_src    = 'folder'
         self._ts_filter       = []
         self._tca_filter      = []
-        self._tco_filter      = []     
+        self._tco_filter      = [] 
+                
+        self.mp_add_hooks({
+                          'include' : self._h_include
+                        })
+              
+    def _h_include(self, content_file):
+        if content_file != '' and content_file[0] != '/': # repo
+            content_file = self._templates_repo + content_file
+       
+        if os.path.exists(content_file) and os.path.isfile(content_file):
+            result = fs.file_get_contents(content_file)
+        else:
+            result = '<<include !! {0} file not found>>'.format(content_file) 
         
+        return result
+            
     def load_tset_from_file(self, tset_file):        
         result = False
         if tset_file != '' and os.path.exists(tset_file):
-            with open(tset_file, 'r') as f:                    
-                self._tset_struct = yaml.load(f)
-                result = True; 
-                self._tset_file = tset_file
+            tset_str = fs.file_get_contents(tset_file)
+            result = self.load_tset_from_str(tset_str, origin_file = True)
+            self._tset_file = tset_file          
         return result 
     
-    def load_tset_from_str(self, tset_str):
+    def load_tset_from_str(self, tset_str, origin_file = False):
         result = False
         if tset_str != '':
-            with open(tset_str, 'r') as f:                    
-                self._tset_struct = yaml.load(f)
-                result = True; 
-                self._tset_file = "<str>"
+            self._tset_file = '<str>'
+            tset_str = self.mp_parse(tset_str) #apply macros
+            fs.file_put_contents('/tmp/tset.dump', tset_str)
+            self._tset_struct = yaml.load(tset_str)
+            result = True; 
+                
         return result
     
     def _parse_ts_node(self,ts_node, ts):
@@ -401,7 +494,10 @@ class TestEngine(object):
                     self._parent.ts.passed_tests += 1
                     self._parent.tca.passed_tco += 1                            
                     tco.test_resolution = 'Passed'
-                    self._test_run.passed_tests += 1                                                    
+                    self._test_run.passed_tests += 1                    
+                    tco_note = "*** {ts}/{tca}/{tco}: ".format(ts=self._parent.ts.name,tca=self._parent.tca.name,tco=tco.name)
+                    tco_note = colorize(tco_note, rgb=0x00bfff) + colorize('PASSED',rgb=0x00ff00)
+                    print(tco_note)                                                    
                         
                 except (AssertionError) as ae:                                               
                     self._parent.ts.failed_tests += 1
@@ -429,7 +525,12 @@ class TestEngine(object):
                     self._parent.ts.failed_tests +=1
                     self._parent.tca.failed_tco += 1
                     self._tset_obj.failures = True          
-                                
+             
+            if tco.test_resolution == 'Failed':
+                tco_note = "*** {ts}/{tca}/{tco}: ".format(ts=self._parent.ts.name,tca=self._parent.tca.name,tco=tco.name)
+                tco_note = colorize(tco_note, rgb=0x00bfff) + colorize('FAILED',rgb=0xff0000)
+                print(tco_note)              
+                                        
             if tco.action == None:
                 tco.status = "finished"
                 
@@ -488,7 +589,7 @@ class TestEngine(object):
                         run_tco = False
                 
                 if run_tco:
-                    print("Running test condition {0}".format(tco.id))                                                
+                    #print("Running test condition {0}".format(tco.id))                                                
                     tco.status     = 'started'
                     self._this     = tco                
                     while tco.status != 'finished':
@@ -571,7 +672,7 @@ class TestEngine(object):
                     self._tset_obj.failures = True
                     ts.failures = True                
                 
-            self._parent.ts  = ts  
+            self._parent.ts  = ts             
             for tca in ts.tca:
                 run_tca = True
                 if self.tca_filter is not None and type(self.tca_filter).__name__ == 'list' and len(self.tca_filter) > 0:
@@ -579,7 +680,7 @@ class TestEngine(object):
                         run_tca = False
                 
                 if run_tca:
-                    print("Running test case {0}".format(tca.id))  
+                    #print("Running test case {0}".format(tca.id))  
                     tca.status     = 'started'
                     self._this     = tca               
                     while tca.status != 'finished':
@@ -632,22 +733,22 @@ class TestEngine(object):
             if self._tset_file != '<str>':
                 self._tset_obj.current_test_base_path = os.path.dirname(self._tset_file)
             self._tset_obj.current_test_set_file = self._tset_file
-            
+                        
             ts_num = 1
             ts_k = 'Test-Scenario-%d' % ts_num
-            while ts_k in self._tset_struct:
+            while ts_k in self._tset_struct:                
                 ts = TestScenario(ts_num)                               
                 self._parse_ts_node(self._tset_struct[ts_k], ts)
                 
                 tca_num = 1
-                tca_k = 'Test-Case-%d' % ts_num
-                while tca_k in self._tset_struct[ts_k]:
+                tca_k = 'Test-Case-%d' % tca_num                
+                while tca_k in self._tset_struct[ts_k]:                    
                     tca = TestCase(tca_num)                    
                     self._parse_tca_node(self._tset_struct[ts_k][tca_k], tca)
                     
                     tco_num = 1
-                    tco_k = 'Test-Condition-%d' % ts_num                    
-                    while tco_k in self._tset_struct[ts_k][tca_k]:                        
+                    tco_k = 'Test-Condition-%d' % tco_num                    
+                    while tco_k in self._tset_struct[ts_k][tca_k]:                                                                   
                         tco = TestCondition(tco_num)                        
                         self._parse_tco_node(self._tset_struct[ts_k][tca_k][tco_k], tco)
                         
@@ -656,8 +757,8 @@ class TestEngine(object):
                         tca.append_tco(tco)
                     
                     tca_num += 1
-                    tca_k = 'Test-Case-%d' % tca_num
-                    ts.append_tca(tca)                    
+                    tca_k = 'Test-Case-%d' % tca_num                    
+                    ts.append_tca(tca)                              
                     
                 ts_num += 1
                 ts_k = 'Test-Scenario-%d' % ts_num
@@ -675,16 +776,14 @@ class CodeStack():
     def __init__(self):
         self._locals = {}
             
-    def execute(self, code, loc):
-        #this   = this
-        #parent = parent
-        #prev   = prev
-        #next   = next
+    def execute(self, code, loc):        
         self._locals.update(loc)        
         exec(code, globals(), self._locals)
-        
-    
-   
+           
     def compile(self, code):
         pass
-                    
+
+
+        
+    
+    

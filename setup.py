@@ -35,7 +35,7 @@ data_files=[
            ]         
                 
 setup(name='hydratk-ext-yoda',
-      version='0.1.3b',
+      version='0.2.0a',
       description='Test Automation Tool',
       long_description=readme,
       author='Petr Czaderna',

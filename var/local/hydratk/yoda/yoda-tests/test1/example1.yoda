@@ -117,3 +117,120 @@ Test-Scenario-1:
       
     post-req: |
         print("Cleaning up after tests...")
+
+Test-Scenario-2:
+    id: ts01
+    path: test1
+    name: Example test scenario
+    desc: |
+      Contains sample test cases  
+    author: Petr Czaderna <pc@hydratk.org>
+    version: 1.0
+  
+    pre-req: |
+       print("Initializing Test Scenario prerequirements...")
+       from hydratk.lib.network.ftp import client
+       print("BEFORE test {0}".format(test_var))
+       test_var = 3
+       
+       
+    events:
+            before_start: |
+              print("Before start test scenario")
+              
+            after_finish:  
+              print("After finish test scenario")
+
+    Test-Case-1:
+      id: tc-01
+      name: Check 1
+      desc: Testing positive and negative results
+      events:
+            before_start: |
+              print("Before start test case code")              
+              
+            after_finish:  
+              print("After finish test case code")
+              
+      Test-Condition-1:
+        id: tcon-01
+        name: Condition A)
+        desc: Testing the condition which will fail
+        events:
+            before_start: |
+              print("Before start test condition code")
+              
+            after_finish:  
+              print("After finish test condition code")              
+              
+        test: |
+          x = 8
+          y = 5
+          this.test_result = x - y
+          if test_var < 5:
+              print("Repeat test condition {0}".format(test_var)) 
+              this.repeat()
+              test_var += 1
+      
+        validate: |
+          '''This condition will fail'''         
+          assert (this.test_result != 0), "Condition not equal to 0"
+         
+      Test-Condition-2:
+        id: tcon-02
+        name: Condition B)
+        desc: Testing the condition which will pass
+        test: |          
+          a = 1
+          b = 3
+          this.test_result = a + b
+        validate: |
+          '''This condition will pass''' 
+          assert (this.test_result == 4),"Condition must be equal to 4"         
+
+    Test-Case-2:
+      id: tc-02
+      name: Check 1
+      desc: Testing positive and negative results
+      events:
+            before_start: |
+              print("Before start test case code")
+              
+            after_finish:  
+              print("After finish test case code")
+              
+      Test-Condition-1:
+        id: tcon-01
+        name: Condition A)
+        desc: Testing the condition which will fail
+        events:
+            before_start: |
+              print("Before start test condition code")
+              
+            after_finish:  
+              print("After finish test condition code")              
+              
+        test: |
+          x = 5
+          y = 5
+          this.test_result = x - y
+      
+        validate: |
+          '''This condition will fail'''         
+          assert (this.test_result != 0), "Condition not equal to 0"
+         
+      Test-Condition-2:
+        id: tcon-02
+        name: Condition B)
+        desc: Testing the condition which will pass
+        test: |          
+          a = 1
+          b = 3
+          this.test_result = a + b
+        validate: |
+          '''This condition will pass''' 
+          assert (this.test_result == 4),"Condition must be equal to 4"
+      
+    post-req: |
+        print("Cleaning up after tests...")
+        print("AFTER test {0}".format(test_var))
