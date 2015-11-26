@@ -383,9 +383,9 @@ class TestEngine(MacroParser):
     def load_tset_from_str(self, tset_str, origin_file = False):
         result = False
         if tset_str != '':
-            self._tset_file = '<str>'
-            tset_str = self.mp_parse(tset_str) #apply macros
-            fs.file_put_contents('/tmp/tset.dump', tset_str)
+            if origin_file == False:
+                self._tset_file = '<str>'
+            tset_str = self.mp_parse(tset_str) #apply macros            
             self._tset_struct = yaml.load(tset_str)
             result = True; 
                 
