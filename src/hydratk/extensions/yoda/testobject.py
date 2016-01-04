@@ -18,6 +18,7 @@ class TestRun(object):
     _end_time               = None    
     '''Test Sets'''
     _tset                    = [] 
+    _inline_tests            = []
     
     def __init__(self):
         self._total_test_sets        = 0
@@ -28,6 +29,11 @@ class TestRun(object):
         self._start_time             = None
         self._end_time               = None
         self._tset                   = []
+        self._inline_tests           = []
+    
+    @property
+    def inline_tests(self):
+        return self._inline_tests
        
     @property
     def total_test_sets(self):

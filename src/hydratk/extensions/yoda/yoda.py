@@ -39,6 +39,9 @@ from hydratk.extensions.yoda.testobject import TestScenario
 from hydratk.extensions.yoda.testobject import TestCase
 from hydratk.extensions.yoda.testobject import TestCondition
 from hydratk.extensions.yoda.testengine import TestEngine
+from hydratk.extensions.yoda.testresults import TestResultsDB
+from hydratk.lib.database.dbo import dbo
+from hydratk.lib.debugging.simpledebug import dmsg
 
 
 class Extension(extension.Extension):
@@ -52,13 +55,14 @@ class Extension(extension.Extension):
     _use_lib_dir            = []    
     _test_engine            = None
     _test_file_ext          = ['yoda','jedi']
-    _test_template_ext      = ['padavan']    
+    _test_template_ext      = ['padavan']
+    _test_results_db        = None    
     
     def _init_extension(self):
         self._ext_name    = 'Yoda'
-        self._ext_version = '0.2.0a'
+        self._ext_version = '0.3.0a'
         self._ext_author  = 'Petr Czaderna <pc@hydratk.org>'
-        self._ext_year    = '2014 - 2015'
+        self._ext_year    = '2014 - 2016'
         
         self._init_repos()          
         
@@ -77,7 +81,19 @@ class Extension(extension.Extension):
                     helpers_repo: {3}
         '''.format(self._test_repo_root, self._libs_repo, self._templates_repo, self._helpers_repo)
         self._mh.dmsg('htk_on_debug_info', dmsg, self._mh.fromhere())
-        
+    
+    def _update_repos(self):
+        self._libs_repo      = self._test_repo_root + '/lib'
+        self._templates_repo = self._test_repo_root + '/yoda-tests/'
+        self._helpers_repo   = self._test_repo_root + '/helpers'
+        dmsg = '''
+        Update repos: test_repo_root: {0}
+                    libs_repo: {1}
+                    templates_repo: {2}
+                    helpers_repo: {3}
+        '''.format(self._test_repo_root, self._libs_repo, self._templates_repo, self._helpers_repo)
+        self._mh.dmsg('htk_on_debug_info', dmsg, self._mh.fromhere())
+            
     def _do_imports(self):
         pass                 
         
@@ -87,17 +103,28 @@ class Extension(extension.Extension):
 
         self._mh.match_command('yoda-run')        
         self._mh.match_command('yoda-simul')
+        self._mh.match_command('yoda-create-test-results-db')
         hook = [
                 {'command' : 'yoda-run', 'callback' : self.init_tests },
-                {'command' : 'yoda-simul', 'callback' : self.init_test_simul }
+                {'command' : 'yoda-simul', 'callback' : self.init_test_simul },
+                {'command' : 'yoda-create-test-results-db', 'callback' : self.create_test_results_db }
                ]        
         self._mh.register_command_hook(hook)
         
-        self._mh.match_long_option('yoda-test-path',True)
-        self._mh.match_long_option('yoda-test-repo-root-dir',True) 
+        self._mh.match_long_option('yoda-test-path', True)
+        self._mh.match_long_option('yoda-test-repo-root-dir', True)
+        self._mh.match_long_option('yoda-db-results-enabled', True)        
+        self._mh.match_long_option('yoda-db-results-dsn', True)
+             
         
         self._test_engine = TestEngine()                    
     
+    def create_test_results_db(self):
+        dsn = self._mh.ext_cfg['Yoda']['db_results_dsn']
+        dmsg("Create db results dsn: {0}".format(dsn))
+        trdb = TestResultsDB(dsn)
+        trdb.create_database()
+        
     def init_check(self, ev):
         """Event listener waiting for htk_on_cmd_options event
            
@@ -106,12 +133,20 @@ class Extension(extension.Extension):
         Args:
            ev (object): hydratk.core.event.Event
         
-        """     
-        test_repo = CommandlineTool.get_input_option('yoda-test-repo-root-dir')
-        if isinstance(test_repo, str) and test_repo != '':
+        """             
+        test_repo = CommandlineTool.get_input_option('--yoda-test-repo-root-dir')             
+        if test_repo != False and os.path.exists(test_repo) and os.path.isdir(test_repo):
             self._test_repo_root = test_repo    
             self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_test_repo_root_override',test_repo), self._mh.fromhere())
-            
+            self._update_repos()
+        
+        db_results_enabled_state = CommandlineTool.get_input_option('--yoda-db-results-enabled')
+        if db_results_enabled_state != False and int(db_results_enabled_state) in (0,1):
+            self._mh.ext_cfg['Yoda']['db_results_enabled'] = int(db_results_enabled_state)
+        
+        db_results_dsn = CommandlineTool.get_input_option('--yoda-db-results-dsn')
+        if db_results_dsn != False and db_results_dsn not in (None,''):
+            self._mh.ext_cfg['Yoda']['yoda-db-results-dsn'] = db_results_dsn            
         
     def get_all_tests_from_path(self, test_path):
         """Method returs all found test in path
@@ -275,12 +310,17 @@ class Extension(extension.Extension):
                     tf = ev.argv(0)
                 if ev.will_run_default():
                     #self.parse_test_file(tf)                    
-                    self._test_engine.load_tset_from_file(tf)                    
-                    self._test_engine.parse_tset_struct();
-                    self._test_engine.run_tset();
+                    self.process_test_set(tf)
         else:
             self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_no_tests_found_in_path', self._current_test_base_path), self._mh.fromhere())
-            
+    
+    def process_test_set(self,test_set_file):
+        tset_struct = self._test_engine.load_tset_from_file(test_set_file)
+        if tset_struct != False:                    
+            tset_obj = self._test_engine.parse_tset_struct(tset_struct);
+            if tset_obj != False:
+                self._test_engine.run_tset(tset_obj, self._test_engine.test_run);
+                
     def parse_test_file(self, test_file):        
         try:
             with open(test_file, 'r') as f:                    

@@ -244,10 +244,12 @@ class TestEngine(MacroParser):
                          'cache.tset.active' : False,
                          'cache.tset.location' : 'inrepo' #possible: inrepo, customdir, memcache                        
                         }
-    _test_repo_root  = None
-    _libs_repo       = None
-    _templates_repo  = None
-    _helpers_repo    = None
+    _test_repo_root    = None
+    _libs_repo         = None
+    _templates_repo    = None
+    _helpers_repo      = None
+    _test_file_ext     = ['yoda','jedi']
+    _test_template_ext = ['padavan']
               
     @property
     def test_repo_root(self):
@@ -381,15 +383,13 @@ class TestEngine(MacroParser):
         return result 
     
     def load_tset_from_str(self, tset_str, origin_file = False):
-        result = False
+        tset_struct = False
         if tset_str != '':
             if origin_file == False:
                 self._tset_file = '<str>'
             tset_str = self.mp_parse(tset_str) #apply macros            
-            self._tset_struct = yaml.load(tset_str)
-            result = True; 
-                
-        return result
+            tset_struct = yaml.load(tset_str) #tset_struct                 
+        return tset_struct
     
     def _parse_ts_node(self,ts_node, ts):
         for ts_key, ts_val in ts_node.items():
@@ -411,7 +411,7 @@ class TestEngine(MacroParser):
             self._mh.dmsg('htk_on_debug_info',"Parsing Test-Condition attributes {0}={1}".format(tco_key,tco_val), self._mh.fromhere())    
             tco.setattr(tco_key.lower(), tco_val)            
                 
-    def run_tco(self, tco):        
+    def run_tco(self, tco, tset_obj):        
         if isinstance(tco, TestCondition):
             '''Define missing locals'''            
             self._this        = tco
@@ -444,7 +444,7 @@ class TestEngine(MacroParser):
                     for line in formatted_lines:
                         trace += "%s\n" % str(line)
                     tco.test_log += trace
-                    self._tset_obj.failures = True
+                    tset_obj.failures = True
                     self._parent.ts.failures = True
                     self._parent.tca.failures = True
                     tco.failures = True    
@@ -475,7 +475,7 @@ class TestEngine(MacroParser):
                 tco.test_resolution = 'Failed'                        
                 self._parent.ts.failed_tests +=1
                 self._parent.tca.failed_tco += 1
-                self._tset_obj.failures   = True
+                tset_obj.failures   = True
                 self._parent.ts.failures  = True
                 self._parent.tca.failures = True
                 tco.action                = 'break'
@@ -502,7 +502,7 @@ class TestEngine(MacroParser):
                 except (AssertionError) as ae:                                               
                     self._parent.ts.failed_tests += 1
                     self._parent.tca.failed_tco += 1
-                    self._tset_obj.failures = True
+                    tset_obj.failures = True
                     self._test_run.failed_tests += 1                    
                     self._parent.ts.failures = True
                     self._parent.tca.failures = True
@@ -524,7 +524,7 @@ class TestEngine(MacroParser):
                     tco.test_resolution = 'Failed'                        
                     self._parent.ts.failed_tests +=1
                     self._parent.tca.failed_tco += 1
-                    self._tset_obj.failures = True          
+                    tset_obj.failures = True          
              
             if tco.test_resolution == 'Failed':
                 tco_note = "*** {ts}/{tca}/{tco}: ".format(ts=self._parent.ts.name,tca=self._parent.tca.name,tco=tco.name)
@@ -543,7 +543,7 @@ class TestEngine(MacroParser):
                 tco.action = None 
                      
     
-    def run_tca(self, tca):        
+    def run_tca(self, tca, tset_obj):        
         if isinstance(tca, TestCase):
             '''Define missing locals'''
             self._this        = tca
@@ -576,7 +576,7 @@ class TestEngine(MacroParser):
                     for line in formatted_lines:
                         trace += "%s\n" % str(line)
                     tca.test_log += trace
-                    self._tset_obj.failures = True
+                    tset_obj.failures = True
                     self._parent.ts.failures = True
                     tca.failures = True                    
                     print(tca.test_log)            
@@ -594,7 +594,7 @@ class TestEngine(MacroParser):
                     self._this     = tco                
                     while tco.status != 'finished':
                         if tco.status in ('started','repeat'):                        
-                            self.run_tco(tco)
+                            self.run_tco(tco, tset_obj)
                         elif tco.status == 'break':
                             break;
                     tco.resolution = 'completed'
@@ -604,18 +604,18 @@ class TestEngine(MacroParser):
             if tca.action == None:
                 tca.status = "finished" 
                
-    def run_ts(self, ts):          
+    def run_ts(self, ts, tset_obj):          
         if isinstance(ts, TestScenario):            
             '''Define missing locals'''
             self._this        = ts             
             this              = self._this
             self._current.ts  = ts
             current           = self._current
-            current.tset      = self._tset_obj
-            current.test_set  = self._tset_obj
+            current.tset      = tset_obj
+            current.test_set  = tset_obj
             parent            = self._parent
-            parent.tset       = self._tset_obj
-            parent.test_set   = self._tset_obj
+            parent.tset       = tset_obj
+            parent.test_set   = tset_obj
             parent            = self._parent 
             parent.ts         = None #TODO
             parent.tc         = None #TODO
@@ -644,7 +644,7 @@ class TestEngine(MacroParser):
                     for line in formatted_lines:
                         trace += "%s\n" % str(line)
                     ts.test_log += trace
-                    self._tset_obj.failures = True
+                    tset_obj.failures = True
                     ts.failures = True
                                                                         
             
@@ -669,7 +669,7 @@ class TestEngine(MacroParser):
                     for line in formatted_lines:
                         trace += "%s\n" % str(line)
                     ts.test_log += trace
-                    self._tset_obj.failures = True
+                    tset_obj.failures = True
                     ts.failures = True                
                 
             self._parent.ts  = ts             
@@ -685,7 +685,7 @@ class TestEngine(MacroParser):
                     self._this     = tca               
                     while tca.status != 'finished':
                         if tca.status in ('started','repeat'):
-                            self.run_tca(tca)
+                            self.run_tca(tca, tset_obj)
                         elif tca.status == 'break':
                             break;
                     #tca finished event here
@@ -697,12 +697,12 @@ class TestEngine(MacroParser):
             if ts.action == None:
                 ts.status = "finished"
           
-    def run_tset(self):
-        if self._tset_obj != None and isinstance(self._tset_obj, TestSet):
-            self._parent.tset  = self._tset_obj
-            self._current.tset = self._tset_obj
-            self._current.test_set = self._tset_obj                
-            for ts in self._tset_obj.ts:
+    def run_tset(self, tset_obj, test_run):
+        if tset_obj != None and isinstance(tset_obj, TestSet):
+            self._parent.tset  = tset_obj
+            self._current.tset = tset_obj
+            self._current.test_set = tset_obj                
+            for ts in tset_obj.ts:
                 run_ts = True
                 if self.ts_filter is not None and type(self.ts_filter).__name__ == 'list' and len(self.ts_filter) > 0:                    
                     if ts.id is not None and ts.id != '' and ts.id not in self.ts_filter:
@@ -717,40 +717,41 @@ class TestEngine(MacroParser):
                                
                     while ts.status != 'finished':
                         if ts.status in ('started','repeat'):
-                            self.run_ts(ts)
+                            self.run_ts(ts, tset_obj)
                         elif ts.status == 'break':
                             break;
                     ts.resolution = 'completed'
                 else:
                     ts.resolution = 'skipped'
                     print("Filter: Skippind test scenario {0}".format(ts.id))
-            self._test_run.tset.append(self._tset_obj)
+            test_run.tset.append(tset_obj)
                 
         
-    def parse_tset_struct(self):
-        if (type(self._tset_struct).__name__ == 'dict'):
-            self._tset_obj = TestSet()
+    def parse_tset_struct(self, tset_struct):
+        tset_obj = False
+        if (type(tset_struct).__name__ == 'dict'):
+            tset_obj = TestSet()
             if self._tset_file != '<str>':
-                self._tset_obj.current_test_base_path = os.path.dirname(self._tset_file)
-            self._tset_obj.current_test_set_file = self._tset_file
+                tset_obj.current_test_base_path = os.path.dirname(self._tset_file)
+            tset_obj.current_test_set_file = self._tset_file
                         
             ts_num = 1
             ts_k = 'Test-Scenario-%d' % ts_num
-            while ts_k in self._tset_struct:                
+            while ts_k in tset_struct:                
                 ts = TestScenario(ts_num)                               
-                self._parse_ts_node(self._tset_struct[ts_k], ts)
+                self._parse_ts_node(tset_struct[ts_k], ts)
                 
                 tca_num = 1
                 tca_k = 'Test-Case-%d' % tca_num                
-                while tca_k in self._tset_struct[ts_k]:                    
+                while tca_k in tset_struct[ts_k]:                    
                     tca = TestCase(tca_num)                    
-                    self._parse_tca_node(self._tset_struct[ts_k][tca_k], tca)
+                    self._parse_tca_node(tset_struct[ts_k][tca_k], tca)
                     
                     tco_num = 1
                     tco_k = 'Test-Condition-%d' % tco_num                    
-                    while tco_k in self._tset_struct[ts_k][tca_k]:                                                                   
+                    while tco_k in tset_struct[ts_k][tca_k]:                                                                   
                         tco = TestCondition(tco_num)                        
-                        self._parse_tco_node(self._tset_struct[ts_k][tca_k][tco_k], tco)
+                        self._parse_tco_node(tset_struct[ts_k][tca_k][tco_k], tco)
                         
                         tco_num += 1
                         tco_k = 'Test-Condition-%d' % tco_num                        
@@ -762,13 +763,102 @@ class TestEngine(MacroParser):
                     
                 ts_num += 1
                 ts_k = 'Test-Scenario-%d' % ts_num
-                self._tset_obj.append_ts(ts)                
+                tset_obj.append_ts(ts)                
                 
             if ts_num == 1:
                 print("Test-Scenario-%d tag expected" % ts_num)     
         else:
             print("Wrong tset structure")        
-
+        
+        return tset_obj
+    
+    def exec_test(self, test_path):
+        if test_path is not None and test_path != '':
+            if test_path not in self._test_run.inline_tests:
+                self._test_run.inline_tests.append(test_path)
+            else:
+                raise Exception('Inline test execution loop detected on {0}'.format(test_path))    
+            self._mh.dmsg('htk_on_debug_info', 'Inline test execution: {0}'.format(test_path), self._mh.fromhere())            
+            if test_path != '' and test_path[0] == '/': # global test set
+                self.run_mode_area = 'global'                
+                self._mh.dmsg('htk_on_debug_info', 'Running test set {0} out of the workspace'.format(test_path), self._mh.fromhere())
+            else:                
+                self.run_mode_area = 'inrepo'                    
+                test_path                       = self._templates_repo + test_path                
+                self._mh.dmsg('htk_on_debug_info', 'Running test sets in repository: {0}'.format(test_path), self._mh.fromhere())  
+            test_files = self.get_all_tests_from_path(test_path)
+            
+            for tf in test_files:
+                ev = Event('yoda_before_parse_test_file', tf)        
+                if (self._mh.fire_event(ev) > 0):
+                    tf = ev.argv(0)
+                if ev.will_run_default():
+                    tset_struct = self.load_tset_from_file(tf)
+                    if tset_struct != False:                    
+                        tset_obj = self.parse_tset_struct(tset_struct);
+                        if tset_obj != False:
+                            self.run_tset(tset_obj, self._test_run);
+                            if test_path in self._test_run.inline_tests:
+                                self._test_run.inline_tests.remove(test_path)
+        
+    def get_all_tests_from_path(self, test_path):
+        """Method returs all found test in path
+           
+           Test files are filtered by .yoda file extension
+        
+        Args:
+           test_path (str): test path
+        
+        Returns:            
+           test_files (list)
+                  
+        """  
+               
+        test_files = []
+        if os.path.exists(test_path) == False:
+            self._mh.dmsg('htk_on_warning', "Test path {0} doesn't exists".format(test_path), self._mh.fromhere())
+        
+        if re.search(':', test_path):
+            tokens     = test_path.split(':')
+            test_path  = tokens[0]
+            ts_filter  = None if tokens[1] == '' else tokens[1]
+            if ts_filter is not None and ts_filter not in self._test_engine.ts_filter:            
+                self._test_engine.ts_filter.append(ts_filter)
+            tca_filter = None
+            tco_filter = None
+            if len(tokens) > 2:
+                tca_filter = None if tokens[2] == '' else tokens[2]
+                if tca_filter is not None and tca_filter not in self._test_engine.tca_filter:
+                    self._test_engine.tca_filter.append(tca_filter)
+            if len(tokens) > 3:
+                tco_filter = None if tokens[3] == '' else tokens[3]
+                if tco_filter is not None and tco_filter not in self._test_engine.tco_filter:
+                    self._test_engine.tco_filter.append(tco_filter)
+            self._mh.dmsg('htk_on_debug_info', 'Filter parameters:\n\ttest_path: {0}\n\tts_filter: {1}\n\ttca_filter: {2}\n\ttco_filter: {3}'.format(test_path,ts_filter,tca_filter,tco_filter), self._mh.fromhere())                              
+            
+        if os.path.isfile(test_path):
+            self._test_engine.run_mode_src = 'singlefile'
+            file_ext                       = os.path.splitext(test_path)[1]
+            file_ext                       = file_ext[1:]
+            
+            if file_ext in self._test_file_ext:
+                test_files.append(test_path) 
+            else:
+                self._mh.dmsg('htk_on_debug_info', 'Unsupported file extension: {0} in {1}'.format(file_ext, test_path), self._mh.fromhere()) 
+        else:
+            self.run_mode_src = 'folder'        
+            root_dir = test_path
+            for dirname, _, filelist in os.walk(root_dir): # subdir_list not used            
+                for fname in filelist:
+                    file_extension = extension = os.path.splitext(fname)[1][1:]
+                    if file_extension in self._test_file_ext:
+                        test_file = dirname + '/' + fname
+                        ev = Event('yoda_before_append_test_file', test_file)        
+                        if (self._mh.fire_event(ev) > 0):
+                            test_file = ev.argv(0)
+                        if ev.will_run_default():
+                            test_files.append(test_file)
+        return test_files  
 
 class CodeStack():
     _locals = {}
