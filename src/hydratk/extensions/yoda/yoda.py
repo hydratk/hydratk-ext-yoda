@@ -42,6 +42,8 @@ from hydratk.extensions.yoda.testengine import TestEngine
 from hydratk.extensions.yoda.testresults import TestResultsDB
 from hydratk.lib.database.dbo import dbo
 from hydratk.lib.debugging.simpledebug import dmsg
+from hydratk.extensions.yoda.testobject import BreakTestRun
+from hydratk.extensions.yoda.testobject import BreakTestSet
 
 
 class Extension(extension.Extension):
@@ -54,8 +56,6 @@ class Extension(extension.Extension):
     _use_helpers_dir        = []
     _use_lib_dir            = []    
     _test_engine            = None
-    _test_file_ext          = ['yoda','jedi']
-    _test_template_ext      = ['padavan']
     _test_results_db        = None    
     
     def _init_extension(self):
@@ -101,11 +101,11 @@ class Extension(extension.Extension):
         hook = [{'event' : 'htk_on_cmd_options', 'callback' : self.init_check }]        
         self._mh.register_event_hook(hook)
 
-        self._mh.match_command('yoda-run')        
+        self._mh.match_command('yoda-run')              
         self._mh.match_command('yoda-simul')
         self._mh.match_command('yoda-create-test-results-db')
         hook = [
-                {'command' : 'yoda-run', 'callback' : self.init_tests },
+                {'command' : 'yoda-run', 'callback' : self.init_tests },                
                 {'command' : 'yoda-simul', 'callback' : self.init_test_simul },
                 {'command' : 'yoda-create-test-results-db', 'callback' : self.create_test_results_db }
                ]        
@@ -114,7 +114,7 @@ class Extension(extension.Extension):
         self._mh.match_long_option('yoda-test-path', True)
         self._mh.match_long_option('yoda-test-repo-root-dir', True)
         self._mh.match_long_option('yoda-db-results-enabled', True)        
-        self._mh.match_long_option('yoda-db-results-dsn', True)
+        self._mh.match_long_option('yoda-db-results-dsn', True)        
              
         
         self._test_engine = TestEngine()                    
@@ -146,71 +146,15 @@ class Extension(extension.Extension):
         
         db_results_dsn = CommandlineTool.get_input_option('--yoda-db-results-dsn')
         if db_results_dsn != False and db_results_dsn not in (None,''):
-            self._mh.ext_cfg['Yoda']['yoda-db-results-dsn'] = db_results_dsn            
-        
-    def get_all_tests_from_path(self, test_path):
-        """Method returs all found test in path
-           
-           Test files are filtered by .yoda file extension
-        
-        Args:
-           test_path (str): test path
-        
-        Returns:            
-           test_files (list)
-                  
-        """  
-               
-        test_files = []
-        if os.path.exists(test_path) == False:
-            self._mh.dmsg('htk_on_warning', "Test path {0} doesn't exists".format(test_path), self._mh.fromhere())
-        
-        if re.search(':', test_path):
-            tokens     = test_path.split(':')
-            test_path  = tokens[0]
-            ts_filter  = None if tokens[1] == '' else tokens[1]
-            if ts_filter is not None:            
-                self._test_engine.ts_filter.append(ts_filter)
-            tca_filter = None
-            tco_filter = None
-            if len(tokens) > 2:
-                tca_filter = None if tokens[2] == '' else tokens[2]
-                if tca_filter is not None:
-                    self._test_engine.tca_filter.append(tca_filter)
-            if len(tokens) > 3:
-                tco_filter = None if tokens[3] == '' else tokens[3]
-                if tco_filter is not None:
-                    self._test_engine.tco_filter.append(tco_filter)
-            self._mh.dmsg('htk_on_debug_info', 'Filter parameters:\n\ttest_path: {0}\n\tts_filter: {1}\n\ttca_filter: {2}\n\ttco_filter: {3}'.format(test_path,ts_filter,tca_filter,tco_filter), self._mh.fromhere())                              
-            
-        if os.path.isfile(test_path):
-            self._test_engine.run_mode_src = 'singlefile'
-            file_ext                       = os.path.splitext(test_path)[1]
-            file_ext                       = file_ext[1:]
-            
-            if file_ext in self._test_file_ext:
-                test_files.append(test_path) 
-            else:
-                self._mh.dmsg('htk_on_debug_info', 'Unsupported file extension: {0} in {1}'.format(file_ext, test_path), self._mh.fromhere()) 
-        else:
-            self._test_engine.run_mode_src = 'folder'        
-            root_dir = test_path
-            for dirname, _, filelist in os.walk(root_dir): # subdir_list not used            
-                for fname in filelist:
-                    file_extension = extension = os.path.splitext(fname)[1][1:]
-                    if file_extension in self._test_file_ext:
-                        test_file = dirname + '/' + fname
-                        ev = event.Event('yoda_before_append_test_file', test_file)        
-                        if (self._mh.fire_event(ev) > 0):
-                            test_file = ev.argv(0)
-                        if ev.will_run_default():
-                            test_files.append(test_file)
-        return test_files 
+            self._mh.ext_cfg['Yoda']['yoda-db-results-dsn'] = db_results_dsn                    
     
     def init_test_simul(self):
         
         self._test_engine.test_simul_mode = True              
         self.init_tests()
+    
+    def init_pp_tests(self):
+        pass
              
     def init_tests(self):
         """Method is initializing tests           
@@ -239,7 +183,7 @@ class Extension(extension.Extension):
                 test_path                       = self._templates_repo + test_path                
                 self._mh.dmsg('htk_on_debug_info', 'Running test sets in repository: {0}'.format(test_path), self._mh.fromhere())                                                  
                                           
-            test_files = self.get_all_tests_from_path(test_path)
+            test_files = self._test_engine.get_all_tests_from_path(test_path)
                             
             ev = event.Event('yoda_before_process_tests', test_files)        
             if (self._mh.fire_event(ev) > 0):
@@ -305,12 +249,33 @@ class Extension(extension.Extension):
             self._test_engine.test_run.total_test_sets = total_ts
             self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_process_test_sets_total', total_ts), self._mh.fromhere())            
             for tf in test_files:
-                ev = event.Event('yoda_before_parse_test_file', tf)        
-                if (self._mh.fire_event(ev) > 0):
-                    tf = ev.argv(0)
-                if ev.will_run_default():
-                    #self.parse_test_file(tf)                    
-                    self.process_test_set(tf)
+                if type(tf).__name__ == 'list':
+                    for ctf in tf:
+                        ev = event.Event('yoda_before_parse_test_file', ctf)        
+                        if (self._mh.fire_event(ev) > 0):
+                            ctf = ev.argv(0)
+                        if ev.will_run_default():
+                            try:                                         
+                                self.process_test_set(ctf)
+                            except BreakTestSet as exc:
+                                dmsg('Received break test set')
+                                continue    
+                            except BreakTestRun as exc:
+                                dmsg('Received break test run')
+                                break 
+                else:
+                    ev = event.Event('yoda_before_parse_test_file', tf)        
+                    if (self._mh.fire_event(ev) > 0):
+                        tf = ev.argv(0)
+                    if ev.will_run_default():                                           
+                        try:                                         
+                            self.process_test_set(tf)
+                        except BreakTestSet as exc:
+                            dmsg('Received break test set')
+                            continue
+                        except BreakTestRun as exc:
+                            dmsg('Received break test run')
+                            break
         else:
             self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_no_tests_found_in_path', self._current_test_base_path), self._mh.fromhere())
     
@@ -318,8 +283,9 @@ class Extension(extension.Extension):
         tset_struct = self._test_engine.load_tset_from_file(test_set_file)
         if tset_struct != False:                    
             tset_obj = self._test_engine.parse_tset_struct(tset_struct);
+            self._test_engine.test_run.norun_tests += tset_obj.parsed_tests['total_tco']
             if tset_obj != False:
-                self._test_engine.run_tset(tset_obj, self._test_engine.test_run);
+                tset_obj.run()
                 
     def parse_test_file(self, test_file):        
         try:
@@ -496,7 +462,7 @@ class Extension(extension.Extension):
             ts_num += 1
             ts_k = 'Test-Scenario-%d' % ts_num        
     
-    def check_results(self, test_run):        
+    def check_results(self, test_run):             
         print(self._mh._trn.msg('yoda_test_run_summary', test_run.total_test_sets, test_run.total_tests, test_run.failed_tests, test_run.passed_tests))                        
         for test_set in test_run.tset:
             print("\n  {0}".format(self._mh._trn.msg('yoda_test_set_summary', test_set.current_test_set_file)))                           

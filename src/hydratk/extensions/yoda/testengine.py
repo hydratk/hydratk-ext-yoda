@@ -19,6 +19,7 @@ import re
 import traceback
 from xtermcolor import colorize
 from hydratk.lib.system import fs
+from hydratk.lib.debugging.simpledebug import dmsg
 
 class This(object):
     _obj = None
@@ -46,11 +47,21 @@ class Current(object):
     _tset  = None
     _ts    = None
     _tca   = None
-    _tco   = None    
+    _tco   = None
+    _te    = None    
     
     
     def __init__(self):
         pass
+
+    @property
+    def te(self):
+        return self._te
+
+    @te.setter
+    def te(self, te):
+        self._te = te
+
     
     @property
     def test_set(self):
@@ -250,6 +261,10 @@ class TestEngine(MacroParser):
     _helpers_repo      = None
     _test_file_ext     = ['yoda','jedi']
     _test_template_ext = ['padavan']
+    
+    @property
+    def code_stack(self):
+        return self._code_stack
               
     @property
     def test_repo_root(self):
@@ -350,6 +365,7 @@ class TestEngine(MacroParser):
         self._this            = None
         self._parent          = Parent()
         self._current         = Current()
+        self._current.te      = self
         self._mh              = MasterHead.get_head();
         self._test_simul_mode = False 
         self._code_stack      = CodeStack()
@@ -362,7 +378,11 @@ class TestEngine(MacroParser):
         self.mp_add_hooks({
                           'include' : self._h_include
                         })
-              
+    
+    def new_test_run(self):
+        self._test_run = testobject.TestRun()
+        self._current  = Current()
+                  
     def _h_include(self, content_file):
         if content_file != '' and content_file[0] != '/': # repo
             content_file = self._templates_repo + content_file
@@ -457,7 +477,9 @@ class TestEngine(MacroParser):
                 if ev.will_run_default():
                     if self.test_simul_mode == False:
                         self._parent.ts.total_tests += 1                                                                                                                                                
-                        self._code_stack.execute(tco.test, locals())                          
+                        self._code_stack.execute(tco.test, locals())
+                        self.test_run.norun_tests -= 1
+                        self.test_run.run_tests                         
                     else:                        
                         print("Simulation: Running Test case: %s, Test condition: %s" % (self._parent.tca.name, tco.name))
                         compile(tco.test,'<string>','exec')
@@ -730,7 +752,7 @@ class TestEngine(MacroParser):
     def parse_tset_struct(self, tset_struct):
         tset_obj = False
         if (type(tset_struct).__name__ == 'dict'):
-            tset_obj = TestSet()
+            tset_obj = TestSet(self._current)
             if self._tset_file != '<str>':
                 tset_obj.current_test_base_path = os.path.dirname(self._tset_file)
             tset_obj.current_test_set_file = self._tset_file
@@ -738,19 +760,19 @@ class TestEngine(MacroParser):
             ts_num = 1
             ts_k = 'Test-Scenario-%d' % ts_num
             while ts_k in tset_struct:                
-                ts = TestScenario(ts_num)                               
+                ts = TestScenario(ts_num, tset_obj, self._current)                               
                 self._parse_ts_node(tset_struct[ts_k], ts)
                 
                 tca_num = 1
                 tca_k = 'Test-Case-%d' % tca_num                
                 while tca_k in tset_struct[ts_k]:                    
-                    tca = TestCase(tca_num)                    
+                    tca = TestCase(tca_num, ts, self._current)                    
                     self._parse_tca_node(tset_struct[ts_k][tca_k], tca)
                     
                     tco_num = 1
                     tco_k = 'Test-Condition-%d' % tco_num                    
                     while tco_k in tset_struct[ts_k][tca_k]:                                                                   
-                        tco = TestCondition(tco_num)                        
+                        tco = TestCondition(tco_num, tca, self._current)                        
                         self._parse_tco_node(tset_struct[ts_k][tca_k][tco_k], tco)
                         
                         tco_num += 1
@@ -770,15 +792,27 @@ class TestEngine(MacroParser):
         else:
             print("Wrong tset structure")        
         
+        tset_obj.parsed_tests['total_ts']  += ts_num
+        tset_obj.parsed_tests['total_tca'] += tca_num
+        tset_obj.parsed_tests['total_tco'] += tco_num
+        
         return tset_obj
     
     def exec_test(self, test_path):
+                
+        dmsg('Inline test exec: {0}'.format(test_path))
         if test_path is not None and test_path != '':
             if test_path not in self._test_run.inline_tests:
                 self._test_run.inline_tests.append(test_path)
             else:
                 raise Exception('Inline test execution loop detected on {0}'.format(test_path))    
-            self._mh.dmsg('htk_on_debug_info', 'Inline test execution: {0}'.format(test_path), self._mh.fromhere())            
+            self._mh.dmsg('htk_on_debug_info', 'Inline test execution: {0}'.format(test_path), self._mh.fromhere())
+            
+            backup_tset = self._current.tset
+            backup_ts   = self._current.ts
+            backup_tca  = self._current.tca
+            backup_tco  = self._current.tco
+            
             if test_path != '' and test_path[0] == '/': # global test set
                 self.run_mode_area = 'global'                
                 self._mh.dmsg('htk_on_debug_info', 'Running test set {0} out of the workspace'.format(test_path), self._mh.fromhere())
@@ -787,6 +821,7 @@ class TestEngine(MacroParser):
                 test_path                       = self._templates_repo + test_path                
                 self._mh.dmsg('htk_on_debug_info', 'Running test sets in repository: {0}'.format(test_path), self._mh.fromhere())  
             test_files = self.get_all_tests_from_path(test_path)
+            self.test_run.total_test_sets += len(test_files)
             
             for tf in test_files:
                 ev = Event('yoda_before_parse_test_file', tf)        
@@ -797,14 +832,34 @@ class TestEngine(MacroParser):
                     if tset_struct != False:                    
                         tset_obj = self.parse_tset_struct(tset_struct);
                         if tset_obj != False:
-                            self.run_tset(tset_obj, self._test_run);
+                            tset_obj.run()
                             if test_path in self._test_run.inline_tests:
                                 self._test_run.inline_tests.remove(test_path)
-        
+            
+            self._current.tset = backup_tset 
+            self._current.ts   = backup_ts
+            self._current.tca  = backup_tca 
+            self._current.tco  = backup_tco            
+    
+    def get_all_tests_from_container(self, container_file):
+        dmsg('Parsing test container file: {0}'.format(container_file))
+        test_files = []
+        if os.path.isfile(container_file):
+            cdata = fs.file_get_contents(container_file)
+            test_path_tok = cdata.split("\n")
+            for test_path in test_path_tok:                
+                test_path = test_path.strip() #remove unwanted whitespace characters
+                dmsg('Processing test container content: {0}'.format(test_path))
+                if test_path != '' and test_path[0] != '/': # in repository test set                                        
+                    test_path                       = self._templates_repo + test_path                                    
+                test_files = test_files + self.get_all_tests_from_path(test_path)  
+                   
+        return test_files   
+    
     def get_all_tests_from_path(self, test_path):
         """Method returs all found test in path
            
-           Test files are filtered by .yoda file extension
+           Test files are filtered by .jedi file extension
         
         Args:
            test_path (str): test path
@@ -815,9 +870,8 @@ class TestEngine(MacroParser):
         """  
                
         test_files = []
-        if os.path.exists(test_path) == False:
-            self._mh.dmsg('htk_on_warning', "Test path {0} doesn't exists".format(test_path), self._mh.fromhere())
-        
+        dmsg("Getting all tests from path: {0}".format(test_path))
+                
         if re.search(':', test_path):
             tokens     = test_path.split(':')
             test_path  = tokens[0]
@@ -828,21 +882,32 @@ class TestEngine(MacroParser):
             tco_filter = None
             if len(tokens) > 2:
                 tca_filter = None if tokens[2] == '' else tokens[2]
-                if tca_filter is not None and tca_filter not in self._test_engine.tca_filter:
-                    self._test_engine.tca_filter.append(tca_filter)
+                if tca_filter is not None and tca_filter not in self.tca_filter:
+                    self.tca_filter.append(tca_filter)
             if len(tokens) > 3:
                 tco_filter = None if tokens[3] == '' else tokens[3]
-                if tco_filter is not None and tco_filter not in self._test_engine.tco_filter:
-                    self._test_engine.tco_filter.append(tco_filter)
+                if tco_filter is not None and tco_filter not in self.tco_filter:
+                    self.tco_filter.append(tco_filter)
             self._mh.dmsg('htk_on_debug_info', 'Filter parameters:\n\ttest_path: {0}\n\tts_filter: {1}\n\ttca_filter: {2}\n\ttco_filter: {3}'.format(test_path,ts_filter,tca_filter,tco_filter), self._mh.fromhere())                              
-            
+        
+        if os.path.exists(test_path) == False:
+            self._mh.dmsg('htk_on_warning', "Test path {0} doesn't exists".format(test_path), self._mh.fromhere())
+            #TODO throw exception here
+                
         if os.path.isfile(test_path):
-            self._test_engine.run_mode_src = 'singlefile'
-            file_ext                       = os.path.splitext(test_path)[1]
-            file_ext                       = file_ext[1:]
+            self.run_mode_src = 'singlefile'
+            file_ext          = os.path.splitext(test_path)[1]
+            file_ext          = file_ext[1:]
             
             if file_ext in self._test_file_ext:
-                test_files.append(test_path) 
+                if file_ext == 'yoda': #parsing yoda container 
+                    container_files = self.get_all_tests_from_container(test_path)
+                    if len(container_files) > 1:
+                        test_files.append(container_files)
+                    elif len(container_files) == 1:                        
+                        test_files = test_files + container_files 
+                else:
+                    test_files.append(test_path) 
             else:
                 self._mh.dmsg('htk_on_debug_info', 'Unsupported file extension: {0} in {1}'.format(file_ext, test_path), self._mh.fromhere()) 
         else:
@@ -850,14 +915,21 @@ class TestEngine(MacroParser):
             root_dir = test_path
             for dirname, _, filelist in os.walk(root_dir): # subdir_list not used            
                 for fname in filelist:
-                    file_extension = extension = os.path.splitext(fname)[1][1:]
-                    if file_extension in self._test_file_ext:
-                        test_file = dirname + '/' + fname
-                        ev = Event('yoda_before_append_test_file', test_file)        
-                        if (self._mh.fire_event(ev) > 0):
-                            test_file = ev.argv(0)
-                        if ev.will_run_default():
-                            test_files.append(test_file)
+                    file_extension = os.path.splitext(fname)[1][1:]
+                    test_file = dirname + '/' + fname
+                    if file_extension in self._test_file_ext:                        
+                        if file_extension == 'yoda': #parsing yoda container
+                            container_files = self.get_all_tests_from_container(test_file)
+                            if len(container_files) > 1:
+                                test_files.append(container_files)
+                            elif len(container_files) == 1:                        
+                                test_files = test_files + container_files                                                        
+                        else:                              
+                            ev = Event('yoda_before_append_test_file', test_file)        
+                            if (self._mh.fire_event(ev) > 0):
+                                test_file = ev.argv(0)
+                            if ev.will_run_default():
+                                test_files.append(test_file)
         return test_files  
 
 class CodeStack():
@@ -872,8 +944,3 @@ class CodeStack():
            
     def compile(self, code):
         pass
-
-
-        
-    
-    
