@@ -23,8 +23,9 @@ help_cmd = {
 
 ''' Yoda Options '''
 help_opt = {
-   'yoda-test-path' : { '{h}--yoda-test-path <cesta>{e}' : { 'description' : 'cesta k testovacímu scénáři', 'commands' : ('yoda-run','yoda-run-pp','yoda-simul')}},
-   'yoda-test-repo-root-dir' : { '{h}--yoda-test-repo-root-dir <cesta>{e}' : { 'description' : 'cesta ke kořenovému adresáři test. repozitáře', 'commands' : ('yoda-run','yoda-run-pp','yoda-simul','yoda-create-test-results-db')}},
-   'yoda-db-results-enabled' : { '{h}--yoda-db-results-enabled <stav>{e}' : { 'description' : 'aktivuje/deaktivuje ukládání výsledků testů do databáze', 'commands' : ('yoda-run','yoda-run-pp','yoda-simul')}},
-   'yoda-db-results-dsn' : { '{h}--yoda-db-results-dsn <dsn>{e}' : { 'description' : 'definice přístupu k databázi výsledků testů', 'commands' : ('yoda-run','yoda-run-pp','yoda-simul','yoda-create-test-results-db')}}   
+   'yoda-test-path' : { '{h}--yoda-test-path <cesta>{e}' : { 'description' : 'cesta k testovacímu scénáři', 'commands' : ('yoda-run','yoda-simul')}},
+   'yoda-test-run-name' : { '{h}--yoda-test-run-name <název>{e}' : { 'description' : 'identifikátor spouštěného běhu', 'commands' : ('yoda-run','yoda-simul')}},
+   'yoda-test-repo-root-dir' : { '{h}--yoda-test-repo-root-dir <cesta>{e}' : { 'description' : 'cesta ke kořenovému adresáři test. repozitáře', 'commands' : ('yoda-run','yoda-simul','yoda-create-test-results-db')}},
+   'yoda-db-results-enabled' : { '{h}--yoda-db-results-enabled <stav>{e}' : { 'description' : 'aktivuje/deaktivuje ukládání výsledků testů do databáze', 'commands' : ('yoda-run','yoda-simul')}},
+   'yoda-db-results-dsn' : { '{h}--yoda-db-results-dsn <dsn>{e}' : { 'description' : 'definice přístupu k databázi výsledků testů', 'commands' : ('yoda-run','yoda-simul','yoda-create-test-results-db')}}   
 }

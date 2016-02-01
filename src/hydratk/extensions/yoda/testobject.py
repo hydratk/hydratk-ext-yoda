@@ -12,8 +12,65 @@ from hydratk.core.masterhead import MasterHead
 import sys
 import traceback
 from xtermcolor import colorize
+import time
+import hashlib
+import random
+import os
+import cPickle as pickle
+from hydratk.lib.debugging.simpledebug import dmsg
 
-class TestRun(object):
+class TestObject(object):    
+    
+    @property
+    def parent(self):
+        return self._parent    
+    
+    def getattr(self, name):
+        result = None
+        name = name.lower()
+        if name in self._attr:
+            result = self._attr[name]
+        return result
+        
+    def setattr(self,key,val):
+        if key != '':
+            key = key.lower();
+            key = key.replace('-','_')
+            self._attr[key] = val
+    
+            
+    def __getattr__(self,name):        
+        result = None
+        name = name.lower()
+        if name in self._attr:
+            result = self._attr[name]
+        return result
+    
+    
+    @property
+    def attr(self):
+        return self._attr;    
+
+class BreakTestRun(Exception):
+    pass
+
+class BreakTest(Exception):
+    pass
+
+class BreakTestCase(Exception):
+    pass
+
+class BreakTestScenario(Exception):
+    pass
+
+class BreakTestSet(Exception):
+    pass        
+
+
+class TestRun(TestObject):
+    _id                     = None
+    _name                   = 'Undefined'
+    _attr                   = {}
     _total_test_sets        = 0
     _total_tests            = 0
     _failed_tests           = 0
@@ -26,12 +83,17 @@ class TestRun(object):
     _end_time               = None
     _status                 = None
     _statuses               = ['started','finished','repeat','break']    
+    _log                    = ''
+    _struct_log             = {}
     
     '''Test Sets'''
     _tset                   = [] 
-    _inline_tests           = []  
+    _inline_tests           = []
+    '''Test Engine'''
+    _te                     = None  
     
-    def __init__(self):
+    def __init__(self, test_engine = None):
+        self._id                     = hashlib.md5('{0}{1}{2}'.format(random.randint(100000000,999999999), time.time(), os.getpid())).hexdigest()        
         self._total_test_sets        = 0
         self._total_tests            = 0
         self._failed_tests           = 0
@@ -39,17 +101,68 @@ class TestRun(object):
         self._skipped_tests          = 0
         self._norun_tests            = 0
         self._failures               = False
-        self._start_time             = None
-        self._end_time               = None
+        self._start_time             = time.time()
+        self._end_time               = -1
         self._tset                   = []
         self._inline_tests           = []
+        self._te                     = test_engine
+        self._log                    = ''
+        self._struct_log             = {}
 
     
-                
+    def create_db_record(self):
+        self._te.test_results_db.db_action(
+                                                   'create_test_run_record',
+                                                 [
+                                                  self._id,
+                                                  self._name,
+                                                  self._start_time,
+                                                  self._end_time,
+                                                  self._total_tests,
+                                                  self._failed_tests,
+                                                  self._passed_tests,
+                                                  self._log,
+                                                  pickle.dumps(self._struct_log)  
+                                                ])
+    def update_db_record(self):
+        self._te.test_results_db.db_action(
+                                                   'update_test_run_record',
+                                                 {
+                                                  'id'           : self._id,
+                                                  'name'         : self._name,
+                                                  'start_time'   : self._start_time,
+                                                  'end_time'     : self._end_time,
+                                                  'total_tests'  : self._total_tests,
+                                                  'failed_tests' : self._failed_tests,
+                                                  'passed_tests' : self._passed_tests,
+                                                  'log'          : self._log,
+                                                  'struct_log'   : pickle.dumps(self._struct_log)  
+                                                })
+               
+    @property
+    def te(self):
+        return self._te
+    
+    @te.setter
+    def te(self,test_engine):
+        self._te = test_engine
+                    
     @property
     def inline_tests(self):
         return self._inline_tests
-       
+    
+    @property
+    def id(self):
+        return self._id
+    
+    @property
+    def name(self):
+        return self._name
+    
+    @name.setter
+    def name(self, name):
+        self._name = name
+           
     @property
     def total_test_sets(self):
         return self._total_test_sets
@@ -170,7 +283,9 @@ class TestRun(object):
         self.status                      = 'break' # testc condition break
         raise BreakTestRun(reason)
          
-class TestSet(object):
+class TestSet(TestObject):
+    _id                      = None
+    _attr                    = {}
     _current_test_base_path  = ''
     _current_test_set_file   = ''
     _parsed_tests            = {
@@ -186,6 +301,9 @@ class TestSet(object):
     _failures                = False
     _start_time              = None
     _end_time                = None
+    _log                     = ''
+    _struct_log              = {}
+    
     '''Test Scenarios'''
     _ts                      = []         
 
@@ -194,13 +312,17 @@ class TestSet(object):
     _current                 = None
 
     @property
+    def id(self):
+        return self._id
+    
+    @property
     def test_run(self):        
         return self._test_run
     
     @test_run.setter
     def test_run(self,tr):
         self._test_run = tr
-        
+    
     @property
     def current_test_base_path(self):
         return self._current_test_base_path
@@ -209,6 +331,14 @@ class TestSet(object):
     def current_test_base_path(self, path):
         self._current_test_base_path = path        
    
+    @property
+    def current_test_set_file(self):
+        return self._current_test_set_file
+    
+    @current_test_set_file.setter
+    def current_test_set_file(self, path):
+        self._current_test_set_file = path 
+         
     @property
     def parsed_tests(self):
         return self._parsed_tests
@@ -290,22 +420,61 @@ class TestSet(object):
     def end_time(self, time):
         self._end_time = time            
     
-    def __init__(self, current):
-        self._current_test_base_path  = None
-        self._current_test_set_file   = None
+    def __init__(self, current, test_set_file):
+        id_salt = ''        
+        if test_set_file != '<str>':        
+            self._current_test_base_path  = os.path.dirname(test_set_file)
+        else:
+            id_salt = '{}{}'.format(test_set_file,random.randint(100000000, 999999999))
+        self._current_test_set_file   = test_set_file
+        self._id                      = hashlib.md5('{0}{1}{2}'.format(current.te.test_run.id, self._current_test_set_file, id_salt)).hexdigest()    
         self._total_tests             = 0
         self._failed_tests            = 0
         self._passed_tests            = 0
         self._failed_ts               = 0
         self._passed_ts               = 0
         self._failures                = False
-        self._start_time              = None
-        self._end_time                = None
+        self._start_time              = time.time()
+        self._end_time                = -1
+        self._log                     = ''
+        self._struct_log              = {}
+        
         '''Test Scenarios'''
         self._ts                      = []
         self._current                 = current 
         
     
+    def create_db_record(self):        
+        self._current.te.test_results_db.db_action(
+                                                   'create_test_set_record',
+                                                 [
+                                                  self._id,                                                  
+                                                  self._current_test_set_file,
+                                                  self._current.te.test_run.id,
+                                                  self._start_time,
+                                                  self._end_time,
+                                                  self._total_tests,
+                                                  self._failed_tests,
+                                                  self._passed_tests,
+                                                  self._log,                                                  
+                                                  pickle.dumps(self._struct_log)  
+                                                ])
+    
+    def update_db_record(self):
+        self._current.te.test_results_db.db_action(
+                                                   'update_test_set_record',
+                                                 {
+                                                  'id'           : self._id,                                                  
+                                                  'tset_id'      : self._current_test_set_file,
+                                                  'test_run_id'  : self._current.te.test_run.id,
+                                                  'start_time'   : self._start_time,
+                                                  'end_time'     : self._end_time,
+                                                  'total_tests'  : self._total_tests,
+                                                  'failed_tests' : self._failed_tests,
+                                                  'passed_tests' : self._passed_tests,
+                                                  'log'          : self._log,                                                  
+                                                  'struct_log'   : pickle.dumps(self._struct_log)   
+                                                })   
     
     def __repr__(self):
         result = '';
@@ -355,6 +524,14 @@ class TestSet(object):
                     run_ts = False
                 
             if run_ts:
+                if self._current.te.have_test_results_db:
+                    try:
+                        ts.start_time = time.time()                    
+                        ts.create_db_record()
+                    except:
+                        print(sys.exc_info())
+                        raise Exception('Failed to create test_scenario database record')
+                    
                 print("Running test scenario {0}".format(ts.id)) 
                 ts.status          = 'started'
                 self._this         = ts
@@ -372,6 +549,13 @@ class TestSet(object):
                     elif ts.status == 'break':
                         break;
                 ts.resolution = 'completed'
+                if self._current.te.have_test_results_db:
+                    try:
+                        ts.end_time = time.time()                    
+                        ts.update_db_record()
+                    except:
+                        print(sys.exc_info())
+                        raise Exception('Failed to update test_scenario database record')
             else:
                 ts.resolution = 'skipped'
                 print("Filter: Skippind test scenario {0}".format(ts.id))
@@ -382,7 +566,8 @@ class TestSet(object):
         raise BreakTestSet(reason)
     
         
-class TestScenario(object):
+class TestScenario(TestObject):
+    _id             = None
     _num            = None
     _attr           = {}
     _tca            = []
@@ -400,14 +585,16 @@ class TestScenario(object):
     _end_time       = None
     _parent         = None #parent Test Set
     _current        = None
+    _log            = ''
+    _struct_log     = {}
 
     
     def exec_test(self, test_path):
         self._current.te.exec_test(test_path)
     
     def __init__(self, ts_num, parent_tset, current):
-        self._num            = ts_num
-        self._id             = None
+        self._num            = ts_num        
+        self._id             = hashlib.md5('{0}{1}{2}'.format(current.te.test_run.id, parent_tset.id, ts_num)).hexdigest()
         self._attr           = {}
         self._tca            = []
         self._resolution     = None 
@@ -420,10 +607,48 @@ class TestScenario(object):
         self._total_tests    = 0
         self._failed_tests   = 0
         self._passed_tests   = 0        
-        self._start_time     = None
-        self._end_time       = None
+        self._start_time     = 0
+        self._end_time       = -1
         self._parent         = parent_tset 
         self._current        = current   
+
+    
+    @property
+    def id(self):
+        return self._id
+    
+    def create_db_record(self):
+        self._current.te.test_results_db.db_action(
+                                                   'create_test_scenario_record',
+                                                 [
+                                                  self._id,                                                  
+                                                  self._attr['id'],
+                                                  self._parent.id,
+                                                  self._start_time,
+                                                  self._end_time,
+                                                  self._total_tests,
+                                                  self._failed_tests,
+                                                  self._passed_tests,
+                                                  self._log,                                                  
+                                                  pickle.dumps(self._struct_log)  
+                                                ])
+           
+    
+    def update_db_record(self):
+        self._current.te.test_results_db.db_action(
+                                                   'update_test_scenario_record',
+                                                 {
+                                                  'id'           : self._id,                                                  
+                                                  'ts_id'        : self._attr['id'],
+                                                  'test_set_id'  : self._parent.id,
+                                                  'start_time'   : self._start_time,
+                                                  'end_time'     : self._end_time,
+                                                  'total_tests'  : self._total_tests,
+                                                  'failed_tests' : self._failed_tests,
+                                                  'passed_tests' : self._passed_tests,
+                                                  'log'          : self._log,                                                  
+                                                  'struct_log'   : pickle.dumps(self._struct_log)   
+                                                })   
 
     def run(self):                   
         '''Define missing locals'''        
@@ -511,7 +736,14 @@ class TestScenario(object):
                     run_tca = False
             
             if run_tca:
-                #print("Running test case {0}".format(tca.id))  
+                if self._current.te.have_test_results_db:
+                    try:
+                        tca.start_time = time.time()                    
+                        tca.create_db_record()
+                    except:
+                        print(sys.exc_info())
+                        raise Exception('Failed to create test_case database record')
+                    
                 tca.status     = 'started'                           
                 while tca.status != 'finished':
                     if tca.status in ('started','repeat'):
@@ -527,29 +759,19 @@ class TestScenario(object):
                         break;
                 #tca finished event here
                 tca.resolution = 'completed'
+                if self._current.te.have_test_results_db:
+                    try:
+                        tca.end_time = time.time()                    
+                        tca.update_db_record()
+                    except:
+                        print(sys.exc_info())
+                        raise Exception('Failed to update test_case database record')
             else:
                 tca.resolution = 'skipped'
                 print("Filter: Skippind test case {0}".format(tca.id))
                                 
         if self.action == None:
             self.status = "finished"
-                                
-    def setattr(self,key,val):
-        if key != '':
-            key = key.replace('-','_')
-            key = key.lower()
-            self._attr[key]  = val
-    
-    def __getattr__(self,name):        
-        result = None
-        name = name.lower();
-        if name in self._attr:
-            result = self._attr[name]
-        return result
-    
-    @property
-    def parent(self):
-        return self._parent
         
     @property
     def tca(self):
@@ -649,7 +871,8 @@ class TestScenario(object):
         raise BreakTestScenario(reason)
         
                                     
-class TestCase(object):
+class TestCase(TestObject):
+    _id             = None
     _num            = None
     _attr           = {}
     _resolution     = None
@@ -662,27 +885,69 @@ class TestCase(object):
     _failed_tco     = 0 
     _passed_tco     = 0 
     _parent         = None
-    _current        = None  
+    _current        = None
+    _start_time     = None
+    _end_time       = None
+    _log            = ''
+    _struct_log     = {}  
     
     def exec_test(self, test_path):
         self._current.te.exec_test(test_path)
         
     def __init__(self, tca_num, parent_ts, current):
-        self._num        = tca_num
-        self._id         = None
+        self._num        = tca_num       
+        self._id         = hashlib.md5('{0}{1}{2}{3}'.format(current.te.test_run.id, parent_ts.parent.id, parent_ts.id, tca_num)).hexdigest()
         self._attr       = {} 
         self._resolution = None
         self._status     = None
         self._statuses   = ['started','finished','repeat','break']
         self._tco        = []    
-        self._action     = None  
-        self._test_log   = ''
+        self._action     = None          
         self._failures   = False
         self._failed_tco = 0 
         self._passed_tco = 0   
         self._parent     = parent_ts
-        self._current    = current      
+        self._current    = current 
+        self._start_time = 0
+        self._end_time   = -1     
 
+    @property
+    def id(self):
+        return self._id
+
+    def create_db_record(self):
+        self._current.te.test_results_db.db_action(
+                                                   'create_test_case_record',
+                                                 [
+                                                  self._id,                                                  
+                                                  self._attr['id'],
+                                                  self._parent.id,
+                                                  self._start_time,
+                                                  self._end_time,
+                                                  self._total_tests,
+                                                  self._failed_tests,
+                                                  self._passed_tests,
+                                                  self._log,                                                  
+                                                  pickle.dumps(self._struct_log)  
+                                                ])
+           
+    
+    def update_db_record(self):
+        self._current.te.test_results_db.db_action(
+                                                   'update_test_case_record',
+                                                 {
+                                                  'id'               : self._id,                                                  
+                                                  'tca_id'           : self._attr['id'],
+                                                  'test_scenario_id' : self._parent.id,
+                                                  'start_time'       : self._start_time,
+                                                  'end_time'         : self._end_time,
+                                                  'total_tests'      : self._total_tests,
+                                                  'failed_tests'     : self._failed_tests,
+                                                  'passed_tests'     : self._passed_tests,
+                                                  'log'              : self._log,                                                  
+                                                  'struct_log'       : pickle.dumps(self._struct_log)   
+                                                })   
+    
     def run(self):        
        
         '''Define missing locals'''
@@ -733,7 +998,17 @@ class TestCase(object):
                     run_tco = False
             
             if run_tco:
-                #print("Running test condition {0}".format(tco.id))                                                
+                if current.te.have_test_results_db:
+                    try:
+                        tco.start_time = time.time()                    
+                        tco.create_db_record()
+                    except:
+                        import traceback
+                        ext, msg, trb = sys.exc_info()
+                        print(msg)
+                        print repr(traceback.format_tb(trb))
+                        raise Exception('Failed to create test_condition database record')
+                                                                 
                 tco.status     = 'started'                        
                 while tco.status != 'finished':
                     if tco.status in ('started','repeat'):
@@ -748,28 +1023,19 @@ class TestCase(object):
                     elif tco.status == 'break':
                         break;
                 tco.resolution = 'completed'
+                if self._current.te.have_test_results_db:
+                    try:
+                        tco.end_time = time.time()                    
+                        tco.update_db_record()
+                        tco.write_custom_data()
+                    except:
+                        print(sys.exc_info())
+                        raise Exception('Failed to update test_condition database record')
             else:
                 tco.resolution = 'skipped'
                 print("Filter: Skippind test condition {0}".format(tco.id))    
         if self.action == None:
             self.status = "finished" 
-           
-    @property
-    def parent(self):
-        return self._parent
-            
-    def setattr(self,key,val):
-        if key != '':
-            key = key.replace('-','_')
-            key = key.lower()
-            self._attr[key] = val
-            
-    def __getattr__(self,name):        
-        result = None
-        name = name.lower()
-        if name in self._attr:
-            result = self._attr[name]
-        return result
 
     @property
     def tco(self):
@@ -831,12 +1097,28 @@ class TestCase(object):
     @passed_tco.setter
     def passed_tco(self, passed_tco):
         self._passed_tco = passed_tco           
+
+    @property
+    def start_time(self):
+        return self._start_time;
     
+    @start_time.setter
+    def start_time(self, start_time):
+        self._start_time = start_time
+
+    @property
+    def end_time(self):
+        return self._end_time;
+    
+    @end_time.setter
+    def end_time(self, end_time):
+        self._end_time = end_time
+            
     def break_test_case(self, reason):
         self.status                      = 'break' # testc condition break
         raise BreakTestCase(reason)
         
-class TestCondition(object):
+class TestCondition(TestObject):
     _num             = None
     _id              = None
     _attr            = {} 
@@ -844,39 +1126,100 @@ class TestCondition(object):
     _status          = None
     _statuses        = ['started','finished','repeat','break']    
     _action          = None
-    _test_log        = ''
     _failures        = False
     _expected_result = None    
-    _test_resolution = False
+    _test_resolution = None
     _test_result     = None
     _test_output     = ''
     _test_assert     = None
     _test_validate   = None
     _parent          = None
-    _current         = None       
+    _current         = None 
+    _start_time      = None
+    _end_time        = None
+    _log             = ''
+    _struct_log      = {}       
     
     def exec_test(self, test_path):
         self._current.te.exec_test(test_path)
         
     def __init__(self, tco_num, parent_tca, current):
-        self._num             = tco_num
-        self._id              = None
+        self._num             = tco_num                    
+        self._id              = hashlib.md5('{0}{1}{2}{3}{4}'.format(current.te.test_run.id, parent_tca.parent.parent.id, parent_tca.parent.id, parent_tca.id, tco_num)).hexdigest()      
         self._attr            = {} 
         self._resolution      = None
         self._status          = None
         self._statuses        = ['started','finished','repeat','break']    
         self._action          = None
-        self._test_log        = ''
-        self._failures        = False
+        self._test_log        = '' 
         self._expected_result = None    
-        self._test_resolution = False
+        self._test_resolution = None
         self._test_result     = None
         self._test_output     = ''
         self._test_assert     = None
         self._test_validate   = None
-        self._parent          = parent_tca
-        self._current         = current   
+        self._parent          = parent_tca        
+        self._current         = current        
+        self._start_time      = 0
+        self._end_time        = -1   
 
+    @property
+    def id(self):
+        return self._id
+
+    def create_db_record(self):        
+        self._current.te.test_results_db.db_action(
+                                                   'create_test_condition_record',
+                                                 [
+                                                  self._id,                                                  
+                                                  self._attr['id'],
+                                                  self._parent.id,
+                                                  self._start_time,
+                                                  self._end_time,
+                                                  self._expected_result,
+                                                  self._test_result,
+                                                  self._test_resolution,
+                                                  self._log,                                                  
+                                                  pickle.dumps(self._struct_log)  
+                                                ])
+                                                    
+    def update_db_record(self):        
+        self._current.te.test_results_db.db_action(
+                                                   'update_test_condition_record',
+                                                 {
+                                                  'id'               : self._id,                                                  
+                                                  'tco_id'           : self._attr['id'],
+                                                  'test_case_id'     : self._parent.id,
+                                                  'start_time'       : self._start_time,
+                                                  'end_time'         : self._end_time,
+                                                  'expected_result'  : str(self._expected_result) if self._expected_result is not None else None,
+                                                  'test_result'      : self._test_result,
+                                                  'test_resolution'  : self._test_resolution.lower(),
+                                                  'log'              : self._log,                                                  
+                                                  'struct_log'       : pickle.dumps(self._struct_log)   
+                                                })   
+     
+    def write_custom_data(self):
+        have_filter = 'TestCondition' in self._current.te.test_results_db.custom_data_filter
+        for key, value in self._attr.items():
+            pickled = 0
+            if have_filter:
+                if key in self._current.te.test_results_db.custom_data_filter['TestCondition']:
+                    continue
+            if type(value).__name__ not in ['int','float','str']:
+                value = pickle.dumps(value)
+                pickled = 1
+            self._current.te.test_results_db.db_action(
+                                                   'create_custom_data',
+                                                 [
+                                                  self._current.te.test_run.id,
+                                                  self._id,
+                                                  'Test-Condition',
+                                                  key,
+                                                  value,
+                                                  pickled                                                                                                    
+                                                 ]) 
+                            
     def run(self):                
         '''Define missing locals'''                   
         this              = self
@@ -1017,25 +1360,7 @@ class TestCondition(object):
         elif self.action == 'break':
             self.status = 'break'
             self.action = None 
-
-    @property
-    def parent(self):
-        return self._parent    
-    
-    def setattr(self,key,val):
-        if key != '':
-            key = key.lower();
-            key = key.replace('-','_')
-            self._attr[key] = val
-    
-            
-    def __getattr__(self,name):        
-        result = None
-        name = name.lower()
-        if name in self._attr:
-            result = self._attr[name]
-        return result
-    
+        
     @property
     def resolution(self):
         return self._resolution;
@@ -1127,6 +1452,22 @@ class TestCondition(object):
     def test_validate(self, result):
         self._test_validate = result                    
 
+    @property
+    def start_time(self):
+        return self._start_time;
+    
+    @start_time.setter
+    def start_time(self, start_time):
+        self._start_time = start_time
+
+    @property
+    def end_time(self):
+        return self._end_time;
+    
+    @end_time.setter
+    def end_time(self, end_time):
+        self._end_time = end_time
+        
     def break_test(self, reason):
         self.status = 'break'
         raise BreakTest(reason)
@@ -1147,22 +1488,4 @@ class TestCondition(object):
         self.status                      = 'break' # testc condition break        
         self._current.te.test_run.break_test_run(reason)        
 
-
-class TestObject(object):
-    pass
-
-class BreakTestRun(Exception):
-    pass
-
-class BreakTest(Exception):
-    pass
-
-class BreakTestCase(Exception):
-    pass
-
-class BreakTestScenario(Exception):
-    pass
-
-class BreakTestSet(Exception):
-    pass        
         

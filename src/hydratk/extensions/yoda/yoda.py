@@ -29,6 +29,7 @@ import yaml
 import traceback
 import sys
 import re
+import time
 from hydratk.core import extension
 from hydratk.core import event
 from hydratk.lib.console.commandlinetool import CommandlineTool
@@ -56,11 +57,12 @@ class Extension(extension.Extension):
     _use_helpers_dir        = []
     _use_lib_dir            = []    
     _test_engine            = None
+    _use_test_results_db    = False    
     _test_results_db        = None    
     
     def _init_extension(self):
         self._ext_name    = 'Yoda'
-        self._ext_version = '0.3.0a'
+        self._ext_version = '0.2.0b.dev1'
         self._ext_author  = 'Petr Czaderna <pc@hydratk.org>'
         self._ext_year    = '2014 - 2016'
         
@@ -98,7 +100,10 @@ class Extension(extension.Extension):
         pass                 
         
     def _register_actions(self):               
-        hook = [{'event' : 'htk_on_cmd_options', 'callback' : self.init_check }]        
+        hook = [
+                {'event' : 'htk_on_cmd_options', 'callback' : self.init_check },
+                {'event' : 'yoda_before_init_tests', 'callback' : self.check_test_results_db }                
+               ]        
         self._mh.register_event_hook(hook)
 
         self._mh.match_command('yoda-run')              
@@ -114,9 +119,10 @@ class Extension(extension.Extension):
         self._mh.match_long_option('yoda-test-path', True)
         self._mh.match_long_option('yoda-test-repo-root-dir', True)
         self._mh.match_long_option('yoda-db-results-enabled', True)        
-        self._mh.match_long_option('yoda-db-results-dsn', True)        
+        self._mh.match_long_option('yoda-db-results-dsn', True)
+        self._mh.match_long_option('yoda-test-run-name', True)         
              
-        
+        self._use_test_results_db = bool(int(self._mh.ext_cfg['Yoda']['db_results_enabled']))
         self._test_engine = TestEngine()                    
     
     def create_test_results_db(self):
@@ -124,6 +130,7 @@ class Extension(extension.Extension):
         dmsg("Create db results dsn: {0}".format(dsn))
         trdb = TestResultsDB(dsn)
         trdb.create_database()
+        return trdb
         
     def init_check(self, ev):
         """Event listener waiting for htk_on_cmd_options event
@@ -143,10 +150,15 @@ class Extension(extension.Extension):
         db_results_enabled_state = CommandlineTool.get_input_option('--yoda-db-results-enabled')
         if db_results_enabled_state != False and int(db_results_enabled_state) in (0,1):
             self._mh.ext_cfg['Yoda']['db_results_enabled'] = int(db_results_enabled_state)
+            self._use_test_results_db = bool(int(db_results_enabled_state))
         
         db_results_dsn = CommandlineTool.get_input_option('--yoda-db-results-dsn')
         if db_results_dsn != False and db_results_dsn not in (None,''):
-            self._mh.ext_cfg['Yoda']['yoda-db-results-dsn'] = db_results_dsn                    
+            self._mh.ext_cfg['Yoda']['yoda-db-results-dsn'] = db_results_dsn 
+            
+        test_run_name = CommandlineTool.get_input_option('--yoda-test-run-name')
+        if test_run_name != False:
+            self._test_engine.test_run.name = test_run_name                   
     
     def init_test_simul(self):
         
@@ -155,6 +167,25 @@ class Extension(extension.Extension):
     
     def init_pp_tests(self):
         pass
+    
+    def check_test_results_db(self, ev):
+        if self._use_test_results_db:
+            dsn = self._mh.ext_cfg['Yoda']['db_results_dsn']            
+            trdb = TestResultsDB(dsn)            
+            if trdb.db_check_ok() == False:
+                if int(self._mh.ext_cfg['Yoda']['db_results_autocreate']) == 1:
+                    try:
+                        dmsg("Create db results dsn: {0}".format(dsn))
+                        trdb.create_database()
+                        self._test_engine.test_results_db = trdb
+                    except:
+                        print(str(sys.exc_info()))                       
+                else:
+                    raise Exception("Required test results database not available dsn: {0} check failed".format(dsn))
+            else:
+                dmsg("Test result database dsn: {0} check ok.".format(dsn))
+                self._test_engine.test_results_db = trdb
+                
              
     def init_tests(self):
         """Method is initializing tests           
@@ -247,6 +278,13 @@ class Extension(extension.Extension):
         total_ts = len(test_files)
         if total_ts > 0:
             self._test_engine.test_run.total_test_sets = total_ts
+            if self._test_engine.have_test_results_db:
+                try:                    
+                    self._test_engine.test_run.create_db_record()
+                except:
+                    print(sys.exc_info())
+                    raise Exception('Failed to create test_run database record')
+                
             self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_process_test_sets_total', total_ts), self._mh.fromhere())            
             for tf in test_files:
                 if type(tf).__name__ == 'list':
@@ -276,6 +314,14 @@ class Extension(extension.Extension):
                         except BreakTestRun as exc:
                             dmsg('Received break test run')
                             break
+                        
+            if self._test_engine.have_test_results_db:
+                try:
+                    self._test_engine.test_run.end_time = time.time()                    
+                    self._test_engine.test_run.update_db_record()
+                except:
+                    print(sys.exc_info())
+                    raise Exception('Failed to update test_run database record')
         else:
             self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_no_tests_found_in_path', self._current_test_base_path), self._mh.fromhere())
     
@@ -285,8 +331,23 @@ class Extension(extension.Extension):
             tset_obj = self._test_engine.parse_tset_struct(tset_struct);
             self._test_engine.test_run.norun_tests += tset_obj.parsed_tests['total_tco']
             if tset_obj != False:
+                if self._test_engine.have_test_results_db:
+                    try:                    
+                        tset_obj.create_db_record()
+                    except:
+                        print(sys.exc_info())
+                        raise Exception('Failed to create test_set database record')
+                
                 tset_obj.run()
                 
+                if self._test_engine.have_test_results_db:
+                    try: 
+                        tset_obj.end_time = time.time()                   
+                        tset_obj.update_db_record()
+                    except:
+                        print(sys.exc_info())
+                        raise Exception('Failed to update test_set database record')
+                    
     def parse_test_file(self, test_file):        
         try:
             with open(test_file, 'r') as f:                    

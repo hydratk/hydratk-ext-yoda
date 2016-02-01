@@ -23,8 +23,9 @@ help_cmd = {
 
 ''' Yoda Options '''
 help_opt = {
-   'yoda-test-path' : { '{h}--yoda-test-path <path>{e}' : { 'description' : 'test scenario path', 'commands' : ('yoda-run','yoda-run-pp','yoda-simul')}},
-   'yoda-test-repo-root-dir' : { '{h}--yoda-test-repo-root-dir <path>{e}' : { 'description' : 'test repository root directory', 'commands' : ('yoda-run','yoda-run-pp','yoda-simul','yoda-create-test-results-db')}},
-   'yoda-db-results-enabled' : { '{h}--yoda-db-results-enabled <state>{e}' : { 'description' : 'activates/deactivates test results storage to the database', 'commands' : ('yoda-run','yoda-run-pp','yoda-simul')}},
-   'yoda-db-results-dsn' : { '{h}--yoda-db-results-dsn <dsn>{e}' : { 'description' : 'test results database access definition', 'commands' : ('yoda-run','yoda-run-pp','yoda-simul','yoda-create-test-results-db')}},   
+   'yoda-test-path' : { '{h}--yoda-test-path <path>{e}' : { 'description' : 'test scenario path', 'commands' : ('yoda-run','yoda-simul')}},
+   'yoda-test-run-name' : { '{h}--yoda-test-run-name <name>{e}' : { 'description' : 'test run identification', 'commands' : ('yoda-run','yoda-simul')}},
+   'yoda-test-repo-root-dir' : { '{h}--yoda-test-repo-root-dir <path>{e}' : { 'description' : 'test repository root directory', 'commands' : ('yoda-run','yoda-simul','yoda-create-test-results-db')}},
+   'yoda-db-results-enabled' : { '{h}--yoda-db-results-enabled <state>{e}' : { 'description' : 'activates/deactivates test results storage to the database', 'commands' : ('yoda-run','yoda-simul')}},
+   'yoda-db-results-dsn' : { '{h}--yoda-db-results-dsn <dsn>{e}' : { 'description' : 'test results database access definition', 'commands' : ('yoda-run','yoda-simul','yoda-create-test-results-db')}},   
 }
