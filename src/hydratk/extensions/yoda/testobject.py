@@ -45,11 +45,23 @@ class TestObject(object):
         if name in self._attr:
             result = self._attr[name]
         return result
-    
-    
+        
     @property
     def attr(self):
         return self._attr;    
+
+    @property
+    def log(self):
+        return self._log
+    
+    @log.setter
+    def log(self, data):
+        self._log += data
+    
+    @property
+    def struct_log(self):
+        return self._struct_log
+     
 
 class BreakTestRun(Exception):
     pass
@@ -138,6 +150,27 @@ class TestRun(TestObject):
                                                   'log'          : self._log,
                                                   'struct_log'   : pickle.dumps(self._struct_log)  
                                                 })
+    
+    def write_custom_data(self):
+        have_filter = 'TestRun' in self._te.test_results_db.custom_data_filter
+        for key, value in self._attr.items():
+            pickled = 0
+            if have_filter:
+                if key in self._te.test_results_db.custom_data_filter['TestRun']:
+                    continue
+            if type(value).__name__ not in ['int','float','str']:
+                value = pickle.dumps(value)
+                pickled = 1
+            self._te.test_results_db.db_action(
+                                                   'create_custom_data',
+                                                 [
+                                                  self._te.test_run.id,
+                                                  self._id,
+                                                  'Test-Run',
+                                                  key,
+                                                  value,
+                                                  pickled                                                                                                    
+                                                 ]) 
                
     @property
     def te(self):
@@ -474,7 +507,28 @@ class TestSet(TestObject):
                                                   'passed_tests' : self._passed_tests,
                                                   'log'          : self._log,                                                  
                                                   'struct_log'   : pickle.dumps(self._struct_log)   
-                                                })   
+                                                })
+    
+    def write_custom_data(self):
+        have_filter = 'TestSet' in self._current.te.test_results_db.custom_data_filter
+        for key, value in self._attr.items():
+            pickled = 0
+            if have_filter:
+                if key in self._current.te.test_results_db.custom_data_filter['TestSet']:
+                    continue
+            if type(value).__name__ not in ['int','float','str']:
+                value = pickle.dumps(value)
+                pickled = 1
+            self._current.te.test_results_db.db_action(
+                                                   'create_custom_data',
+                                                 [
+                                                  self._current.te.test_run.id,
+                                                  self._id,
+                                                  'Test-Set',
+                                                  key,
+                                                  value,
+                                                  pickled                                                                                                    
+                                                 ])    
     
     def __repr__(self):
         result = '';
@@ -528,6 +582,7 @@ class TestSet(TestObject):
                     try:
                         ts.start_time = time.time()                    
                         ts.create_db_record()
+                        ts.write_custom_data()
                     except:
                         print(sys.exc_info())
                         raise Exception('Failed to create test_scenario database record')
@@ -575,8 +630,7 @@ class TestScenario(TestObject):
     _status         = None    
     _statuses       = ['started','finished','repeat','break']
     _action         = None
-    _prereq_passed  = None
-    _test_log       = ''
+    _prereq_passed  = None    
     _failures       = False       
     _total_tests    = 0
     _failed_tests   = 0
@@ -601,8 +655,7 @@ class TestScenario(TestObject):
         self._status         = None
         self._statuses       = ['started','finished','repeat','break']    
         self._action         = None              
-        self._prereq_passed  = None
-        self._test_log       = ''
+        self._prereq_passed  = None        
         self._failures       = False       
         self._total_tests    = 0
         self._failed_tests   = 0
@@ -623,7 +676,8 @@ class TestScenario(TestObject):
                                                  [
                                                   self._id,                                                  
                                                   self._attr['id'],
-                                                  self._parent.id,
+                                                  self._current.te.test_run.id,
+                                                  self._parent.id, # test set
                                                   self._start_time,
                                                   self._end_time,
                                                   self._total_tests,
@@ -632,14 +686,14 @@ class TestScenario(TestObject):
                                                   self._log,                                                  
                                                   pickle.dumps(self._struct_log)  
                                                 ])
-           
-    
+               
     def update_db_record(self):
         self._current.te.test_results_db.db_action(
                                                    'update_test_scenario_record',
                                                  {
                                                   'id'           : self._id,                                                  
                                                   'ts_id'        : self._attr['id'],
+                                                  'test_run_id'  : self._current.te.test_run.id,
                                                   'test_set_id'  : self._parent.id,
                                                   'start_time'   : self._start_time,
                                                   'end_time'     : self._end_time,
@@ -648,7 +702,28 @@ class TestScenario(TestObject):
                                                   'passed_tests' : self._passed_tests,
                                                   'log'          : self._log,                                                  
                                                   'struct_log'   : pickle.dumps(self._struct_log)   
-                                                })   
+                                                }) 
+        
+    def write_custom_data(self):
+        have_filter = 'TestCase' in self._current.te.test_results_db.custom_data_filter
+        for key, value in self._attr.items():
+            pickled = 0
+            if have_filter:
+                if key in self._current.te.test_results_db.custom_data_filter['TestScenario']:
+                    continue
+            if type(value).__name__ not in ['int','float','str']:
+                value = pickle.dumps(value)
+                pickled = 1
+            self._current.te.test_results_db.db_action(
+                                                   'create_custom_data',
+                                                 [
+                                                  self._current.te.test_run.id,
+                                                  self._id,
+                                                  'Test-Scenario',
+                                                  key,
+                                                  value,
+                                                  pickled                                                                                                    
+                                                 ])   
 
     def run(self):                   
         '''Define missing locals'''        
@@ -684,13 +759,13 @@ class TestScenario(TestObject):
             except Exception as exc:
                 self.prereq_passed = False                    
                 exc_info = sys.exc_info()
-                self.test_log += "Exception: %s\n" % exc_info[0]
-                self.test_log += "Value: %s\n" % str(exc_info[1])
+                self.log += "Exception: %s\n" % exc_info[0]
+                self.log += "Value: %s\n" % str(exc_info[1])
                 formatted_lines = traceback.format_exc().splitlines()
                 trace = ''
                 for line in formatted_lines:
                     trace += "%s\n" % str(line)
-                self.test_log += trace
+                self.log += trace
                 current.tset.failures = True
                 self.failures = True
                                                                     
@@ -719,13 +794,13 @@ class TestScenario(TestObject):
                 
             except Exception as exc:                                   
                 exc_info = sys.exc_info()
-                self.test_log += "Exception: %s\n" % exc_info[0]
-                self.test_log += "Value: %s\n" % str(exc_info[1])
+                self.log += "Exception: %s\n" % exc_info[0]
+                self.log += "Value: %s\n" % str(exc_info[1])
                 formatted_lines = traceback.format_exc().splitlines()
                 trace = ''
                 for line in formatted_lines:
                     trace += "%s\n" % str(line)
-                self.test_log += trace
+                self.log += trace
                 current.tset.failures = True
                 self.failures = True                
                                  
@@ -740,6 +815,7 @@ class TestScenario(TestObject):
                     try:
                         tca.start_time = time.time()                    
                         tca.create_db_record()
+                        tca.write_custom_data()
                     except:
                         print(sys.exc_info())
                         raise Exception('Failed to create test_case database record')
@@ -763,6 +839,7 @@ class TestScenario(TestObject):
                     try:
                         tca.end_time = time.time()                    
                         tca.update_db_record()
+                        tca.write_custom_data()
                     except:
                         print(sys.exc_info())
                         raise Exception('Failed to update test_case database record')
@@ -772,6 +849,43 @@ class TestScenario(TestObject):
                                 
         if self.action == None:
             self.status = "finished"
+        
+        if self.post_req != None:
+            try:
+                ev = Event('yoda_before_exec_ts_postreq', self.post_req)        
+                if (mh.fire_event(ev) > 0):
+                    self.post_req = ev.argv(0)
+                if ev.will_run_default():
+                    if current.te.test_simul_mode == False:
+                        current.te.code_stack.execute(self.post_req, locals())                                                                                   
+                    else:
+                        print("Simulation: Running Test scenario %s post-req" % self.name)
+                        compile(self.post_req,'<string>','exec')
+                self.prereq_passed = True
+                
+            except (BreakTestRun, BreakTestSet, BreakTestScenario) as exc:
+                self.status = 'break'
+                raise exc
+            
+            except BreakTest as exc:
+                raise Exception("You can't use 'break_test' outside the Test-Condition section")
+            
+            except BreakTestCase as exc:
+                raise Exception("You can't use 'break_test_case' outside the Test-Case section") 
+                 
+            except Exception as exc:
+                self.prereq_passed = False                    
+                exc_info = sys.exc_info()
+                self.log += "Exception: %s\n" % exc_info[0]
+                self.log += "Value: %s\n" % str(exc_info[1])
+                formatted_lines = traceback.format_exc().splitlines()
+                trace = ''
+                for line in formatted_lines:
+                    trace += "%s\n" % str(line)
+                self.log += trace
+                current.tset.failures = True
+                self.failures = True
+        
         
     @property
     def tca(self):
@@ -799,15 +913,7 @@ class TestScenario(TestObject):
     
     @prereq_passed.setter
     def prereq_passed(self, status):
-        self._prereq_passed = status    
-
-    @property
-    def test_log(self):
-        return self._test_log;
-    
-    @test_log.setter
-    def test_log(self, msg):
-        self._test_log = msg
+        self._prereq_passed = status       
 
     @property
     def failures(self):
@@ -880,7 +986,6 @@ class TestCase(TestObject):
     _statuses       = ['started','finished','repeat','break']    
     _tco            = []
     _action         = None
-    _test_log       = ''
     _failures       = False
     _failed_tco     = 0 
     _passed_tco     = 0 
@@ -921,7 +1026,9 @@ class TestCase(TestObject):
                                                  [
                                                   self._id,                                                  
                                                   self._attr['id'],
-                                                  self._parent.id,
+                                                  self._current.te.test_run.id,                                                 
+                                                  self._parent.parent.id, #test set
+                                                  self._parent.id,        #test scenario                                                 
                                                   self._start_time,
                                                   self._end_time,
                                                   self._total_tests,
@@ -938,6 +1045,8 @@ class TestCase(TestObject):
                                                  {
                                                   'id'               : self._id,                                                  
                                                   'tca_id'           : self._attr['id'],
+                                                  'test_run_id'      : self._current.te.test_run.id,
+                                                  'test_set_id'      : self._parent.parent.id, 
                                                   'test_scenario_id' : self._parent.id,
                                                   'start_time'       : self._start_time,
                                                   'end_time'         : self._end_time,
@@ -947,7 +1056,29 @@ class TestCase(TestObject):
                                                   'log'              : self._log,                                                  
                                                   'struct_log'       : pickle.dumps(self._struct_log)   
                                                 })   
-    
+
+
+    def write_custom_data(self):
+        have_filter = 'TestCase' in self._current.te.test_results_db.custom_data_filter
+        for key, value in self._attr.items():
+            pickled = 0
+            if have_filter:
+                if key in self._current.te.test_results_db.custom_data_filter['TestCase']:
+                    continue
+            if type(value).__name__ not in ['int','float','str']:
+                value = pickle.dumps(value)
+                pickled = 1
+            self._current.te.test_results_db.db_action(
+                                                   'create_custom_data',
+                                                 [
+                                                  self._current.te.test_run.id,
+                                                  self._id,
+                                                  'Test-Case',
+                                                  key,
+                                                  value,
+                                                  pickled                                                                                                    
+                                                 ]) 
+                
     def run(self):        
        
         '''Define missing locals'''
@@ -978,17 +1109,17 @@ class TestCase(TestObject):
                
             except Exception as exc:                                   
                 exc_info = sys.exc_info()
-                self.test_log += "Exception: %s\n" % exc_info[0]
-                self.test_log += "Value: %s\n" % str(exc_info[1])
+                self.log += "Exception: %s\n" % exc_info[0]
+                self.log += "Value: %s\n" % str(exc_info[1])
                 formatted_lines = traceback.format_exc().splitlines()
                 trace = ''
                 for line in formatted_lines:
                     trace += "%s\n" % str(line)
-                self.test_log += trace
+                self.log += trace
                 current.tset.failures = True
                 current.ts.failures = True
                 self.failures = True                    
-                print(self.test_log)            
+                print(self.log)            
         
                       
         for tco in self.tco:
@@ -1056,14 +1187,6 @@ class TestCase(TestObject):
     @status.setter
     def status(self,status):
         self._status = status
- 
-    @property
-    def test_log(self):
-        return self._test_log;
-    
-    @test_log.setter
-    def test_log(self, msg):
-        self._test_log = msg
 
     @property
     def failures(self):
@@ -1150,8 +1273,7 @@ class TestCondition(TestObject):
         self._resolution      = None
         self._status          = None
         self._statuses        = ['started','finished','repeat','break']    
-        self._action          = None
-        self._test_log        = '' 
+        self._action          = None       
         self._expected_result = None    
         self._test_resolution = None
         self._test_result     = None
@@ -1173,7 +1295,10 @@ class TestCondition(TestObject):
                                                  [
                                                   self._id,                                                  
                                                   self._attr['id'],
-                                                  self._parent.id,
+                                                  self._current.te.test_run.id,
+                                                  self._parent.parent.parent.id, #test set
+                                                  self._parent.parent.id, #test scenario
+                                                  self._parent.id,        #test_case
                                                   self._start_time,
                                                   self._end_time,
                                                   self._expected_result,
@@ -1189,6 +1314,9 @@ class TestCondition(TestObject):
                                                  {
                                                   'id'               : self._id,                                                  
                                                   'tco_id'           : self._attr['id'],
+                                                  'test_run_id'      : self._current.te.test_run.id,
+                                                  'test_set_id'      : self._parent.parent.parent.id,
+                                                  'test_scenario_id' : self._parent.parent.id,
                                                   'test_case_id'     : self._parent.id,
                                                   'start_time'       : self._start_time,
                                                   'end_time'         : self._end_time,
@@ -1247,13 +1375,13 @@ class TestCondition(TestObject):
                     
             except Exception as exc:                                   
                 exc_info = sys.exc_info()
-                self.test_log += "Exception: %s\n" % exc_info[0]
-                self.test_log += "Value: %s\n" % str(exc_info[1])
+                self.log += "Exception: %s\n" % exc_info[0]
+                self.log += "Value: %s\n" % str(exc_info[1])
                 formatted_lines = traceback.format_exc().splitlines()
                 trace = ''
                 for line in formatted_lines:
                     trace += "%s\n" % str(line)
-                self.test_log += trace
+                self.log += trace
                 current.tset.failures = True
                 current.ts.failures = True
                 current.tca.failures = True
@@ -1279,14 +1407,14 @@ class TestCondition(TestObject):
                         
         except Exception as exc:
             exc_info = sys.exc_info()
-            self.test_log += "Exception: %s\n" % exc_info[0]
-            self.test_log += "Value: {0}\n".format(str(exc_info[1]))
-            self.test_log += self.test
+            self.log += "Exception: %s\n" % exc_info[0]
+            self.log += "Value: {0}\n".format(str(exc_info[1]))
+            self.log += self.test
             formatted_lines = traceback.format_exc().splitlines()
             trace = ''
             for line in formatted_lines:
                 trace += "%s\n" % str(line)
-            self.test_log += trace
+            self.log += trace
             test_exception = True
             self.test_resolution = 'Failed'                        
             current.ts.failed_tests +=1
@@ -1325,20 +1453,20 @@ class TestCondition(TestObject):
                 current.te.test_run.failed_tests += 1                    
                 current.ts.failures = True
                 current.tca.failures = True
-                self.test_log += bytes(ae)
+                self.log += bytes(ae)
                 self.test_resolution = 'Failed'
                 self.expected_result = ae                         
                     
             except Exception as exc:
                 exc_info = sys.exc_info()
-                self.test_log += "Exception: %s\n" % exc_info[0]
-                self.test_log += "Value: %s\n" % str(exc_info[1])
+                self.log += "Exception: %s\n" % exc_info[0]
+                self.log += "Value: %s\n" % str(exc_info[1])
                 formatted_lines = traceback.format_exc().splitlines()
                 trace = ''
                 for line in formatted_lines:
                     trace += "%s\n" % str(line)
                 print("Exception %s" % trace)                            
-                self.test_log += trace
+                self.log += trace
                 test_exception = True
                 self.test_resolution = 'Failed'                        
                 current.ts.failed_tests +=1
@@ -1378,14 +1506,6 @@ class TestCondition(TestObject):
     def status(self,status):
         self._status = status   
     
-    @property
-    def test_log(self):
-        return self._test_log;
-    
-    @test_log.setter
-    def test_log(self, msg):
-        self._test_log = msg
-
     @property
     def failures(self):
         return self._failures;

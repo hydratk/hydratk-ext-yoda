@@ -319,8 +319,11 @@ class Extension(extension.Extension):
                 try:
                     self._test_engine.test_run.end_time = time.time()                    
                     self._test_engine.test_run.update_db_record()
+                    self._test_engine.test_run.write_custom_data()
                 except:
                     print(sys.exc_info())
+                    ex_type, ex, tb = sys.exc_info()
+                    traceback.print_tb(tb)
                     raise Exception('Failed to update test_run database record')
         else:
             self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_no_tests_found_in_path', self._current_test_base_path), self._mh.fromhere())
@@ -344,6 +347,7 @@ class Extension(extension.Extension):
                     try: 
                         tset_obj.end_time = time.time()                   
                         tset_obj.update_db_record()
+                        tset_obj.write_custom_data()
                     except:
                         print(sys.exc_info())
                         raise Exception('Failed to update test_set database record')
@@ -540,8 +544,8 @@ class Extension(extension.Extension):
                                         print("        {0}".format(self._mh._trn.msg('yoda_test_condition',tco.name)))
                                         print("            {}".format(self._mh._trn.msg('yoda_expected_result',str(tco.expected_result).strip())))                                        
                                         print("            {}".format(self._mh._trn.msg('yoda_actual_result',str(tco.test_result))))
-                                        print("            {}".format(self._mh._trn.msg('yoda_log',str(tco.test_log))))                                                                                 
+                                        print("            {}".format(self._mh._trn.msg('yoda_log',str(tco.log))))                                                                                 
                     else:
                         #print("      {0}\n   {1}".format(self._mh._trn.msg('yoda_test_scenario_prereq_failed',ts.test_log)))
-                        print(ts.test_log)                       
+                        print(ts.log)                       
         

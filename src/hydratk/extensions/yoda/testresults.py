@@ -53,6 +53,7 @@ db_struct = {
   CREATE TABLE test_scenario(
                         id VARCHAR NOT NULL, -- test_run.id + test_set.id + TestScenario._num
                         ts_id VARCHAR NOT NULL,
+                        test_run_id VARCHAR NOT NULL,
                         test_set_id VARCHAR NOT NULL,
                         start_time INTEGER NOT NULL,
                         end_time INTEGER NOT NULL, 
@@ -68,6 +69,8 @@ db_struct = {
   CREATE TABLE test_case(
                         id VARCHAR NOT NULL, -- test_run.id + test_set.id + test_scenario.id + TestCase._num
                         tca_id VARCHAR NOT NULL,
+                        test_run_id VARCHAR NOT NULL,
+                        test_set_id VARCHAR NOT NULL,
                         test_scenario_id VARCHAR NOT NULL,
                         start_time INTEGER NOT NULL,
                         end_time INTEGER NOT NULL, 
@@ -83,6 +86,9 @@ db_struct = {
     CREATE TABLE test_condition(
                         id VARCHAR NOT NULL,  -- test_run.id + test_set.id + test_scenario.id + test_case.id + TestCondition._num
                         tco_id VARCHAR NOT NULL,
+                        test_run_id VARCHAR NOT NULL,
+                        test_set_id VARCHAR NOT NULL,
+                        test_scenario_id VARCHAR NOT NULL,
                         test_case_id VARCHAR NOT NULL,
                         start_time INTEGER NOT NULL,
                         end_time INTEGER NOT NULL, 
@@ -134,9 +140,10 @@ db_actions = {
                                                   struct_log=:struct_log
                               WHERE id=:id
                             """,        
-                  'create_test_scenario_record' : "INSERT INTO test_scenario VALUES (?,?,?,?,?,?,?,?,?,?)",
+                  'create_test_scenario_record' : "INSERT INTO test_scenario VALUES (?,?,?,?,?,?,?,?,?,?,?)",
                   'update_test_scenario_record' : """
                               UPDATE test_scenario SET ts_id=:ts_id,
+                                                  test_run_id=:test_run_id,
                                                   test_set_id=:test_set_id,
                                                   start_time=:start_time, 
                                                   end_time=:end_time, 
@@ -147,9 +154,11 @@ db_actions = {
                                                   struct_log=:struct_log
                               WHERE id=:id
                             """,
-                  'create_test_case_record' : "INSERT INTO test_case VALUES (?,?,?,?,?,?,?,?,?,?)",
+                  'create_test_case_record' : "INSERT INTO test_case VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
                   'update_test_case_record' : """
                               UPDATE test_case SET tca_id=:tca_id,
+                                                  test_run_id=:test_run_id,
+                                                  test_set_id=:test_set_id,
                                                   test_scenario_id=:test_scenario_id,
                                                   start_time=:start_time, 
                                                   end_time=:end_time, 
@@ -160,9 +169,12 @@ db_actions = {
                                                   struct_log=:struct_log
                               WHERE id=:id
                             """,
-                  'create_test_condition_record' : "INSERT INTO test_condition VALUES (?,?,?,?,?,?,?,?,?,?)",
+                  'create_test_condition_record' : "INSERT INTO test_condition VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
                   'update_test_condition_record' : """
                               UPDATE test_condition SET tco_id=:tco_id,
+                                                  test_run_id=:test_run_id,
+                                                  test_set_id=:test_set_id,
+                                                  test_scenario_id=:test_scenario_id,
                                                   test_case_id=:test_case_id,
                                                   start_time=:start_time, 
                                                   end_time=:end_time, 
@@ -181,7 +193,7 @@ class TestResultsDB(object):
     _trdb = None
     _dsn  = None
     _custom_data_filter = {
-               'TestScenario'  : ['id', 'events', 'pre-req', 'post-req'],            
+               'TestScenario'  : ['id', 'events', 'pre_req', 'post_req'],            
                'TestCase'      : ['id', 'events'],            
                'TestCondition' : ['id', 'events', 'test', 'validate', 'expected_result']
                }
@@ -217,5 +229,4 @@ class TestResultsDB(object):
     def db_action(self, action, columns):
         dmsg("Running action: {} {}".format(action, str(columns)), 3)
         self._trdb.cursor.execute(db_actions[self._trdb.driver_name][action], columns)
-        self._trdb.commit()    
-  
+        self._trdb.commit()
