@@ -13,7 +13,6 @@ from hydratk.lib.debugging.simpledebug import dmsg
 from hydratk.lib.system.io import cprint
 from hydratk.lib.debugging.simpledebug import dmsg
 
-
 check_db_struct = {
             'sqlite' : { 'query'    : "SELECT count(*) expected from sqlite_master where type='table'",
                          'expected' : 6
@@ -204,6 +203,7 @@ class TestResultsDB(object):
     
     def __init__(self, dsn):
         self._trdb = dbo.DBO(dsn)
+        self._trdb.dbcon.text_factory = bytes
         self._dsn = dsn
     
     def db_check_ok(self):
@@ -228,8 +228,8 @@ class TestResultsDB(object):
     
     def unicode_columns(self, columns):
         new_cols = []
-        for col in columns:
-            new_cols.append(unicode(col))
+        for col in columns:                       
+            new_cols.append(col)
         return new_cols
            
     def db_action(self, action, columns):

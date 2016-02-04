@@ -820,6 +820,8 @@ class TestScenario(TestObject):
                         tca.write_custom_data()
                     except:
                         print(sys.exc_info())
+                        ex_type, ex, tb = sys.exc_info()
+                        traceback.print_tb(tb)
                         raise Exception('Failed to create test_case database record')
                     
                 tca.status     = 'started'                           
