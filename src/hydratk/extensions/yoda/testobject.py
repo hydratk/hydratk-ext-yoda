@@ -585,6 +585,8 @@ class TestSet(TestObject):
                         ts.write_custom_data()
                     except:
                         print(sys.exc_info())
+                        ex_type, ex, tb = sys.exc_info()
+                        traceback.print_tb(tb)
                         raise Exception('Failed to create test_scenario database record')
                     
                 print("Running test scenario {0}".format(ts.id)) 
@@ -1161,6 +1163,8 @@ class TestCase(TestObject):
                         tco.write_custom_data()
                     except:
                         print(sys.exc_info())
+                        ex_type, ex, tb = sys.exc_info()
+                        traceback.print_tb(tb)
                         raise Exception('Failed to update test_condition database record')
             else:
                 tco.resolution = 'skipped'

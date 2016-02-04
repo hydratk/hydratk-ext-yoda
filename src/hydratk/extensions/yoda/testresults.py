@@ -225,8 +225,14 @@ class TestResultsDB(object):
         else:
             self._trdb.cursor.executescript(db_struct[self._trdb.driver_name])
             cprint("Database created successfully")
-       
+    
+    def unicode_columns(self, columns):
+        new_cols = []
+        for col in columns:
+            new_cols.append(unicode(col))
+        return new_cols
+           
     def db_action(self, action, columns):
         dmsg("Running action: {} {}".format(action, str(columns)), 3)
-        self._trdb.cursor.execute(db_actions[self._trdb.driver_name][action], columns)
+        self._trdb.cursor.execute(db_actions[self._trdb.driver_name][action], self.unicode_columns(columns))
         self._trdb.commit()
