@@ -238,6 +238,7 @@ class MacroParser(object):
 class TestEngine(MacroParser):
     _mh              = None
     _test_run        = False
+    _exec_level      = 1
     _tset_struct     = None
     _tset_obj        = None
     _tset_file       = None
@@ -357,6 +358,10 @@ class TestEngine(MacroParser):
             self._run_mode_src = mode
     
     @property
+    def exec_level(self):        
+        return self._exec_level
+    
+    @property
     def test_simul_mode(self):        
         return self._test_simul_mode
             
@@ -390,6 +395,7 @@ class TestEngine(MacroParser):
         self._ts_filter       = []
         self._tca_filter      = []
         self._tco_filter      = [] 
+        self._exec_level      = 1
                 
         self.mp_add_hooks({
                           'include' : self._h_include
@@ -494,7 +500,7 @@ class TestEngine(MacroParser):
         return tset_obj
     
     def exec_test(self, test_path):
-                
+        self._exec_level += 1        
         dmsg('Inline test exec: {0}'.format(test_path))
         if test_path is not None and test_path != '':
             if test_path not in self._test_run.inline_tests:
@@ -534,7 +540,8 @@ class TestEngine(MacroParser):
             self._current.tset = backup_tset 
             self._current.ts   = backup_ts
             self._current.tca  = backup_tca 
-            self._current.tco  = backup_tco            
+            self._current.tco  = backup_tco
+            self._exec_level  += 1            
     
     def get_all_tests_from_container(self, container_file):
         dmsg('Parsing test container file: {0}'.format(container_file))

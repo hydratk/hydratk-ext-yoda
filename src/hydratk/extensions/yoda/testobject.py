@@ -454,11 +454,10 @@ class TestSet(TestObject):
         self._end_time = time            
     
     def __init__(self, current, test_set_file):
-        id_salt = ''        
         if test_set_file != '<str>':        
             self._current_test_base_path  = os.path.dirname(test_set_file)
-        else:
-            id_salt = '{}{}'.format(test_set_file,random.randint(100000000, 999999999))
+       
+        id_salt = '{}{}{}'.format(test_set_file,random.randint(100000000, 999999999),current.te.exec_level)
         self._current_test_set_file   = test_set_file
         self._id                      = hashlib.md5('{0}{1}{2}'.format(current.te.test_run.id, self._current_test_set_file, id_salt)).hexdigest()    
         self._total_tests             = 0
@@ -649,8 +648,9 @@ class TestScenario(TestObject):
         self._current.te.exec_test(test_path)
     
     def __init__(self, ts_num, parent_tset, current):
-        self._num            = ts_num        
-        self._id             = hashlib.md5('{0}{1}{2}'.format(current.te.test_run.id, parent_tset.id, ts_num)).hexdigest()
+        self._num            = ts_num   
+        id_salt              = '{}{}'.format(random.randint(100000000, 999999999),current.te.exec_level)     
+        self._id             = hashlib.md5('{0}{1}{2}{3}'.format(current.te.test_run.id, parent_tset.id, ts_num, id_salt)).hexdigest()
         self._attr           = {}
         self._tca            = []
         self._resolution     = None 
@@ -1004,8 +1004,9 @@ class TestCase(TestObject):
         self._current.te.exec_test(test_path)
         
     def __init__(self, tca_num, parent_ts, current):
-        self._num        = tca_num       
-        self._id         = hashlib.md5('{0}{1}{2}{3}'.format(current.te.test_run.id, parent_ts.parent.id, parent_ts.id, tca_num)).hexdigest()
+        self._num        = tca_num 
+        id_salt          = '{}{}'.format(random.randint(100000000, 999999999),current.te.exec_level)      
+        self._id         = hashlib.md5('{0}{1}{2}{3}{4}'.format(current.te.test_run.id, parent_ts.parent.id, parent_ts.id, tca_num, id_salt)).hexdigest()
         self._attr       = {} 
         self._resolution = None
         self._status     = None
@@ -1273,8 +1274,9 @@ class TestCondition(TestObject):
         self._current.te.exec_test(test_path)
         
     def __init__(self, tco_num, parent_tca, current):
-        self._num             = tco_num                    
-        self._id              = hashlib.md5('{0}{1}{2}{3}{4}'.format(current.te.test_run.id, parent_tca.parent.parent.id, parent_tca.parent.id, parent_tca.id, tco_num)).hexdigest()      
+        self._num             = tco_num
+        id_salt               = '{}{}'.format(random.randint(100000000, 999999999),current.te.exec_level)                    
+        self._id              = hashlib.md5('{0}{1}{2}{3}{4}{5}'.format(current.te.test_run.id, parent_tca.parent.parent.id, parent_tca.parent.id, parent_tca.id, tco_num, id_salt)).hexdigest()      
         self._attr            = {} 
         self._resolution      = None
         self._status          = None
