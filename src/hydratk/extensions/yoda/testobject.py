@@ -670,7 +670,7 @@ class TestScenario(TestObject):
     
     @property
     def id(self):
-        return self._id
+        return self._attr['id']
     
     def create_db_record(self):
         self._current.te.test_results_db.db_action(
@@ -758,20 +758,24 @@ class TestScenario(TestObject):
             except BreakTestCase as exc:
                 raise Exception("You can't use 'break_test_case' outside the Test-Case section") 
                  
-            except Exception as exc:
+            except Exception as exc:                
                 self.prereq_passed = False                    
                 exc_info = sys.exc_info()
-                self.log += "Exception: %s\n" % exc_info[0]
-                self.log += "Value: %s\n" % str(exc_info[1])
+                self.log += "Exception: {}\nValue: {}\n".format(exc_info[0], exc_info[1])                                                
                 formatted_lines = traceback.format_exc().splitlines()
-                trace = ''
+                print(formatted_lines)
+                trace = ''                
                 for line in formatted_lines:
-                    trace += "%s\n" % str(line)
+                    trace += "%s\n" % str(line)                
                 self.log += trace
+                print(self.log)
+                #print(trace)
                 current.tset.failures = True
                 self.failures = True
-                                                                    
-        
+                #print(self.log)
+                self.status = 'break'
+                return True                
+                                                                            
         if self.events != None and 'before_start' in self.events:                
             try:
                 ev = Event('yoda_events_before_start_ts', self.events['before_start'])        
@@ -1023,7 +1027,7 @@ class TestCase(TestObject):
 
     @property
     def id(self):
-        return self._id
+        return self._attr['id']
 
     def create_db_record(self):
         self._current.te.test_results_db.db_action(
@@ -1112,7 +1116,7 @@ class TestCase(TestObject):
             except BreakTest as exc:
                 raise Exception("You can't use 'break_test' outside the Test-Condition section") 
                
-            except Exception as exc:                                   
+            except Exception as exc:                                              
                 exc_info = sys.exc_info()
                 self.log += "Exception: %s\n" % exc_info[0]
                 self.log += "Value: %s\n" % str(exc_info[1])
@@ -1138,8 +1142,7 @@ class TestCase(TestObject):
                     try:
                         tco.start_time = time.time()                    
                         tco.create_db_record()
-                    except:
-                        import traceback
+                    except:                        
                         ext, msg, trb = sys.exc_info()
                         print(msg)
                         print repr(traceback.format_tb(trb))
@@ -1295,7 +1298,7 @@ class TestCondition(TestObject):
 
     @property
     def id(self):
-        return self._id
+        return self._attr['id']
 
     def create_db_record(self):        
         self._current.te.test_results_db.db_action(
@@ -1372,7 +1375,7 @@ class TestCondition(TestObject):
                 if (mh.fire_event(ev) > 0):
                     self.events['before_start'] = ev.argv(0)
                 if ev.will_run_default():                        
-                    if current.te.test_simul_mode == False:                                                                              
+                    if current.te.test_simul_mode == False:                                                                                                  
                         current.te.code_stack.execute(self.events['before_start'], locals())     
                     else:
                         print("Simulation: Running Test Condition %s yoda_events_before_start_tco " % self.name)

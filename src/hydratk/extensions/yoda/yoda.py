@@ -151,10 +151,12 @@ class Extension(extension.Extension):
         if db_results_enabled_state != False and int(db_results_enabled_state) in (0,1):
             self._mh.ext_cfg['Yoda']['db_results_enabled'] = int(db_results_enabled_state)
             self._use_test_results_db = bool(int(db_results_enabled_state))
+            dmsg("Using database test results")
         
         db_results_dsn = CommandlineTool.get_input_option('--yoda-db-results-dsn')
         if db_results_dsn != False and db_results_dsn not in (None,''):
-            self._mh.ext_cfg['Yoda']['yoda-db-results-dsn'] = db_results_dsn 
+            self._mh.ext_cfg['Yoda']['db_results_dsn']  = db_results_dsn
+            dmsg("Overriding database test results dsn with: {}".format(self._mh.ext_cfg['Yoda']['db_results_dsn'] ),3) 
             
         test_run_name = CommandlineTool.get_input_option('--yoda-test-run-name')
         if test_run_name != False:
@@ -168,9 +170,10 @@ class Extension(extension.Extension):
     def init_pp_tests(self):
         pass
     
-    def check_test_results_db(self, ev):
-        if self._use_test_results_db:
-            dsn = self._mh.ext_cfg['Yoda']['db_results_dsn']            
+    def check_test_results_db(self, ev):        
+        if self._use_test_results_db:            
+            dsn = self._mh.ext_cfg['Yoda']['db_results_dsn']                  
+            dmsg("Initializing test results database, dsn: {}".format(dsn))            
             trdb = TestResultsDB(dsn)            
             if trdb.db_check_ok() == False:
                 if int(self._mh.ext_cfg['Yoda']['db_results_autocreate']) == 1:
@@ -185,7 +188,8 @@ class Extension(extension.Extension):
             else:
                 dmsg("Test result database dsn: {0} check ok.".format(dsn))
                 self._test_engine.test_results_db = trdb
-                
+        else:
+            dmsg("Test results database disabled")
              
     def init_tests(self):
         """Method is initializing tests           
