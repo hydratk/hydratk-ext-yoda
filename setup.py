@@ -32,10 +32,16 @@ data_files=[
             ('/var/local/hydratk/yoda/yoda-tests/test1',['var/local/hydratk/yoda/yoda-tests/test1/example1.yoda']),
             ('/var/local/hydratk/yoda/helpers/yodahelpers',['var/local/hydratk/yoda/helpers/yodahelpers/__init__.py']),
             ('/var/local/hydratk/yoda/lib/yodalib',['var/local/hydratk/yoda/lib/yodalib/__init__.py'])            
-           ]         
+           ]
+
+entry_points = {
+                'console_scripts': [
+                    'yoda = hydratk.extensions.yoda.bootstrapper:run_app'                               
+                ]
+               }          
                 
 setup(name='hydratk-ext-yoda',
-      version='0.2.0b.dev1',
+      version='0.2.0b.dev2',
       description='Test Automation Tool',
       long_description=readme,
       author='Petr Czaderna',
@@ -45,5 +51,6 @@ setup(name='hydratk-ext-yoda',
       packages=find_packages('src'),
       package_dir={'' : 'src'},
       classifiers=classifiers,
-      data_files=data_files      
+      data_files=data_files,
+      entry_points=entry_points      
      )

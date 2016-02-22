@@ -18,7 +18,11 @@ language = {
 help_cmd = {
    'yoda-run' : 'starts the Yoda tester',   
    'yoda-simul' : 'starts the Yoda tester in test simulation mode',
-   'yoda-create-test-results-db' : 'creates database for storing test results base on specified dsn configuration'                 
+   'yoda-create-test-results-db' : 'creates database for storing test results base on specified dsn configuration',
+   #standalone with option profile yoda                  
+   'run' : 'starts the Yoda tester',   
+   'simul' : 'starts the Yoda tester in test simulation mode',
+   'create-test-results-db' : 'creates database for storing test results base on specified dsn configuration'
 }
 
 ''' Yoda Options '''
@@ -27,5 +31,11 @@ help_opt = {
    'yoda-test-run-name' : { '{h}--yoda-test-run-name <name>{e}' : { 'description' : 'test run identification', 'commands' : ('yoda-run','yoda-simul')}},
    'yoda-test-repo-root-dir' : { '{h}--yoda-test-repo-root-dir <path>{e}' : { 'description' : 'test repository root directory', 'commands' : ('yoda-run','yoda-simul','yoda-create-test-results-db')}},
    'yoda-db-results-enabled' : { '{h}--yoda-db-results-enabled <state>{e}' : { 'description' : 'activates/deactivates test results storage to the database', 'commands' : ('yoda-run','yoda-simul')}},
-   'yoda-db-results-dsn' : { '{h}--yoda-db-results-dsn <dsn>{e}' : { 'description' : 'test results database access definition', 'commands' : ('yoda-run','yoda-simul','yoda-create-test-results-db')}},   
+   'yoda-db-results-dsn' : { '{h}--yoda-db-results-dsn <dsn>{e}' : { 'description' : 'test results database access definition', 'commands' : ('yoda-run','yoda-simul','yoda-create-test-results-db')}},
+   #standalone with option profile yoda
+   'test-path' : { '{h}--test-path <path>{e}' : { 'description' : 'test scenario path', 'commands' : ('run','simul')}},
+   'test-run-name' : { '{h}--test-run-name <name>{e}' : { 'description' : 'test run identification', 'commands' : ('run','simul')}},
+   'test-repo-root-dir' : { '{h}--test-repo-root-dir <path>{e}' : { 'description' : 'test repository root directory', 'commands' : ('run','simul','create-test-results-db')}},
+   'db-results-enabled' : { '{h}--db-results-enabled <state>{e}' : { 'description' : 'activates/deactivates test results storage to the database', 'commands' : ('run','simul')}},
+   'db-results-dsn' : { '{h}--db-results-dsn <dsn>{e}' : { 'description' : 'test results database access definition', 'commands' : ('run','simul','create-test-results-db')}},       
 }

@@ -62,7 +62,7 @@ class Extension(extension.Extension):
     
     def _init_extension(self):
         self._ext_name    = 'Yoda'
-        self._ext_version = '0.2.0b.dev1'
+        self._ext_version = '0.2.0b.dev2'
         self._ext_author  = 'Petr Czaderna <pc@hydratk.org>'
         self._ext_year    = '2014 - 2016'
         
@@ -103,12 +103,22 @@ class Extension(extension.Extension):
         hook = [
                 {'event' : 'htk_on_cmd_options', 'callback' : self.init_check },
                 {'event' : 'yoda_before_init_tests', 'callback' : self.check_test_results_db }                
-               ]        
+               ]
+                
         self._mh.register_event_hook(hook)
-
-        self._mh.match_command('yoda-run')              
-        self._mh.match_command('yoda-simul')
-        self._mh.match_command('yoda-create-test-results-db')
+        if self._mh.cli_cmdopt_profile == 'yoda':
+            self._register_standalone_actions()             
+        else:
+            self._register_htk_actions()
+             
+        self._use_test_results_db = bool(int(self._mh.ext_cfg['Yoda']['db_results_enabled']))
+        self._test_engine = TestEngine()                    
+    
+    def _register_htk_actions(self):
+        dmsg("Registering htk actions")
+        self._mh.match_cli_command('yoda-run')              
+        self._mh.match_cli_command('yoda-simul')
+        self._mh.match_cli_command('yoda-create-test-results-db')
         hook = [
                 {'command' : 'yoda-run', 'callback' : self.init_tests },                
                 {'command' : 'yoda-simul', 'callback' : self.init_test_simul },
@@ -116,15 +126,42 @@ class Extension(extension.Extension):
                ]        
         self._mh.register_command_hook(hook)
         
-        self._mh.match_long_option('yoda-test-path', True)
-        self._mh.match_long_option('yoda-test-repo-root-dir', True)
-        self._mh.match_long_option('yoda-db-results-enabled', True)        
-        self._mh.match_long_option('yoda-db-results-dsn', True)
-        self._mh.match_long_option('yoda-test-run-name', True)         
-             
-        self._use_test_results_db = bool(int(self._mh.ext_cfg['Yoda']['db_results_enabled']))
-        self._test_engine = TestEngine()                    
+        self._mh.match_long_option('yoda-test-path', True, 'yoda-test-path')
+        self._mh.match_long_option('yoda-test-repo-root-dir', True, 'yoda-test-repo-root-dir')
+        self._mh.match_long_option('yoda-db-results-enabled', True, 'yoda-db-results-enabled')        
+        self._mh.match_long_option('yoda-db-results-dsn', True, 'yoda-db-results-dsn')
+        self._mh.match_long_option('yoda-test-run-name', True, 'yoda-test-run-name')  
     
+    def _register_standalone_actions(self):
+        dmsg("Registering standalone actions")
+        option_profile = 'yoda'
+        help_title       = '{h}' + self._ext_name + ' v' + self._ext_version + '{e}'
+        cp_string        = '{u}' + "(c) "+ self._ext_year +" "+ self._ext_author  + '{e}'
+        self._mh.set_cli_appl_title(help_title, cp_string)
+        
+        self._mh.match_cli_command('run', option_profile)              
+        self._mh.match_cli_command('simul',option_profile)
+        self._mh.match_cli_command('create-test-results-db',option_profile)
+        self._mh.match_cli_command('help', option_profile)
+        hook = [
+                {'command' : 'run', 'callback' : self.init_tests },                
+                {'command' : 'simul', 'callback' : self.init_test_simul },
+                {'command' : 'create-test-results-db', 'callback' : self.create_test_results_db },               
+               ]        
+        self._mh.register_command_hook(hook)
+                
+        self._mh.match_long_option('test-path', True, 'yoda-test-path', False, option_profile)
+        self._mh.match_long_option('test-repo-root-dir', 'yoda-test-repo-root-dir', None, False, option_profile)
+        self._mh.match_long_option('db-results-enabled', True, 'yoda-db-results-enabled', False, option_profile)        
+        self._mh.match_long_option('db-results-dsn', True, 'yoda-db-results-dsn', False, option_profile)
+        self._mh.match_long_option('test-run-name', True, 'yoda-test-run-name', False, option_profile)
+        self._mh.match_cli_option(('c','config'), True, None, False, option_profile)
+        self._mh.match_cli_option(('d','debug'), True, None, False, option_profile)   
+        self._mh.match_cli_option(('e','debug-channel'), True, None, False, option_profile)
+        self._mh.match_cli_option(('l','language'), True, None, False, option_profile)
+        self._mh.match_cli_option(('f','force'), False, None, False, option_profile)
+        self._mh.match_cli_option(('i','interactive'), False, None, False, option_profile)
+        
     def create_test_results_db(self):
         dsn = self._mh.ext_cfg['Yoda']['db_results_dsn']
         dmsg("Create db results dsn: {0}".format(dsn))
@@ -141,24 +178,24 @@ class Extension(extension.Extension):
            ev (object): hydratk.core.event.Event
         
         """             
-        test_repo = CommandlineTool.get_input_option('--yoda-test-repo-root-dir')             
+        test_repo = CommandlineTool.get_input_option('yoda-test-repo-root-dir')             
         if test_repo != False and os.path.exists(test_repo) and os.path.isdir(test_repo):
             self._test_repo_root = test_repo    
             self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_test_repo_root_override',test_repo), self._mh.fromhere())
             self._update_repos()
         
-        db_results_enabled_state = CommandlineTool.get_input_option('--yoda-db-results-enabled')
+        db_results_enabled_state = CommandlineTool.get_input_option('yoda-db-results-enabled')
         if db_results_enabled_state != False and int(db_results_enabled_state) in (0,1):
             self._mh.ext_cfg['Yoda']['db_results_enabled'] = int(db_results_enabled_state)
             self._use_test_results_db = bool(int(db_results_enabled_state))
             dmsg("Using database test results")
         
-        db_results_dsn = CommandlineTool.get_input_option('--yoda-db-results-dsn')
+        db_results_dsn = CommandlineTool.get_input_option('yoda-db-results-dsn')
         if db_results_dsn != False and db_results_dsn not in (None,''):
             self._mh.ext_cfg['Yoda']['db_results_dsn']  = db_results_dsn
             dmsg("Overriding database test results dsn with: {}".format(self._mh.ext_cfg['Yoda']['db_results_dsn'] ),3) 
             
-        test_run_name = CommandlineTool.get_input_option('--yoda-test-run-name')
+        test_run_name = CommandlineTool.get_input_option('yoda-test-run-name')
         if test_run_name != False:
             self._test_engine.test_run.name = test_run_name                   
     
@@ -204,7 +241,7 @@ class Extension(extension.Extension):
         ev = event.Event('yoda_before_init_tests')        
         self._mh.fire_event(ev)                    
         if ev.will_run_default():     
-            test_path = CommandlineTool.get_input_option('--yoda-test-path')            
+            test_path = CommandlineTool.get_input_option('yoda-test-path')            
             if test_path == False:
                 test_path = ''           
                                 
