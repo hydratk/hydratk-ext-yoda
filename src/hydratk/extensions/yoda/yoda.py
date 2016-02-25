@@ -455,4 +455,8 @@ class Extension(extension.Extension):
                     else:
                         print(colorize("     ! {0}".format(self._mh._trn.msg('yoda_test_scenario_prereq_failed', colorize(ts.log, rgb=0xd70000))),rgb=0xd70000))
                     if ts.events_passed == False:
-                        print(colorize("     ! {0}".format(self._mh._trn.msg('yoda_test_scenario_events_failed', ts.log)),rgb=0xd70000))        
+                        print(colorize("    ! {0}".format(self._mh._trn.msg('yoda_test_scenario_events_failed', ts.log)),rgb=0xd70000))
+                    if ts.postreq_passed == True:
+                        print("    + {0}".format(self._mh._trn.msg('yoda_test_scenario_postreq_passed')))
+                    elif ts.postreq_passed == False:
+                        print(colorize("    ! {0}".format(self._mh._trn.msg('yoda_test_scenario_postreq_failed', colorize(ts.log, rgb=0xd70000))),rgb=0xd70000))        

@@ -30,6 +30,8 @@ msg = {
     'yoda_test_scenario_summary' : ['Test Scenario: {0}, tests - total: {1}, failed: {2}, passed: {3}'],
     'yoda_test_scenario_prereq_passed' : ['Pre-requirements passed successfully'],
     'yoda_test_scenario_prereq_failed' : ['Pre-requirements failed: {0}'],
+    'yoda_test_scenario_postreq_passed' : ['Post-requirements passed successfully'],
+    'yoda_test_scenario_postreq_failed' : ['Post-requirements failed: {0}'],    
     'yoda_test_scenario_events_failed' : ['There were problems in test scenario events: \n{0}'],
     'yoda_test_case_events_failed' : ['There were problems in test case events: \n{0}'],
     'yoda_test_condition_events_failed' : ['There were problems in test condition events: \n{0}'],

@@ -711,6 +711,7 @@ class TestScenario(TestObject):
     _statuses       = ['started','finished','repeat','break']
     _action         = None
     _prereq_passed  = None
+    _postreq_passed = None
     _events_passed  = None    
     _failures       = False       
     _total_tests    = 0
@@ -964,6 +965,49 @@ class TestScenario(TestObject):
                                 
         if self.action == None:
             self.status = "finished"
+
+        if self.events != None and 'after_finish' in self.events:                
+            try:
+                self._events_passed = False
+                ev = Event('yoda_events_after_finish_ts', self.events['after_finish'])        
+                if (mh.fire_event(ev) > 0):
+                    self.events['after_finish'] = ev.argv(0)
+                if ev.will_run_default():
+                    test_hierarchy['test_scenario_node'] = 'events.after_finish'
+                    if current.te.test_simul_mode == False:                                                        
+                        current.te.code_stack.execute(self.events['after_finish'], locals())                              
+                    else:
+                        print("Simulation: Running Test scenario %s yoda_events_after_finish_ts " % self.name)
+                        compile(self.events['after_finish'],'<string>','exec')
+                self._events_passed = True 
+            except (BreakTestRun, BreakTestSet, BreakTestScenario) as exc:
+                self.status = 'break'
+                raise exc
+            
+            except BreakTest as exc:
+                raise Exception("You can't use 'break_test' outside the Test-Condition section")
+            
+            except BreakTestCase as exc:
+                raise Exception("You can't use 'break_test_case' outside the Test-Case section") 
+                
+            except Exception as exc:                                              
+                self.log = self._explain(
+                                            exc_name       = sys.exc_info()[0],
+                                            exc_value      = sys.exc_info()[1],
+                                            test_hierarchy = test_hierarchy,                             
+                                            tb             = traceback.format_exc().splitlines()                              
+                                       )              
+                current.tset.failures = True
+                self.failures = True
+                auto_break = self.get_auto_break()
+                break_meth = {
+                              'break_test_set' : self.break_test_set,
+                              'break_test_run' : self.break_test_run
+                              }
+                if auto_break in break_meth:
+                    break_meth[auto_break]("{}: {}".format(sys.exc_info()[0],sys.exc_info()[1]))
+                self.status = 'break'
+                return True
         
         if self.post_req != None:
             try:
@@ -1035,7 +1079,15 @@ class TestScenario(TestObject):
     
     @prereq_passed.setter
     def prereq_passed(self, status):
-        self._prereq_passed = status       
+        self._prereq_passed = status
+        
+    @property
+    def postreq_passed(self):
+        return self._postreq_passed;
+    
+    @postreq_passed.setter
+    def postreq_passed(self, status):
+        self._postreq_passed = status                 
 
     @property
     def events_passed(self):
@@ -1242,7 +1294,7 @@ class TestCase(TestObject):
                        'test_condition_node' : None     
                     }                                                   
         if self.events != None and 'before_start' in self.events:                
-            try:
+            try:                
                 ev = Event('yoda_events_before_start_tca', self.events['before_start'])        
                 if (mh.fire_event(ev) > 0):
                     self.events['before_start'] = ev.argv(0)
@@ -1329,6 +1381,47 @@ class TestCase(TestObject):
                 print("Filter: Skippind test condition {0}".format(tco.id))    
         if self.action == None:
             self.status = "finished" 
+
+        if self.events != None and 'after_finish' in self.events:                
+            try:
+                ev = Event('yoda_events_after_finish_tca', self.events['after_finish'])        
+                if (mh.fire_event(ev) > 0):
+                    self.events['after_finish'] = ev.argv(0)
+                if ev.will_run_default():
+                    test_hierarchy['test_case_node'] = 'events.after_finish'
+                    if current.te.test_simul_mode == False:                                                                                                                                       
+                        current.te.code_stack.execute(self.events['after_finish'], locals())                                                                      
+                    else:
+                        print("Simulation: Running Test Case %s yoda_events_after_finish_tca " % self.name)
+                        compile(self.events['after_finish'],'<string>','exec')
+                        
+            except (BreakTestRun, BreakTestSet, BreakTestScenario, BreakTestCase) as exc:
+                self.status = 'break'
+                raise exc
+            
+            except BreakTest as exc:
+                raise Exception("You can't use 'break_test' outside the Test-Condition section") 
+               
+            except Exception as exc:                                              
+                self.log = self._explain(
+                            exc_name       = sys.exc_info()[0],
+                            exc_value      = sys.exc_info()[1],
+                            test_hierarchy = test_hierarchy,                             
+                            tb             = traceback.format_exc().splitlines()                              
+                       )
+                self._events_passed   = False              
+                current.tset.failures = True
+                parent.failures       = True
+                self.failures         = True
+                auto_break            = self.get_auto_break()
+                break_meth = {
+                              'break_test_set' : self.break_test_set,
+                              'break_test_run' : self.break_test_run
+                              }
+                if auto_break in break_meth:
+                    break_meth[auto_break]("{}: {}".format(sys.exc_info()[0],sys.exc_info()[1]))
+                self.status = 'break'
+                return True                  
 
     @property
     def tco(self):
@@ -1722,6 +1815,46 @@ class TestCondition(TestObject):
         elif self.action == 'break':
             self.status = 'break'
             self.action = None 
+
+        if self.events != None and 'after_finish' in self.events:                                
+            try:
+                ev = Event('yoda_events_after_finish_tco', self.events['after_finish'])        
+                if (mh.fire_event(ev) > 0):
+                    self.events['after_finish'] = ev.argv(0)
+                if ev.will_run_default():
+                    test_hierarchy['test_condition_node'] = 'events.after_finish'                        
+                    if current.te.test_simul_mode == False:                                                                                                  
+                        current.te.code_stack.execute(self.events['after_finish'], locals())     
+                    else:
+                        print("Simulation: Running Test Condition %s yoda_events_after_finish_tco " % self.name)
+                        compile(self.events['after_finish'],'<string>','exec')
+            
+            except (BreakTestRun, BreakTestSet, BreakTestScenario, BreakTestCase, BreakTest) as exc:
+                raise exc
+                    
+            except Exception as exc:                                   
+                self.prereq_passed = False
+                self.log = self._explain(
+                              exc_name       = sys.exc_info()[0],
+                              exc_value      = sys.exc_info()[1],
+                              test_hierarchy = test_hierarchy,                             
+                              tb             = traceback.format_exc().splitlines()                              
+                           )                                   
+ 
+                current.tset.failures = True
+                current.ts.failures   = True
+                parent.tco_failures   = True
+                self.failures         = True
+                self.events_passed    = False                 
+                auto_break = self.get_auto_break()
+                break_meth = {
+                              'break_test_set' : self.break_test_set,
+                              'break_test_run' : self.break_test_run
+                              }
+                if auto_break in break_meth:
+                    break_meth[auto_break]("{}: {}".format(sys.exc_info()[0],sys.exc_info()[1]))
+                self.status = 'break'
+                return True                   
         
     @property
     def resolution(self):

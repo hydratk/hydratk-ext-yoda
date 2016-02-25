@@ -32,6 +32,8 @@ msg = {
     'yoda_test_scenario_summary' : ['Test. Scénář: {0}, testy - celkem: {1}, chybné: {2}, úspěšné: {3}'],
     'yoda_test_scenario_prereq_passed' : ['Předtestovací požadavky úspěšně splněny'],
     'yoda_test_scenario_prereq_failed' : ['Předtestovací požadavky selhaly: \n{0}'],
+    'yoda_test_scenario_postreq_failed' : ['Post-požadavky selhaly: {0}'],
+    'yoda_test_scenario_postreq_passed' : ['Post-požadavky úspěšně splňeny'],    
     'yoda_test_scenario_events_failed' : ['Vyskytnuly se problémy v událostech test. scénáře: \n{0}'],
     'yoda_test_case_events_failed' : ['Vyskytnuly se problémy v událostech test. případu: \n{0}'],
     'yoda_test_condition_events_failed' : ['Vyskytnuly se problémy v událostech test. podmínky: \n{0}'],
