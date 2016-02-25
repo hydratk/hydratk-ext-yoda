@@ -62,7 +62,7 @@ class Extension(extension.Extension):
     
     def _init_extension(self):
         self._ext_name    = 'Yoda'
-        self._ext_version = '0.2.0b.dev2'
+        self._ext_version = '0.2.0b.dev3'
         self._ext_author  = 'Petr Czaderna <pc@hydratk.org>'
         self._ext_year    = '2014 - 2016'
         
@@ -415,178 +415,44 @@ class Extension(extension.Extension):
             ex_type, ex, tb = sys.exc_info()
             traceback.print_tb(tb)
             sys.exit(1)
-    
-    def exec_test_set(self,testobj, test_set):                     
-        ts_num = 1
-        ts_k = 'Test-Scenario-%d' % ts_num
-        while ts_k in testobj:                      
-            test_scenario = TestScenario(ts_num)
-            test_scenario.path    = testobj[ts_k]['Path'] if 'Path' in testobj[ts_k] else None
-            test_scenario.name    = testobj[ts_k]['Name'] if 'Name' in testobj[ts_k] else None
-            test_scenario.desc    = testobj[ts_k]['Desc'] if 'Desc' in testobj[ts_k] else None
-            test_scenario.author  = testobj[ts_k]['Author'] if 'Author' in testobj[ts_k] else None
-            test_scenario.version = testobj[ts_k]['Version'] if 'Version' in testobj[ts_k] else None            
-            if 'Pre-Req' in testobj[ts_k]:
-                try:
-                    ev = event.Event('yoda_before_exec_ts_prereq', testobj[ts_k]['Pre-Req'])        
-                    if (self._mh.fire_event(ev) > 0):
-                        testobj[ts_k]['Pre-Req'] = ev.argv(0)
-                    if ev.will_run_default():
-                        if self._test_simul_mode == False:
-                            exec(testobj[ts_k]['Pre-Req'],globals(),locals())
-                        else:
-                            print("Simulation: Running Test scenario %s Pre-Req" % test_scenario.name)
-                    test_scenario.prereq_passed = True
-                except Exception as exc:
-                    test_scenario.prereq_passed = False                    
-                    exc_info = sys.exc_info()
-                    test_scenario.test_log += "Exception: %s\n" % exc_info[0]
-                    test_scenario.test_log += "Value: %s\n" % str(exc_info[1])
-                    formatted_lines = traceback.format_exc().splitlines()
-                    trace = ''
-                    for line in formatted_lines:
-                        trace += "%s\n" % str(line)
-                    test_scenario.test_log += trace
-                    test_set.failures = True
-                    test_scenario.failures = True                  
-                    test_set.ts.append(test_scenario)
-                    break 
-            tca_num = 1
-            tca_k = 'Test-Case-%d' % tca_num
-            while tca_k in testobj[ts_k]:
-                test_case      = TestCase(tca_num)
-                test_case.name = testobj[ts_k][tca_k]['Name'] if 'Name' in testobj[ts_k][tca_k] else None
-                test_case.desc = testobj[ts_k][tca_k]['Desc'] if 'Desc' in testobj[ts_k][tca_k] else None                
-                tco_num = 1
-                tco_k = 'Test-Condition-%d' % tco_num
-                while tco_k in testobj[ts_k][tca_k]:
-                    test_exception = False
-                    test_condition = TestCondition(tco_num)
-                    test_condition.name = testobj[ts_k][tca_k][tco_k]['Name'] if 'Name' in testobj[ts_k][tca_k][tco_k] else None
-                    test_condition.desc = testobj[ts_k][tca_k][tco_k]['Desc'] if 'Desc' in testobj[ts_k][tca_k][tco_k] else None
-                    test_condition.expected_result = testobj[ts_k][tca_k][tco_k]['Validate']
-                    test_scenario.total_tests += 1                    
-                    try:
-                        self._test_run.total_tests += 1                        
-                        ev = event.Event('yoda_before_exec_tco_test', testobj[ts_k][tca_k][tco_k]['Test'])        
-                        if (self._mh.fire_event(ev) > 0):                            
-                            testobj[ts_k][tca_k][tco_k]['Test'] = ev.argv(0)
-                        if ev.will_run_default():
-                            if self._test_simul_mode == False:
-                                exec(testobj[ts_k][tca_k][tco_k]['Test'],globals(),locals())
-                            else:
-                                print("Simulation: Running Test case: %s, Test condition: %s" % (test_case.name, test_condition.name))
-                                compile(testobj[ts_k][tca_k][tco_k]['Test'],'<string>','exec')
-                    except Exception as exc:
-                        exc_info = sys.exc_info()
-                        test_condition.test_log += "Exception: %s\n" % exc_info[0]
-                        test_condition.test_log += "Value: %s\n" % str(exc_info[1])
-                        formatted_lines = traceback.format_exc().splitlines()
-                        trace = ''
-                        for line in formatted_lines:
-                            trace += "%s\n" % str(line)
-                        test_condition.test_log += trace
-                        test_exception = True
-                        test_condition.test_resolution = 'Failed'                        
-                        test_scenario.failed_tests +=1
-                        test_case.failed_tco += 1
-                        test_set.failures = True
-                    if test_exception == False:
-                        try:
-                            ev = event.Event('yoda_before_exec_validate_test', testobj[ts_k][tca_k][tco_k]['Validate'])        
-                            if (self._mh.fire_event(ev) > 0):                            
-                                testobj[ts_k][tca_k][tco_k]['Validate'] = ev.argv(0)
-                            if ev.will_run_default():
-                                if self._test_simul_mode == False:
-                                    exec(testobj[ts_k][tca_k][tco_k]['Validate'],globals(),locals())
-                                else:
-                                    print("Simulation: Validating result, Test case: %s, Test condition: %s" % (test_case.name, test_condition.name))
-                                    compile(testobj[ts_k][tca_k][tco_k]['Validate'],'<string>','exec')
-                                
-                            test_scenario.passed_tests += 1
-                            test_case.passed_tco += 1                            
-                            test_condition.test_resolution = 'Passed'
-                            self._test_run.passed_tests += 1                                                    
-                        
-                        except (AssertionError) as ae:                            
-                            test_scenario.failed_tests += 1
-                            test_case.failed_tco += 1
-                            test_set.failures = True
-                            self._test_run.failed_tests += 1
-                            test_scenario.failures = True
-                            test_case.failures = True
-                            test_condition.test_log += bytes(ae)
-                            test_condition.test_resolution = 'Failed'
-                            test_condition.expected_result = ae     
-                        
-                        except Exception as exc:
-                            exc_info = sys.exc_info()
-                            test_condition.test_log += "Exception: %s\n" % exc_info[0]
-                            test_condition.test_log += "Value: %s\n" % str(exc_info[1])
-                            formatted_lines = traceback.format_exc().splitlines()
-                            trace = ''
-                            for line in formatted_lines:
-                                trace += "%s\n" % str(line)
-                            print("Exception %s" % trace)                            
-                            test_condition.test_log += trace
-                            test_exception = True
-                            test_condition.test_resolution = 'Failed'                        
-                            test_scenario.failed_tests +=1
-                            test_case.failed_tco += 1
-                            test_set.failures = True
-                            
-                                                                        
-                    test_case.tco.append(test_condition)                                                          
-                    tco_num += 1
-                    tco_k = 'Test-Condition-%d' % tco_num
-                test_scenario.tca.append(test_case)                                   
-                tca_num = tca_num + 1
-                tca_k = 'Test-Case-%d' % tca_num
-            if 'Post-Req' in testobj[ts_k]:
-                try:
-                    ev = event.Event('yoda_before_exec_ts_postreq', testobj[ts_k]['Post-Req'])        
-                    if (self._mh.fire_event(ev) > 0):                        
-                        testobj[ts_k]['Post-Req'] = ev.argv(0)
-                    if ev.will_run_default():
-                        if self._test_simul_mode == False:                                                
-                            exec(testobj[ts_k]['Post-Req'],globals(),locals())
-                        else:
-                            print("Simulation: Running Test scenario %s Post-Req" % test_scenario.name)
-                            compile(testobj[ts_k]['Post-Req'],'<string>','exec')
-                            
-                except Exception as exc:
-                    exc_info = sys.exc_info()                    
-                    test_condition.test_log += "\nException: %s\n" % exc_info[0]
-                    test_condition.test_log += "Value: %s\n" % str(exc_info[1])
-                    formatted_lines = traceback.format_exc().splitlines()
-                    trace = ''
-                    for line in formatted_lines:
-                        trace += "%s\n" % str(line)
-                    test_condition.test_log += trace
-                    test_exception = True                                      
-            test_set.ts.append(test_scenario)               
-            ts_num += 1
-            ts_k = 'Test-Scenario-%d' % ts_num        
-    
-    def check_results(self, test_run):             
-        print(self._mh._trn.msg('yoda_test_run_summary', test_run.total_test_sets, test_run.total_tests, test_run.failed_tests, test_run.passed_tests))                        
+       
+    def check_results(self, test_run):
+        from xtermcolor import colorize
+        from hydratk.lib.string.operation import strip_accents
+        
+        test_run_summary = self._mh._trn.msg('yoda_test_run_summary', test_run.total_test_sets, test_run.total_tests, test_run.failed_tests, test_run.passed_tests)
+        bar_len = len(strip_accents(test_run_summary))
+        trs_tpl = """
++{bar}+
+|{test_run_summary}|
++{bar}+""".format(bar = bar_len * '-', test_run_summary=test_run_summary)                
+        print(trs_tpl)                        
         for test_set in test_run.tset:
-            print("\n  {0}".format(self._mh._trn.msg('yoda_test_set_summary', test_set.current_test_set_file)))                           
+            print("\n{0}".format(self._mh._trn.msg('yoda_test_set_summary', test_set.current_test_set_file)))                           
             for ts in test_set.ts:
-                print("    {0}".format(self._mh._trn.msg('yoda_test_scenario_summary', ts.name,ts.total_tests, ts.failed_tests,ts.passed_tests)))                                                                           
-                if ts.failures == True:
+                print("  {0}".format(self._mh._trn.msg('yoda_test_scenario_summary', ts.name,ts.total_tests, ts.failed_tests,ts.passed_tests)))                                                                                                         
+                if ts.failures == True:                    
                     if ts.prereq_passed in (True,None):                        
-                        if ts.prereq_passed == True: print("      {0}".format(self._mh._trn.msg('yoda_test_scenario_prereq_passed')))                         
-                        for tca in ts.tca:
-                            if tca.failed_tco > 0:
-                                print("      {0}".format(self._mh._trn.msg('yoda_test_case',tca.name)))                                                           
+                        if ts.prereq_passed == True: print("    + {0}".format(self._mh._trn.msg('yoda_test_scenario_prereq_passed')))                         
+                        for tca in ts.tca:                                                                                                                                        
+                            if tca.tco_failures == True: #tca.failed_tco
+                                print("    {0}".format(self._mh._trn.msg('yoda_test_case',tca.name)))                                                           
                                 for tco in tca.tco:
                                     if tco.test_resolution == 'Failed':
-                                        print("        {0}".format(self._mh._trn.msg('yoda_test_condition',tco.name)))
+                                        print("      {0}".format(self._mh._trn.msg('yoda_test_condition',tco.name)))
                                         print("            {}".format(self._mh._trn.msg('yoda_expected_result',str(tco.expected_result).strip())))                                        
                                         print("            {}".format(self._mh._trn.msg('yoda_actual_result',str(tco.test_result))))
-                                        print("            {}".format(self._mh._trn.msg('yoda_log',str(tco.log))))                                                                                 
+                                        print("            {}".format(self._mh._trn.msg('yoda_log',colorize(str(tco.log),rgb=0x00bfff))))
+                                    if tco.events_passed == False:
+                                        print(colorize("    ! {0}".format(self._mh._trn.msg('yoda_test_condition_events_failed', tco.log)),rgb=0xd70000))
+                                    if tco.test_exec_passed == False:
+                                        print(colorize("    ! {0}".format(self._mh._trn.msg('yoda_test_condition_test_exec_failed', tco.log)),rgb=0xd70000))
+                                    if tco.validate_exec_passed == False:
+                                        print(colorize("    ! {0}".format(self._mh._trn.msg('yoda_test_condition_validate_exec_failed', tco.log)),rgb=0xd70000))
+                            if tca.events_passed == False:
+                                print(colorize("    ! {0}".format(self._mh._trn.msg('yoda_test_case_events_failed', tca.log)),rgb=0xd70000))
+                                                                                                                                                         
                     else:
-                        #print("      {0}\n   {1}".format(self._mh._trn.msg('yoda_test_scenario_prereq_failed',ts.test_log)))
-                        print(ts.log)                       
-        
+                        print(colorize("     ! {0}".format(self._mh._trn.msg('yoda_test_scenario_prereq_failed', colorize(ts.log, rgb=0xd70000))),rgb=0xd70000))
+                    if ts.events_passed == False:
+                        print(colorize("     ! {0}".format(self._mh._trn.msg('yoda_test_scenario_events_failed', ts.log)),rgb=0xd70000))        
