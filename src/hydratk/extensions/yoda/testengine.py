@@ -16,6 +16,7 @@ import yaml
 from hydratk.extensions.yoda import testobject
 import pprint
 import re
+import time
 import traceback
 from xtermcolor import colorize
 from hydratk.lib.system import fs
@@ -463,19 +464,19 @@ class TestEngine(MacroParser):
             while ts_k in tset_struct:                
                 ts = TestScenario(ts_num, tset_obj, self._current)                               
                 self._parse_ts_node(tset_struct[ts_k], ts)
-                
+                tset_obj.parsed_tests['total_ts'] += 1
                 tca_num = 1
                 tca_k = 'Test-Case-%d' % tca_num                
                 while tca_k in tset_struct[ts_k]:                    
                     tca = TestCase(tca_num, ts, self._current)                    
                     self._parse_tca_node(tset_struct[ts_k][tca_k], tca)
-                    
+                    tset_obj.parsed_tests['total_tca'] += 1
                     tco_num = 1
                     tco_k = 'Test-Condition-%d' % tco_num                    
                     while tco_k in tset_struct[ts_k][tca_k]:                                                                   
                         tco = TestCondition(tco_num, tca, self._current)                        
                         self._parse_tco_node(tset_struct[ts_k][tca_k][tco_k], tco)
-                        
+                        tset_obj.parsed_tests['total_tco'] += 1
                         tco_num += 1
                         tco_k = 'Test-Condition-%d' % tco_num                        
                         tca.append_tco(tco)
@@ -491,11 +492,7 @@ class TestEngine(MacroParser):
             if ts_num == 1:
                 print("Test-Scenario-%d tag expected" % ts_num)     
         else:
-            print("Wrong tset structure")        
-        
-        tset_obj.parsed_tests['total_ts']  += ts_num
-        tset_obj.parsed_tests['total_tca'] += tca_num
-        tset_obj.parsed_tests['total_tco'] += tco_num
+            print("Wrong tset structure")                            
         
         return tset_obj
     
@@ -533,7 +530,22 @@ class TestEngine(MacroParser):
                     if tset_struct != False:                    
                         tset_obj = self.parse_tset_struct(tset_struct);
                         if tset_obj != False:
+                            try:
+                                dmsg("Creating test set {} database record".format(tf), 1)                    
+                                tset_obj.create_db_record()
+                            except:
+                                print(sys.exc_info())
+                                raise Exception('Failed to create test_set database record')
+                            
                             tset_obj.run()
+                            
+                            try: 
+                                tset_obj.end_time = time.time()                   
+                                tset_obj.update_db_record()
+                                tset_obj.write_custom_data()
+                            except:
+                                print(sys.exc_info())
+                                raise Exception('Failed to update test_set database record')
                             if test_path in self._test_run.inline_tests:
                                 self._test_run.inline_tests.remove(test_path)
             

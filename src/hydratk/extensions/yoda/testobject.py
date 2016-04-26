@@ -62,14 +62,13 @@ Exception: {exc_name}
                                                  exc_value=exc_value
                                                )
             
-        if tb[4].strip() == 'exec(code, globals(), self._locals)': 
+        if len(tb) > 3 and tb[4].strip() == 'exec(code, globals(), self._locals)': 
             test_scenario        = "\n      from:  Test scenario: {test_scenario}".format(test_scenario = test_hierarchy['test_scenario']) if test_hierarchy['test_scenario'] is not None else ''
             test_scenario_node   = "\n      from:    Test scenario node: {node}, {line}".format(node = test_hierarchy['test_scenario_node'], line=tb[5].split(',')[1].strip()) if test_hierarchy['test_scenario_node'] is not None else ''
             test_case            = "\n      from:    Test case: {test_case}".format(test_case = test_hierarchy['test_case']) if test_hierarchy['test_case'] is not None else ''
             test_case_node       = "\n      from:      Test case node: {node}, {line}".format(node = test_hierarchy['test_case_node'], line=tb[5].split(',')[1].strip()) if test_hierarchy['test_case_node'] is not None else ''
             test_condition       = "\n      from:      Test condition: {test_condition}".format(test_condition = test_hierarchy['test_condition']) if test_hierarchy['test_condition'] is not None else ''
-            test_condition_node  = "\n      from:        Test condition node: {node}, {line}".format(node = test_hierarchy['test_condition_node'], line=tb[5].split(',')[1].strip()) if test_hierarchy['test_condition_node'] is not None else ''          
-                      
+            test_condition_node  = "\n      from:        Test condition node: {node}, {line}".format(node = test_hierarchy['test_condition_node'], line=tb[5].split(',')[1].strip()) if test_hierarchy['test_condition_node'] is not None and len(tb) > 5 else ''                                                        
           
             result += "{test_scenario}{test_scenario_node}{test_case}{test_case_node}{test_condition}{test_condition_node}".format(
                                                                                                      test_scenario=test_scenario,
@@ -80,7 +79,7 @@ Exception: {exc_name}
                                                                                                      test_condition_node=test_condition_node                              
                                                                                                                                    )
     
-            if len(tb) > 6:
+            if len(tb) > 5:
                 for l in tb[6:]:
                     result += "\n      from:      {}".format(l.strip())                
         else: 
@@ -212,6 +211,9 @@ class TestRun(TestObject):
                                                   pickle.dumps(self._struct_log)  
                                                 ])
     def update_db_record(self):
+        test_stats = self._te.test_results_db.db_data('get_test_stats',{'test_run_id' : self._id })[0]        
+        #print(test_stats)
+         
         self._te.test_results_db.db_action(
                                                    'update_test_run_record',
                                                  {
@@ -219,9 +221,9 @@ class TestRun(TestObject):
                                                   'name'         : self._name,
                                                   'start_time'   : self._start_time,
                                                   'end_time'     : self._end_time,
-                                                  'total_tests'  : self._total_tests,
-                                                  'failed_tests' : self._failed_tests,
-                                                  'passed_tests' : self._passed_tests,
+                                                  'total_tests'  : test_stats['total_tests'],
+                                                  'failed_tests' : test_stats['failed_tests'],
+                                                  'passed_tests' : test_stats['passed_tests'],
                                                   'log'          : self._log,
                                                   'struct_log'   : pickle.dumps(self._struct_log)  
                                                 })
@@ -581,8 +583,7 @@ class TestSet(TestObject):
                                                   'passed_tests' : self._passed_tests,
                                                   'log'          : self._log,                                                  
                                                   'struct_log'   : pickle.dumps(self._struct_log)   
-                                                })
-    
+                                                })               
     def write_custom_data(self):
         have_filter = 'TestSet' in self._current.te.test_results_db.custom_data_filter
         for key, value in self._attr.items():
@@ -648,9 +649,7 @@ class TestSet(TestObject):
         for ts in self.ts:
             run_ts = True
             if current.te.ts_filter is not None and type(current.te.ts_filter).__name__ == 'list' and len(current.te.ts_filter) > 0:                    
-                if ts.id is not None and ts.id != '' and ts.id not in current.te.ts_filter:
-                    print(ts.id)
-                    pprint.pprint(current.te.ts_filter)
+                if ts.id is not None and ts.id != '' and ts.id not in current.te.ts_filter:                                        
                     run_ts = False
                 
             if run_ts:
@@ -664,8 +663,10 @@ class TestSet(TestObject):
                         ex_type, ex, tb = sys.exc_info()
                         traceback.print_tb(tb)
                         raise Exception('Failed to create test_scenario database record')
+                else:
+                    raise Exception("No test results db")
                     
-                print("Running test scenario {0}".format(ts.id)) 
+                dmsg("Running test scenario {0}".format(ts.id)) 
                 ts.status          = 'started'
                 self._this         = ts
                            
@@ -675,6 +676,9 @@ class TestSet(TestObject):
                             ts.run()
                         except (BreakTestRun, BreakTestSet) as exc:
                             self.status = 'break'
+                            ts.end_time = time.time()                    
+                            ts.update_db_record()
+                            ts.write_custom_data()
                             raise exc
                         except BreakTestScenario as exc:
                             ts.resolution = 'break'
@@ -686,12 +690,13 @@ class TestSet(TestObject):
                     try:
                         ts.end_time = time.time()                    
                         ts.update_db_record()
+                        ts.write_custom_data()
                     except:
                         print(sys.exc_info())
                         raise Exception('Failed to update test_scenario database record')
             else:
                 ts.resolution = 'skipped'
-                print("Filter: Skippind test scenario {0}".format(ts.id))
+                dmsg("Filter: Skippind test scenario {0}".format(ts.id))
         
     
     def break_test_set(self, reason, test_object = None):
@@ -739,6 +744,7 @@ class TestScenario(TestObject):
         self._statuses       = ['started','finished','repeat','break']    
         self._action         = None              
         self._prereq_passed  = None
+        self._postreq_passed = None
         _events_passed       = None         
         self._failures       = False       
         self._total_tests    = 0
@@ -750,6 +756,10 @@ class TestScenario(TestObject):
         self._current        = current   
 
     
+    @property
+    def obj_id(self):
+        return self._id
+        
     @property
     def id(self):
         return self._attr['id']
@@ -771,6 +781,10 @@ class TestScenario(TestObject):
                                                   self._total_tests,
                                                   self._failed_tests,
                                                   self._passed_tests,
+                                                  self._prereq_passed,
+                                                  self._postreq_passed,
+                                                  self._events_passed,
+                                                  self._failures,  
                                                   self._log,                                                  
                                                   pickle.dumps(self._struct_log)  
                                                 ])
@@ -779,17 +793,21 @@ class TestScenario(TestObject):
         self._current.te.test_results_db.db_action(
                                                    'update_test_scenario_record',
                                                  {
-                                                  'id'           : self._id,                                                  
-                                                  'ts_id'        : self._attr['id'],
-                                                  'test_run_id'  : self._current.te.test_run.id,
-                                                  'test_set_id'  : self._parent.id,
-                                                  'start_time'   : self._start_time,
-                                                  'end_time'     : self._end_time,
-                                                  'total_tests'  : self._total_tests,
-                                                  'failed_tests' : self._failed_tests,
-                                                  'passed_tests' : self._passed_tests,
-                                                  'log'          : self._log,                                                  
-                                                  'struct_log'   : pickle.dumps(self._struct_log)   
+                                                  'id'             : self._id,                                                  
+                                                  'ts_id'          : self._attr['id'],
+                                                  'test_run_id'    : self._current.te.test_run.id,
+                                                  'test_set_id'    : self._parent.id,
+                                                  'start_time'     : self._start_time,
+                                                  'end_time'       : self._end_time,
+                                                  'total_tests'    : self._total_tests,
+                                                  'failed_tests'   : self._failed_tests,
+                                                  'passed_tests'   : self._passed_tests,
+                                                  'prereq_passed'  : self._prereq_passed,
+                                                  'postreq_passed' : self._postreq_passed,
+                                                  'events_passed'  : self._events_passed,
+                                                  'failures'       : self._failures,  
+                                                  'log'            : self._log,                                                  
+                                                  'struct_log'     : pickle.dumps(self._struct_log)   
                                                 }) 
         
     def write_custom_data(self):
@@ -840,7 +858,7 @@ class TestScenario(TestObject):
                     if current.te.test_simul_mode == False:
                         current.te.code_stack.execute(self.pre_req, locals())                                                                                   
                     else:
-                        print("Simulation: Running Test scenario %s pre-req" % self.name)
+                        dmsg("Simulation: Running Test scenario %s pre-req" % self.name)
                         compile(self.pre_req,'<string>','exec')
                 self.prereq_passed = True
                 
@@ -886,7 +904,7 @@ class TestScenario(TestObject):
                     if current.te.test_simul_mode == False:                                                        
                         current.te.code_stack.execute(self.events['before_start'], locals())                              
                     else:
-                        print("Simulation: Running Test scenario %s yoda_events_before_start_ts " % self.name)
+                        dmsg("Simulation: Running Test scenario %s yoda_events_before_start_ts " % self.name)
                         compile(self.events['before_start'],'<string>','exec')
                 self._events_passed = True 
             except (BreakTestRun, BreakTestSet, BreakTestScenario) as exc:
@@ -943,6 +961,9 @@ class TestScenario(TestObject):
                             tca.run()
                         except (BreakTestRun, BreakTestSet, BreakTestScenario) as exc:
                             self.status = 'break'
+                            tca.end_time = time.time()                    
+                            tca.update_db_record()
+                            tca.write_custom_data()
                             raise exc
                         except BreakTestCase as exc:
                             tca.resolution = 'break'
@@ -961,7 +982,7 @@ class TestScenario(TestObject):
                         raise Exception('Failed to update test_case database record')
             else:
                 tca.resolution = 'skipped'
-                print("Filter: Skippind test case {0}".format(tca.id))
+                dmsg("Filter: Skippind test case {0}".format(tca.id))
                                 
         if self.action == None:
             self.status = "finished"
@@ -977,7 +998,7 @@ class TestScenario(TestObject):
                     if current.te.test_simul_mode == False:                                                        
                         current.te.code_stack.execute(self.events['after_finish'], locals())                              
                     else:
-                        print("Simulation: Running Test scenario %s yoda_events_after_finish_ts " % self.name)
+                        dmsg("Simulation: Running Test scenario %s yoda_events_after_finish_ts " % self.name)
                         compile(self.events['after_finish'],'<string>','exec')
                 self._events_passed = True 
             except (BreakTestRun, BreakTestSet, BreakTestScenario) as exc:
@@ -1019,7 +1040,7 @@ class TestScenario(TestObject):
                     if current.te.test_simul_mode == False:
                         current.te.code_stack.execute(self.post_req, locals())                                                                                   
                     else:
-                        print("Simulation: Running Test scenario %s post-req" % self.name)
+                        dmsg("Simulation: Running Test scenario %s post-req" % self.name)
                         compile(self.post_req,'<string>','exec')
                 self.prereq_passed = True
                 
@@ -1177,6 +1198,9 @@ class TestCase(TestObject):
     _tco            = []
     _action         = None
     _failures       = False
+    _total_tests    = 0
+    _failed_tests   = 0
+    _passed_tests   = 0     
     _failed_tco     = 0
     _tco_failures   = None 
     _passed_tco     = 0 
@@ -1210,6 +1234,10 @@ class TestCase(TestObject):
         self._end_time   = -1     
 
     @property
+    def obj_id(self):
+        return self._id
+    
+    @property
     def id(self):
         return self._attr['id']
     
@@ -1225,12 +1253,14 @@ class TestCase(TestObject):
                                                   self._attr['id'],
                                                   self._current.te.test_run.id,                                                 
                                                   self._parent.parent.id, #test set
-                                                  self._parent.id,        #test scenario                                                 
+                                                  self._parent.obj_id,        #test scenario                                                 
                                                   self._start_time,
                                                   self._end_time,
                                                   self._total_tests,
                                                   self._failed_tests,
                                                   self._passed_tests,
+                                                  self._events_passed,
+                                                  self._failures, 
                                                   self._log,                                                  
                                                   pickle.dumps(self._struct_log)  
                                                 ])
@@ -1244,12 +1274,14 @@ class TestCase(TestObject):
                                                   'tca_id'           : self._attr['id'],
                                                   'test_run_id'      : self._current.te.test_run.id,
                                                   'test_set_id'      : self._parent.parent.id, 
-                                                  'test_scenario_id' : self._parent.id,
+                                                  'test_scenario_id' : self._parent.obj_id,
                                                   'start_time'       : self._start_time,
                                                   'end_time'         : self._end_time,
                                                   'total_tests'      : self._total_tests,
                                                   'failed_tests'     : self._failed_tests,
                                                   'passed_tests'     : self._passed_tests,
+                                                  'events_passed'    : self._events_passed,
+                                                  'failures'         : self._failures, 
                                                   'log'              : self._log,                                                  
                                                   'struct_log'       : pickle.dumps(self._struct_log)   
                                                 })   
@@ -1303,7 +1335,7 @@ class TestCase(TestObject):
                     if current.te.test_simul_mode == False:                                                                                                                                       
                         current.te.code_stack.execute(self.events['before_start'], locals())                                                                      
                     else:
-                        print("Simulation: Running Test Case %s yoda_events_before_start_tca " % self.name)
+                        dmsg("Simulation: Running Test Case %s yoda_events_before_start_tca " % self.name)
                         compile(self.events['before_start'],'<string>','exec')
                         
             except (BreakTestRun, BreakTestSet, BreakTestScenario, BreakTestCase) as exc:
@@ -1358,7 +1390,10 @@ class TestCase(TestObject):
                         try:                        
                             tco.run()
                         except (BreakTestRun, BreakTestSet, BreakTestScenario, BreakTestCase) as exc:
-                            self.status = 'break'
+                            self.status = 'break'                            
+                            tco.end_time = time.time()                    
+                            tco.update_db_record()
+                            tco.write_custom_data()
                             raise exc
                         except BreakTest as exc:
                             tco.resolution = 'break'
@@ -1378,7 +1413,7 @@ class TestCase(TestObject):
                         raise Exception('Failed to update test_condition database record')
             else:
                 tco.resolution = 'skipped'
-                print("Filter: Skippind test condition {0}".format(tco.id))    
+                dmsg("Filter: Skippind test condition {0}".format(tco.id))    
         if self.action == None:
             self.status = "finished" 
 
@@ -1392,7 +1427,7 @@ class TestCase(TestObject):
                     if current.te.test_simul_mode == False:                                                                                                                                       
                         current.te.code_stack.execute(self.events['after_finish'], locals())                                                                      
                     else:
-                        print("Simulation: Running Test Case %s yoda_events_after_finish_tca " % self.name)
+                        dmsg("Simulation: Running Test Case %s yoda_events_after_finish_tca " % self.name)
                         compile(self.events['after_finish'],'<string>','exec')
                         
             except (BreakTestRun, BreakTestSet, BreakTestScenario, BreakTestCase) as exc:
@@ -1469,6 +1504,30 @@ class TestCase(TestObject):
     def action(self, action):
         self._action = action    
 
+    @property
+    def total_tests(self):
+        return self._total_tests;
+    
+    @total_tests.setter
+    def total_tests(self, total):
+        self._total_tests = total
+
+    @property
+    def passed_tests(self):
+        return self._passed_tests;
+    
+    @passed_tests.setter
+    def passed_tests(self, passed):
+        self._passed_tests = passed
+
+    @property
+    def failed_tests(self):
+        return self._failed_tests;
+    
+    @failed_tests.setter
+    def failed_tests(self, passed):
+        self._failed_tests = passed
+        
     @property
     def failed_tco(self):
         return self._failed_tco;
@@ -1582,13 +1641,16 @@ class TestCondition(TestObject):
                                                   self._attr['id'],
                                                   self._current.te.test_run.id,
                                                   self._parent.parent.parent.id, #test set
-                                                  self._parent.parent.id, #test scenario
-                                                  self._parent.id,        #test_case
+                                                  self._parent.parent.obj_id, #test scenario
+                                                  self._parent.obj_id,        #test_case
                                                   self._start_time,
                                                   self._end_time,
                                                   self._expected_result,
                                                   self._test_result,
                                                   self._test_resolution,
+                                                  self._events_passed,
+                                                  self._test_exec_passed,
+                                                  self._validate_exec_passed,  
                                                   self._log,                                                  
                                                   pickle.dumps(self._struct_log)  
                                                 ])
@@ -1597,19 +1659,22 @@ class TestCondition(TestObject):
         self._current.te.test_results_db.db_action(
                                                    'update_test_condition_record',
                                                  {
-                                                  'id'               : self._id,                                                  
-                                                  'tco_id'           : self._attr['id'],
-                                                  'test_run_id'      : self._current.te.test_run.id,
-                                                  'test_set_id'      : self._parent.parent.parent.id,
-                                                  'test_scenario_id' : self._parent.parent.id,
-                                                  'test_case_id'     : self._parent.id,
-                                                  'start_time'       : self._start_time,
-                                                  'end_time'         : self._end_time,
-                                                  'expected_result'  : str(self._expected_result) if self._expected_result is not None else None,
-                                                  'test_result'      : self._test_result,
-                                                  'test_resolution'  : self._test_resolution.lower(),
-                                                  'log'              : self._log,                                                  
-                                                  'struct_log'       : pickle.dumps(self._struct_log)   
+                                                  'id'                   : self._id,                                                  
+                                                  'tco_id'               : self._attr['id'],
+                                                  'test_run_id'          : self._current.te.test_run.id,
+                                                  'test_set_id'          : self._parent.parent.parent.id,
+                                                  'test_scenario_id'     : self._parent.parent.obj_id,
+                                                  'test_case_id'         : self._parent.obj_id,
+                                                  'start_time'           : self._start_time,
+                                                  'end_time'             : self._end_time,
+                                                  'expected_result'      : str(self._expected_result) if self._expected_result is not None else None,
+                                                  'test_result'          : self._test_result,
+                                                  'test_resolution'      : self._test_resolution.lower() if self._test_resolution is not None else self._test_resolution,
+                                                  'events_passed'        : self._events_passed,
+                                                  'test_exec_passed'     : self._test_exec_passed,
+                                                  'validate_exec_passed' : self._validate_exec_passed,
+                                                  'log'                  : self._log,                                                  
+                                                  'struct_log'           : pickle.dumps(self._struct_log)   
                                                 })   
      
     def write_custom_data(self):
@@ -1661,14 +1726,13 @@ class TestCondition(TestObject):
                     if current.te.test_simul_mode == False:                                                                                                  
                         current.te.code_stack.execute(self.events['before_start'], locals())     
                     else:
-                        print("Simulation: Running Test Condition %s yoda_events_before_start_tco " % self.name)
+                        dmsg("Simulation: Running Test Condition %s yoda_events_before_start_tco " % self.name)
                         compile(self.events['before_start'],'<string>','exec')
             
             except (BreakTestRun, BreakTestSet, BreakTestScenario, BreakTestCase, BreakTest) as exc:
                 raise exc
                     
-            except Exception as exc:                                   
-                self.prereq_passed = False
+            except Exception as exc:                                                   
                 self.log = self._explain(
                               exc_name       = sys.exc_info()[0],
                               exc_value      = sys.exc_info()[1],
@@ -1678,6 +1742,7 @@ class TestCondition(TestObject):
  
                 current.tset.failures = True
                 current.ts.failures   = True
+                current.tca.failures  = True
                 parent.tco_failures   = True
                 self.failures         = True
                 self.events_passed    = False                 
@@ -1692,27 +1757,28 @@ class TestCondition(TestObject):
                 return True       
         
         try:                
-            current.te.test_run.total_tests += 1                        
+            current.te.test_run.total_tests += 1
+            current.tset.total_tests        += 1  
+            current.ts.total_tests          += 1 
+            current.tca.total_tests         += 1                      
             ev = Event('yoda_before_exec_tco_test', self.test)        
             if (mh.fire_event(ev) > 0):                            
                 self.test = ev.argv(0)
             if ev.will_run_default():
                 test_hierarchy['test_condition_node'] = 'test' 
-                if current.te.test_simul_mode == False:
-                    current.ts.total_tests += 1                                                                                                                                                                                       
+                if current.te.test_simul_mode == False:                                                                                                                                                                                                          
                     current.te.code_stack.execute(self.test, locals())
                     current.te.test_run.norun_tests -= 1
-                    current.te.test_run.run_tests                         
+                    current.te.test_run.run_tests += 1                        
                 else:                        
-                    print("Simulation: Running Test case: %s, Test condition: %s" % (current.tca.name, self.name))
+                    dmsg("Simulation: Running Test case: %s, Test condition: %s" % (current.tca.name, self.name))
                     compile(self.test,'<string>','exec')
                     
         except (BreakTestRun,BreakTestSet, BreakTestCase, BreakTest) as exc:
             raise exc
                         
         except Exception as exc:
-            test_exception = True                                  
-            current.ts.failed_tests +=1
+            test_exception = True                                              
             current.tca.failed_tco += 1
             current.tset.failures   = True
             current.ts.failures  = True
@@ -1748,10 +1814,12 @@ class TestCondition(TestObject):
                     if current.te.test_simul_mode == False:                                                                                 
                         current.te.code_stack.execute(self.validate, locals())     
                     else:
-                        print("Simulation: Validating result, Test case: %s, Test condition: %s" % (current.tca.name, self.name))
+                        dmsg("Simulation: Validating result, Test case: %s, Test condition: %s" % (current.tca.name, self.name))
                         compile(self.validate,'<string>','exec')                                
                 current.ts.passed_tests += 1
-                current.tca.passed_tco += 1                            
+                current.tset.passed_tests += 1
+                current.tca.passed_tco += 1  
+                current.tca.passed_tests += 1                          
                 self.test_resolution = 'Passed'
                 current.te.test_run.passed_tests += 1                    
                 tco_note = "*** {ts}/{tca}/{tco}: ".format(ts=current.ts.name,tca=current.tca.name,tco=self.name)
@@ -1764,7 +1832,9 @@ class TestCondition(TestObject):
             except (AssertionError) as ae:                                               
                 current.ts.failed_tests += 1
                 current.tca.failed_tco += 1
+                current.tca.failed_tests += 1
                 current.tset.failures = True
+                current.tset.failed_tests += 1
                 current.te.test_run.failed_tests += 1                    
                 current.ts.failures = True
                 current.tca.failures = True
@@ -1778,17 +1848,17 @@ class TestCondition(TestObject):
                 self.validate_exec_passed = False                        
                 current.ts.failed_tests +=1
                 current.tca.failed_tco += 1
-                current.tset.failures = True
-                   
+                current.tset.failures = True              
+                current.ts.failures  = True
+                current.tca.failures = True
+                parent.tco_failures = True   
                 self.log = self._explain(
                              exc_name       = sys.exc_info()[0],
                              exc_value      = sys.exc_info()[1],
                              test_hierarchy = test_hierarchy,                             
                              tb             = traceback.format_exc().splitlines()                              
                           )                                   
-    
-                current.tset.failures     = True
-                current.ts.failures       = True
+                    
                 self.failures             = True
                 current.tca.tco_failures  = True 
                 self.validate_exec_passed = False                       
@@ -1826,7 +1896,7 @@ class TestCondition(TestObject):
                     if current.te.test_simul_mode == False:                                                                                                  
                         current.te.code_stack.execute(self.events['after_finish'], locals())     
                     else:
-                        print("Simulation: Running Test Condition %s yoda_events_after_finish_tco " % self.name)
+                        dmsg("Simulation: Running Test Condition %s yoda_events_after_finish_tco " % self.name)
                         compile(self.events['after_finish'],'<string>','exec')
             
             except (BreakTestRun, BreakTestSet, BreakTestScenario, BreakTestCase, BreakTest) as exc:
@@ -1843,6 +1913,7 @@ class TestCondition(TestObject):
  
                 current.tset.failures = True
                 current.ts.failures   = True
+                current.tca.failures  = True
                 parent.tco_failures   = True
                 self.failures         = True
                 self.events_passed    = False                 
