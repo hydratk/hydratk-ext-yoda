@@ -15,7 +15,16 @@ if PYTHON_MAJOR_VERSION == 2:
     reload(sys)
     sys.setdefaultencoding('UTF8')
     
-def run_app():    
+def run_app(): 
+    """Methods runs yoda standalone application
+        
+    Args:
+    
+    Returns:
+       void
+            
+    """ 
+               
     from hydratk.core.masterhead import MasterHead    
     mh = MasterHead.get_head()
     mh.set_cli_cmdopt_profile('yoda')            

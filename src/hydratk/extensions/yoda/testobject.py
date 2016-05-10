@@ -23,23 +23,56 @@ class TestObject(object):
     
     @property
     def parent(self):
+        """ parent property getter """
+        
         return self._parent    
     
     def getattr(self, name):
+        """Method gets attribute
+        
+        Args:         
+           name (str): attribute name   
+           
+        Returns:
+           obj: attribute value 
+                
+        """  
+                
         result = None
         name = name.lower()
         if name in self._attr:
             result = self._attr[name]
         return result
         
-    def setattr(self,key,val):
+    def setattr(self, key, val):
+        """Method sets attribute
+        
+        Args:         
+           key (str): attribute name
+           val (obj): attribute value   
+           
+        Returns:
+           void
+                
+        """ 
+                
         if key != '':
             key = key.lower();
             key = key.replace('-','_')
             self._attr[key] = val
     
             
-    def __getattr__(self,name):        
+    def __getattr__(self, name):  
+        """Method gets attribute
+        
+        Args:         
+           name (str): attribute name   
+           
+        Returns:
+           obj: attribute value 
+                
+        """ 
+                      
         result = None
         name = name.lower()
         if name in self._attr:
@@ -47,10 +80,32 @@ class TestObject(object):
         return result
     
     def get_auto_break(self):
+        """Method gets auto_break from configuration Yoda/auto_break
+        
+        Args:         
+           
+        Returns:
+           str: configured auto_break
+                
+        """ 
+                
         m = MasterHead.get_head()        
         return m.ext_cfg['Yoda']['auto_break'] if 'auto_break' in m.ext_cfg['Yoda'] else None
         
     def _explain(self, exc_name, exc_value, test_hierarchy, tb):
+        """Method describes exception occurence within test execution
+        
+        Args:         
+           exc_name (str): exception name
+           exc_value (str): exception value
+           test_hierarchy (dict): test hierarchy set -> scenario -> case -> condition
+           tb (obj): traceback
+           
+        Returns:
+           str: description
+                
+        """ 
+                
         tb.pop() #removing unwanted last line        
         result = """
 Exception: {exc_name}
@@ -89,18 +144,26 @@ Exception: {exc_name}
         
     @property
     def attr(self):
+        """ attr property getter """
+        
         return self._attr;    
 
     @property
     def log(self):
+        """ log property getter """ 
+        
         return self._log
     
     @log.setter
     def log(self, data):
+        """ log property setter """
+        
         self._log += data
     
     @property
     def struct_log(self):
+        """ struct_log property getter """
+        
         return self._struct_log
      
 
@@ -112,10 +175,14 @@ class BreakTest(Exception):
     
     @property
     def test_object(self):
+        """ test_object property getter """
+        
         return self._test_object
     
     @test_object.setter
     def test_object(self, test_obj):
+        """ test_object property setter """
+        
         self._test_object = test_obj
 
 class BreakTestCase(Exception):
@@ -123,10 +190,14 @@ class BreakTestCase(Exception):
     
     @property
     def test_object(self):
+        """ test_object property getter """
+        
         return self._test_object
     
     @test_object.setter
     def test_object(self, test_obj):
+        """ test_object property setter """
+        
         self._test_object = test_obj
 
 class BreakTestScenario(Exception):
@@ -134,10 +205,14 @@ class BreakTestScenario(Exception):
     
     @property
     def test_object(self):
+        """ test_object property getter """
+        
         return self._test_object
     
     @test_object.setter
     def test_object(self, test_obj):
+        """ test_object property setter """
+        
         self._test_object = test_obj
 
 class BreakTestSet(Exception):
@@ -145,14 +220,16 @@ class BreakTestSet(Exception):
     
     @property
     def test_object(self):
+        """ test_object property getter """
+        
         return self._test_object
     
     @test_object.setter
     def test_object(self, test_obj):
+        """ test_object property setter """
+        
         self._test_object = test_obj
             
-
-
 class TestRun(TestObject):
     _id                     = None
     _name                   = 'Undefined'
@@ -178,7 +255,16 @@ class TestRun(TestObject):
     '''Test Engine'''
     _te                     = None  
     
-    def __init__(self, test_engine = None):
+    def __init__(self, test_engine=None):
+        """Class constructor
+        
+        Called when object is initialized
+        
+        Args:         
+           test_engine (obj): test engine 
+                
+        """ 
+                
         self._id                     = hashlib.md5('{0}{1}{2}'.format(random.randint(100000000,999999999), time.time(), os.getpid())).hexdigest()        
         self._total_test_sets        = 0
         self._total_tests            = 0
@@ -197,6 +283,15 @@ class TestRun(TestObject):
 
     
     def create_db_record(self):
+        """Method creates new record in results database
+        
+        Args:          
+           
+        Returns:
+           void
+                
+        """ 
+                
         self._te.test_results_db.db_action(
                                                    'create_test_run_record',
                                                  [
@@ -211,6 +306,15 @@ class TestRun(TestObject):
                                                   pickle.dumps(self._struct_log)  
                                                 ])
     def update_db_record(self):
+        """Method updates record in results database
+        
+        Args:         
+           
+        Returns:
+           void
+                
+        """ 
+                
         test_stats = self._te.test_results_db.db_data('get_test_stats',{'test_run_id' : self._id })[0]        
         #print(test_stats)
          
@@ -229,6 +333,17 @@ class TestRun(TestObject):
                                                 })
     
     def write_custom_data(self):
+        """Method writes test run custom data to results database
+        
+        Data can be filtered
+        
+        Args:         
+           
+        Returns:
+           void
+                
+        """ 
+                
         have_filter = 'TestRun' in self._te.test_results_db.custom_data_filter
         for key, value in self._attr.items():
             pickled = 0
@@ -251,125 +366,194 @@ class TestRun(TestObject):
                
     @property
     def te(self):
+        """ te property getter """
+        
         return self._te
     
     @te.setter
     def te(self,test_engine):
+        """ te property setter """
+        
         self._te = test_engine
                     
     @property
     def inline_tests(self):
+        """ inline_tests property getter """
+        
         return self._inline_tests
     
     @property
     def id(self):
+        """ id property getter """
+        
         return self._id
     
     @property
     def name(self):
+        """ name property getter """
+        
         return self._name
     
     @name.setter
     def name(self, name):
+        """ name property setter """
+        
         self._name = name
            
     @property
     def total_test_sets(self):
+        """ total_test_sets property getter """
+        
         return self._total_test_sets
     
     @total_test_sets.setter
     def total_test_sets(self, total):
+        """ total_test_sets property setter """
+        
         self._total_test_sets = total
         
     @property
     def total_tests(self):
+        """ total_tests property getter """
+        
         return self._total_tests
     
     @total_tests.setter
     def total_tests(self, total):
+        """ total_tests property setter """
+        
         self._total_tests = total        
 
     @property
     def failed_tests(self):
+        """ failed_tests property getter """
+        
         return self._failed_tests
     
     @failed_tests.setter
     def failed_tests(self, total):
+        """ failed_tests property setter """
+        
         self._failed_tests = total  
 
     @property
     def passed_tests(self):
+        """ passed_tests property getter """
+        
         return self._passed_tests
     
     @passed_tests.setter
     def passed_tests(self, total):
+        """ passed_tests property setter """
+        
         self._passed_tests = total  
 
     @property
     def skipped_tests(self):
+        """ skipped_tests property getter """
+        
         return self._skipped_tests
     
     @skipped_tests.setter
     def skipped_tests(self, total):
+        """ skipped_tests property setter """
+        
         self._skipped_tests = total
 
     @property
     def norun_tests(self):
+        """norun_tests property getter """
+        
         return self._norun_tests
     
     @norun_tests.setter
     def norun_tests(self, total):
+        """ norun_tests property setter """
+        
         self._norun_tests = total          
 
     @property
     def run_tests(self):
+        """ run_tests property getter """
+        
         return self._run_tests
     
     @run_tests.setter
     def run_tests(self, total):
+        """ run_tests property setter """
+        
         self._run_tests = total  
                 
     @property
     def failures(self):
+        """ failures property getter """
+        
         return self._passed_tests
     
     @failures.setter
     def failures(self, total):
+        """ failures property setter """
+        
         self._failures = total  
 
     @property
     def status(self):
+        """ status property getter """
+        
         return self._status;
     
     @status.setter
     def status(self,status):
+        """ status property setter """
+        
         self._status = status
         
     @property
     def start_time(self):
+        """ start_time property getter """
+        
         return self._start_time
     
     @start_time.setter
     def start_time(self, time):
+        """ start_time property setter """
+        
         self._start_time = time 
 
     @property
     def end_time(self):
+        """ end_time property getter """
+        
         return self._end_time
     
     @end_time.setter
     def end_time(self, time):
+        """ end_time property setter """
+        
         self._end_time = time 
 
     @property
     def tset(self):
+        """ tset property getter """
+        
         return self._tset
     
     @tset.setter
     def tset(self, tset):
+        """ tset property setter """
+        
         self._tset = tset 
                     
     def __repr__(self):
+        """Method overrides __repr__
+        
+        Args:           
+           
+        Returns:
+           str
+                
+        """ 
+                
         return ( """
                  total_test_sets = {0}\n
                  total_tests     = {1}
@@ -389,7 +573,20 @@ class TestRun(TestObject):
                             self.tset)
                  )
         
-    def break_test_run(self, reason):        
+    def break_test_run(self, reason):    
+        """Method breaks whole test run
+        
+        Args:         
+           reason (str): reason of break 
+           
+        Returns:
+           void
+           
+        Raises:
+           exception: BreakTestRun
+                
+        """ 
+                    
         self.status                      = 'break' # testc condition break
         raise BreakTestRun(reason)
          
@@ -423,114 +620,178 @@ class TestSet(TestObject):
 
     @property
     def id(self):
+        """ id property getter """
+        
         return self._id
     
     @property
-    def test_run(self):        
+    def test_run(self):
+        """ test_run property getter """
+                
         return self._test_run
     
     @test_run.setter
     def test_run(self,tr):
+        """ test_run property setter """
+        
         self._test_run = tr
     
     @property
     def current_test_base_path(self):
+        """ current_test_base_path property getter """
+        
         return self._current_test_base_path
     
     @current_test_base_path.setter
     def current_test_base_path(self, path):
+        """ current_test_base_path property setter """
+        
         self._current_test_base_path = path        
    
     @property
     def current_test_set_file(self):
+        """ current_test_set_file property getter """
+        
         return self._current_test_set_file
     
     @current_test_set_file.setter
     def current_test_set_file(self, path):
+        """ current_test_set_file property setter """
+        
         self._current_test_set_file = path 
          
     @property
     def parsed_tests(self):
+        """ parsed_tests property getter """
+        
         return self._parsed_tests
     
     @parsed_tests.setter
     def parsed_tests(self, total):
+        """ parsed_tests property setter """
+        
         self._parsed_tests = total   
    
     @property
     def total_tests(self):
+        """ total_tests property getter """
+        
         return self._total_tests
     
     @total_tests.setter
     def total_tests(self, total):
+        """ total_tests property setter """
+        
         self._total_tests = total        
 
     @property
     def failed_tests(self):
+        """ failed_tests property getter """
+        
         return self._failed_tests
     
     @failed_tests.setter
     def failed_tests(self, total):
+        """ failed_tests property setter """
+        
         self._failed_tests = total  
 
     @property
     def passed_tests(self):
+        """ passed_tests property getter """
+        
         return self._passed_tests
     
     @passed_tests.setter
     def passed_tests(self, total):
+        """ passed_tests property setter """
+        
         self._passed_tests = total   
 
     @property
     def failed_ts(self):
+        """ failed_ts property getter """
+        
         return self._failed_ts
     
     @failed_ts.setter
     def failed_ts(self, total):
+        """ failed_ts property setter """
+        
         self._failed_ts = total  
 
     @property
     def passed_ts(self):
+        """ passed_ts property getter """
+        
         return self._passed_ts
     
     @passed_ts.setter
     def passed_ts(self, total):
+        """ passed_ts property settter """
+        
         self._passed_ts = total   
 
     @property
     def failures(self):
+        """ failures property getter """
+        
         return self._failures;
     
     @failures.setter
     def failures(self, status):
+        """ failures property setter """
+        
         if status in (True, False):
             self._failures = status
                 
     @property
     def ts(self):
+        """ ts property getter """
+        
         return self._ts
     
     @ts.setter
     def ts(self, ts):
+        """ ts property setter """
+        
         self._ts = ts 
 
     @property
     def start_time(self):
+        """ start_time property getter """
+        
         return self._start_time
     
     @start_time.setter
     def start_time(self, time):
+        """ start_Time property setter """
+        
         self._start_time = time 
 
     @property
     def end_time(self):
+        """ end_time property getter """
+        
         return self._end_time
     
     @end_time.setter
     def end_time(self, time):
+        """ end_time property setter """
+        
         self._end_time = time            
     
     def __init__(self, current, test_set_file):
+        """Class constructor
+        
+        Called when object is initialized
+        
+        Args:         
+           current (obj): current test object
+           test_set_file (str): filename with test set content
+                
+        """ 
+                
         if test_set_file != '<str>':        
             self._current_test_base_path  = os.path.dirname(test_set_file)
        
@@ -553,7 +814,16 @@ class TestSet(TestObject):
         self._current                 = current 
         
     
-    def create_db_record(self):        
+    def create_db_record(self):      
+        """Method creates new record in results database
+        
+        Args:           
+           
+        Returns:
+           void
+                
+        """      
+             
         self._current.te.test_results_db.db_action(
                                                    'create_test_set_record',
                                                  [
@@ -570,6 +840,15 @@ class TestSet(TestObject):
                                                 ])
     
     def update_db_record(self):
+        """Method updates record in results database
+        
+        Args:           
+           
+        Returns:
+           void
+                
+        """ 
+                
         self._current.te.test_results_db.db_action(
                                                    'update_test_set_record',
                                                  {
@@ -585,6 +864,17 @@ class TestSet(TestObject):
                                                   'struct_log'   : pickle.dumps(self._struct_log)   
                                                 })               
     def write_custom_data(self):
+        """Method writes test set custom data to results database
+        
+        Data can be filtered
+        
+        Args:         
+           
+        Returns:
+           void
+                
+        """ 
+                
         have_filter = 'TestSet' in self._current.te.test_results_db.custom_data_filter
         for key, value in self._attr.items():
             pickled = 0
@@ -606,6 +896,15 @@ class TestSet(TestObject):
                                                  ])    
     
     def __repr__(self):
+        """Method overrides __repr__
+        
+        Args:         
+           
+        Returns:
+           str
+                
+        """ 
+                
         result = '';
         for var,val in self.__dict__.items():
             if var == '_ts':
@@ -620,11 +919,29 @@ class TestSet(TestObject):
            
         
     def append_ts(self, ts):
+        """Method adds new scenario to test set
+        
+        Args:
+           ts (obj): test scenario         
+           
+        Returns:
+           void
+                
+        """ 
+                
         if isinstance(ts, TestScenario):
             self._ts.append(ts)
            
         
     def reset_data(self):
+        """Method resets test set attributes
+        Args:         
+           
+        Returns:
+           void
+                
+        """ 
+                
         self.current_test_base_path  = None
         self.current_test_set_file   = None
         self.total_tests             = 0
@@ -639,6 +956,21 @@ class TestSet(TestObject):
         self.ts                      = [] 
         
     def run(self): 
+        """Method runs test set (test scenarios within)
+        
+        Execution progress is stored in results database
+        Test run and test can be broken during execution 
+        
+        Args:         
+           
+        Returns:
+           void
+           
+        Raises: 
+           exception: Exception
+                
+        """ 
+                
         import pprint
         current      = self._current
         current.tset = self
@@ -699,7 +1031,21 @@ class TestSet(TestObject):
                 dmsg("Filter: Skippind test scenario {0}".format(ts.id))
         
     
-    def break_test_set(self, reason, test_object = None):
+    def break_test_set(self, reason, test_object=None):
+        """Method breaks test set
+        
+        Args:         
+           reason (str): reason of break
+           test_object (obj): test object
+           
+        Returns:
+           void
+           
+        Raises:
+           exception: BreakTestSet
+                
+        """ 
+                
         self.status                      = 'break' # testc condition break
         b = BreakTestSet(reason)
         b.test_object = test_object
@@ -731,9 +1077,30 @@ class TestScenario(TestObject):
 
     
     def exec_test(self, test_path):
+        """Method executes test block
+        
+        Args:  
+           test_path (str): test path       
+           
+        Returns:
+           void
+                
+        """ 
+                
         self._current.te.exec_test(test_path)
     
     def __init__(self, ts_num, parent_tset, current):
+        """Class constructor
+        
+        Called when object is initialized
+        
+        Args:         
+           ts_num (int): test scenario number
+           parent_test_set (obj): parent test set
+           current (obj): current test object
+                
+        """ 
+                
         self._num            = ts_num   
         id_salt              = '{}{}'.format(random.randint(100000000, 999999999),current.te.exec_level)     
         self._id             = hashlib.md5('{0}{1}{2}{3}'.format(current.te.test_run.id, parent_tset.id, ts_num, id_salt)).hexdigest()
@@ -758,17 +1125,34 @@ class TestScenario(TestObject):
     
     @property
     def obj_id(self):
+        """ obj_id property getter """
+        
         return self._id
         
     @property
     def id(self):
+        """ id property getter """
+        
         return self._attr['id']
     
     @property
     def num(self):
+        """ num property getter """
+        
         return self._num
     
     def create_db_record(self):
+        """Method creates new record in results database
+        
+        Data can be filtered
+        
+        Args:         
+           
+        Returns:
+           void
+                
+        """ 
+                
         self._current.te.test_results_db.db_action(
                                                    'create_test_scenario_record',
                                                  [
@@ -790,6 +1174,17 @@ class TestScenario(TestObject):
                                                 ])
                
     def update_db_record(self):
+        """Method updates record in results database
+        
+        Data can be filtered
+        
+        Args:         
+           
+        Returns:
+           void
+                
+        """ 
+                
         self._current.te.test_results_db.db_action(
                                                    'update_test_scenario_record',
                                                  {
@@ -811,6 +1206,17 @@ class TestScenario(TestObject):
                                                 }) 
         
     def write_custom_data(self):
+        """Method writes test scenarion custom data to results database
+        
+        Data can be filtered
+        
+        Args:         
+           
+        Returns:
+           void
+                
+        """ 
+                
         have_filter = 'TestCase' in self._current.te.test_results_db.custom_data_filter
         for key, value in self._attr.items():
             pickled = 0
@@ -831,7 +1237,26 @@ class TestScenario(TestObject):
                                                   pickled                                                                                                    
                                                  ])   
 
-    def run(self):                   
+    def run(self):    
+        """Method runs test scenario (test cases within)
+        
+        Execution progress is stored in results database
+        Test run, set, scenarion can be broken during execution 
+        
+        Args:         
+           
+        Returns:
+           bool: True
+           
+        Raises:
+           exception: Exception
+           event: yoda_before_exec_ts_prereq
+           event: yoda_events_before_start_ts
+           event: yoda_events_after_finish_ts
+           event: yoda_before_exec_ts_postreq
+                
+        """ 
+                               
         '''Define missing locals'''        
         this              = self
         self._current.ts  = self
@@ -1076,114 +1501,197 @@ class TestScenario(TestObject):
         
     @property
     def tca(self):
+        """ tca property getter """
+        
         return self._tca;
     
     @property
     def resolution(self):
+        """ resolution property getter """
+        
         return self._resolution;
     
     @resolution.setter
     def resolution(self,res):
+        """ resolution property setter """
+        
         self._resolution = res
         
     @property
     def status(self):
+        """ status property getter """
+        
         return self._status;
     
     @status.setter
     def status(self,status):
+        """ status property setter """
+        
         self._status = status
 
     @property
     def prereq_passed(self):
+        """ prereq_passed property getter """
+        
         return self._prereq_passed;
     
     @prereq_passed.setter
     def prereq_passed(self, status):
+        """ prereq_passed property setter """
+        
         self._prereq_passed = status
         
     @property
     def postreq_passed(self):
+        """ postreq_passed property getter """
+        
         return self._postreq_passed;
     
     @postreq_passed.setter
     def postreq_passed(self, status):
+        """ postreq_passed property setter """
+        
         self._postreq_passed = status                 
 
     @property
     def events_passed(self):
+        """ events_passed property getter """
+        
         return self._events_passed;
     
     @events_passed.setter
     def events_passed(self, status):
+        """ events_passed property setter """
+        
         self._events_passed = status    
         
     @property
     def failures(self):
+        """ failures property getter """
+        
         return self._failures;
     
     @failures.setter
     def failures(self, status):
+        """ failures property setter """
+        
         if status in (True, False):
             self._failures = status
 
     @property
     def action(self):
-        return self._action;
+        """ action property getter """
+        
+        return self._action
     
     @action.setter
     def action(self, action):
+        """ action property setter """
+        
         self._action = action
 
     @property
     def total_tests(self):
+        """ total_tests property getter """
+        
         return self._total_tests;
     
     @total_tests.setter
     def total_tests(self, total):
+        """ total_tests property setter """
+        
         self._total_tests = total
 
     @property
     def passed_tests(self):
-        return self._passed_tests;
+        """ passed_tests property getter """
+        
+        return self._passed_tests
     
     @passed_tests.setter
     def passed_tests(self, passed):
+        """ passed_tests property setter """
+        
         self._passed_tests = passed
 
     @property
     def failed_tests(self):
-        return self._failed_tests;
+        """ failed_tests property getter """
+        
+        return self._failed_tests
     
     @failed_tests.setter
     def failed_tests(self, passed):
+        """ failed_tests property setter """
+        
         self._failed_tests = passed
                 
     @property
     def start_time(self):
-        return self._start_time;
+        """ start_time property getter """
+        
+        return self._start_time
     
     @start_time.setter
     def start_time(self, start_time):
+        """ start_time property setter """
+        
         self._start_time = start_time
 
     @property
     def end_time(self):
-        return self._end_time;
+        """ end_time property getter """
+        
+        return self._end_time
     
     @end_time.setter
     def end_time(self, end_time):
+        """ end_time property setter """
+        
         self._end_time = end_time
 
     def break_test_scenario(self, reason):
+        """Method breaks test scenario
+        
+        Args:  
+           reason (str): reason of break       
+           
+        Returns:
+           void
+           
+        Raises:
+           exception: BreakTestScenario
+                
+        """                 
+        
         self.status                      = 'break' # testc condition break
         raise BreakTestScenario(reason)
 
     def break_test_set(self, reason):
+        """Method breaks test set
+        
+        Args:  
+           reason (str): reason of break       
+           
+        Returns:
+           void
+                
+        """   
+                
         self.status                      = 'break' # testc condition break
         self.parent.break_test_set(reason, test_object = self)
                 
     def break_test_run(self, reason):
+        """Method breaks test run
+        
+        Args:  
+           reason (str): reason of break       
+           
+        Returns:
+           void
+                
+        """   
+                
         self.status                      = 'break' # testc condition break        
         self._current.te.test_run.break_test_run(reason)        
     
@@ -1213,9 +1721,29 @@ class TestCase(TestObject):
     _struct_log     = {}  
     
     def exec_test(self, test_path):
+        """Method executes test block
+        
+        Args:  
+           test_path (str): test path     
+           
+        Returns:
+           void
+                
+        """   
+                
         self._current.te.exec_test(test_path)
         
     def __init__(self, tca_num, parent_ts, current):
+        """Class constructor
+        
+        Called when object is initialized
+        
+        Args:  
+           tca_num (int): test case number
+           parent_ts (obj): parent test set
+                
+        """   
+                
         self._num        = tca_num 
         id_salt          = '{}{}'.format(random.randint(100000000, 999999999),current.te.exec_level)      
         self._id         = hashlib.md5('{0}{1}{2}{3}{4}'.format(current.te.test_run.id, parent_ts.parent.id, parent_ts.id, tca_num, id_salt)).hexdigest()
@@ -1235,17 +1763,32 @@ class TestCase(TestObject):
 
     @property
     def obj_id(self):
+        """ obj_id property getter """
+        
         return self._id
     
     @property
     def id(self):
+        """ id property getter """
+        
         return self._attr['id']
     
     @property
     def num(self):
+        """ num property getter """
+        
         return self._num
 
     def create_db_record(self):
+        """Method creates new record in results database
+        
+        Args:  
+           
+        Returns:
+           void
+                
+        """   
+                
         self._current.te.test_results_db.db_action(
                                                    'create_test_case_record',
                                                  [
@@ -1267,6 +1810,15 @@ class TestCase(TestObject):
            
     
     def update_db_record(self):
+        """Method updates record in results database
+
+        Args:         
+           
+        Returns:
+           void
+                
+        """ 
+                
         self._current.te.test_results_db.db_action(
                                                    'update_test_case_record',
                                                  {
@@ -1288,6 +1840,17 @@ class TestCase(TestObject):
 
 
     def write_custom_data(self):
+        """Method writes test case custom data to results database
+        
+        Data can be filtered
+        
+        Args:         
+           
+        Returns:
+           void
+                
+        """ 
+                
         have_filter = 'TestCase' in self._current.te.test_results_db.custom_data_filter
         for key, value in self._attr.items():
             pickled = 0
@@ -1308,7 +1871,23 @@ class TestCase(TestObject):
                                                   pickled                                                                                                    
                                                  ]) 
                 
-    def run(self):        
+    def run(self):  
+        """Method runs test case (test conditions within)
+        
+        Execution progress is stored in results database
+        Test run, set, scenario, case can be broken during execution 
+        
+        Args:         
+           
+        Returns:
+           bool: True
+           
+        Raises:
+           exception: Exception
+           event: yoda_events_before_start_tca
+           event: yoda_events_after_finish_tca
+                
+        """               
        
         '''Define missing locals'''
         this              = self           
@@ -1460,123 +2039,209 @@ class TestCase(TestObject):
 
     @property
     def tco(self):
+        """ tco property getter """
+        
         return self._tco;
     
     @property
     def resolution(self):
+        """ resolution property getter """
+        
         return self._resolution;
     
     @resolution.setter
     def resolution(self,res):
+        """ resolution property setter """
+        
         self._resolution = res
         
     @property
     def status(self):
+        """ status property getter """
+        
         return self._status;
     
     @status.setter
     def status(self,status):
+        """ status property setter """
+        
         self._status = status
 
     @property
     def failures(self):
+        """ failures property getter """
         return self._failures;
     
     @failures.setter
     def failures(self, status):
+        """ failures property setter """
+        
         if status in (True, False):
             self._failures = status
 
     @property
     def tco_failures(self):
+        """ tco_failures property getter """
+        
         return self._tco_failures;
     
     @tco_failures.setter
     def tco_failures(self, status):
+        """ tco_failures property setter """
+        
         if status in (True, False):
             self._tco_failures = status
                 
     @property
     def action(self):
+        """ action property getter """
+        
         return self._action;
     
     @action.setter
     def action(self, action):
+        """ action property setter """
+        
         self._action = action    
 
     @property
     def total_tests(self):
+        """ total_tests property getter """
+        
         return self._total_tests;
     
     @total_tests.setter
     def total_tests(self, total):
+        """ total_tests property setter """
+        
         self._total_tests = total
 
     @property
     def passed_tests(self):
+        """ passed_tests property getter """
+        
         return self._passed_tests;
     
     @passed_tests.setter
     def passed_tests(self, passed):
+        """ passed_tests property setter """
+        
         self._passed_tests = passed
 
     @property
     def failed_tests(self):
+        """ failed_tests property getter """
+        
         return self._failed_tests;
     
     @failed_tests.setter
     def failed_tests(self, passed):
+        """ failed_testt property setter """
+        
         self._failed_tests = passed
         
     @property
     def failed_tco(self):
+        """ failed_tco property getter """
+        
         return self._failed_tco;
     
     @failed_tco.setter
     def failed_tco(self, failed_tco):
+        """ failed_tco property setter """
+        
         self._failed_tco = failed_tco
 
     @property
     def passed_tco(self):
+        """ passed_tco property getter """
+        
         return self._passed_tco;
     
     @passed_tco.setter
     def passed_tco(self, passed_tco):
+        """ passed_tco property setter """
+        
         self._passed_tco = passed_tco           
 
     @property
     def start_time(self):
+        """ start_time property getter """
+        
         return self._start_time;
     
     @start_time.setter
     def start_time(self, start_time):
+        """ start_time property setter """
+        
         self._start_time = start_time
 
     @property
     def end_time(self):
+        """ end_time property getter """
+        
         return self._end_time;
     
     @end_time.setter
     def end_time(self, end_time):
+        """ end_time property setter """
+        
         self._end_time = end_time
     
     @property
     def events_passed(self):
+        """ events_passed property getter """
+        
         return self._events_passed;
     
     @events_passed.setter
     def events_passed(self, status):
+        """ events_passed property setter """
+        
         self._events_passed = status 
                 
     def break_test_case(self, reason):
+        """Method breaks test case
+        
+        Args: 
+           reason (str): reason of break        
+           
+        Returns:
+           void
+           
+        Raises:
+           exception: BreakTestCase
+                
+        """             
+        
         self.status                      = 'break' # testc condition break
         raise BreakTestCase(reason)
     
     def break_test_set(self, reason):
+        """Method breaks test set
+        
+        Args: 
+           reason (str): reason of break        
+           
+        Returns:
+           void
+                
+        """  
+                
         self.status                      = 'break' # testc condition break
         self.parent.parent.break_test_set(reason, test_object = self)
                 
     def break_test_run(self, reason):
+        """Method breaks test run
+        
+        Args: 
+           reason (str): reason of break        
+           
+        Returns:
+           void
+                
+        """  
+                
         self.status                      = 'break' # testc condition break        
         self._current.te.test_run.break_test_run(reason)        
         
@@ -1607,9 +2272,30 @@ class TestCondition(TestObject):
     _struct_log           = {}       
     
     def exec_test(self, test_path):
+        """Method executes test block
+        
+        Args: 
+           test_path (str): test path    
+           
+        Returns:
+           void
+                
+        """  
+                
         self._current.te.exec_test(test_path)
         
     def __init__(self, tco_num, parent_tca, current):
+        """Class constructor
+        
+        Called when object is initialized
+        
+        Args: 
+           tco_num (int): test condition number
+           parent_tca (obj): parent test case
+           current (obj): current test object       
+                
+        """  
+                
         self._num             = tco_num
         id_salt               = '{}{}'.format(random.randint(100000000, 999999999),current.te.exec_level)                    
         self._id              = hashlib.md5('{0}{1}{2}{3}{4}{5}'.format(current.te.test_run.id, parent_tca.parent.parent.id, parent_tca.parent.id, parent_tca.id, tco_num, id_salt)).hexdigest()      
@@ -1631,9 +2317,19 @@ class TestCondition(TestObject):
 
     @property
     def id(self):
+        """ id property getter """
         return self._attr['id']
 
-    def create_db_record(self):        
+    def create_db_record(self):   
+        """Method creates new record in results database
+        
+        Args:   
+           
+        Returns:
+           void
+                
+        """  
+                     
         self._current.te.test_results_db.db_action(
                                                    'create_test_condition_record',
                                                  [
@@ -1655,7 +2351,16 @@ class TestCondition(TestObject):
                                                   pickle.dumps(self._struct_log)  
                                                 ])
                                                     
-    def update_db_record(self):        
+    def update_db_record(self):  
+        """Method updates record in results database
+        
+        Args:   
+           
+        Returns:
+           void
+                
+        """  
+                      
         self._current.te.test_results_db.db_action(
                                                    'update_test_condition_record',
                                                  {
@@ -1678,6 +2383,17 @@ class TestCondition(TestObject):
                                                 })   
      
     def write_custom_data(self):
+        """Method writes test condition custom data to results database
+        
+        Data can be filtered
+        
+        Args:         
+           
+        Returns:
+           void
+                
+        """ 
+                
         have_filter = 'TestCondition' in self._current.te.test_results_db.custom_data_filter
         for key, value in self._attr.items():
             pickled = 0
@@ -1698,7 +2414,26 @@ class TestCondition(TestObject):
                                                   pickled                                                                                                    
                                                  ]) 
                             
-    def run(self):                
+    def run(self):           
+        """Method runs test condition
+        
+        Execution progress is stored in results database
+        Test run, set, scenario, case, condition can be broken during execution 
+        
+        Args:         
+           
+        Returns:
+           bool: True
+           
+        Raises:
+           exception: Exception
+           event: yoda_events_before_start_tco
+           event: yoda_before_exec_tco_test
+           event: yoda_before_exec_validate_test
+           event: yoda_events_after_finish_tco
+                
+        """        
+                     
         '''Define missing locals'''                   
         this              = self
         self._current.tco = self
@@ -1929,144 +2664,256 @@ class TestCondition(TestObject):
         
     @property
     def resolution(self):
+        """ resolution property getter """
+        
         return self._resolution;
     
     @resolution.setter
     def resolution(self,res):
+        """ resolution property setter """
+        
         self._resolution = res
     
         
     @property
     def status(self):
+        """ status property getter """
+        
         return self._status;
     
     @status.setter
     def status(self,status):
+        """ status property setter """
+        
         self._status = status   
     
     @property
     def failures(self):
+        """ failures property getter """
+        
         return self._failures;
     
     @failures.setter
     def failures(self, status):
+        """ failures property setter """
+        
         if status in (True, False):
             self._failures = status
 
     @property
     def action(self):
+        """ action property getter """
+        
         return self._action;
     
     @action.setter
     def action(self, action):
+        """ action property setter """
+        
         self._action = action    
       
-
     @property
     def expected_result(self):
+        """ expected_result property getter """
+        
         return self._expected_result;
     
     @expected_result.setter
     def expected_result(self, result):
+        """ expected_result property setter """
+        
         self._expected_result = result
         
     @property
     def test_resolution(self):
+        """ test_resolution property getter """
+        
         return self._test_resolution;
     
     @test_resolution.setter
     def test_resolution(self, resolution):
+        """ test_resolution property setter """
+        
         self._test_resolution = resolution     
         
     @property
     def test_result(self):
+        """ test_result property getter """
+        
         return self._test_result;
     
     @test_result.setter
     def test_result(self, result):
+        """ test_result property setter """
+        
         self._test_result = result            
         
     @property
     def test_output(self):
+        """ test_output property getter """
+        
         return self._test_output;
     
     @test_output.setter
     def test_output(self, output):
+        """ test_outpu property setter """
+        
         self._test_output = output            
 
     @property
     def test_assert(self):
+        """ test_assert property getter """
+        
         return self._test_assert;
     
     @test_assert.setter
     def test_assert(self, result):
+        """ test_assert property setter """
+        
         self._test_assert = result
         
     @property
     def test_validate(self):
+        """ test_validate property gette """
+        
         return self._test_validate;
     
     @test_validate.setter
     def test_validate(self, result):
+        """ test_validate property setter """
+        
         self._test_validate = result                    
 
     @property
     def start_time(self):
+        """ start_time property getter """
+        
         return self._start_time;
     
     @start_time.setter
     def start_time(self, start_time):
+        """ start_time property setter """
+        
         self._start_time = start_time
 
     @property
     def end_time(self):
+        """ end_time property getter """
+        
         return self._end_time;
     
     @end_time.setter
     def end_time(self, end_time):
+        """ end_time property setter """
+        
         self._end_time = end_time
     
     @property
     def events_passed(self):
+        """ events_passed property getter """
+        
         return self._events_passed;
     
     @events_passed.setter
     def events_passed(self, status):
+        """ events_passed property setter """
+        
         self._events_passed = status
 
     @property
     def test_exec_passed(self):
+        """ test_exec_passed property getter """
+        
         return self._test_exec_passed;
     
     @test_exec_passed.setter
     def test_exec_passed(self, status):
+        """ test_exec_passed property setter """
+        
         self._test_exec_passed = status
 
     @property
     def validate_exec_passed(self):
+        """ validate_exec_passed property gette """
+        
         return self._validate_exec_passed;
     
     @validate_exec_passed.setter
     def validate_exec_passed(self, status):
+        """ validate_exec_passed property setter """
+        
         self._validate_exec_passed = status
                             
     def break_test(self, reason):
+        """Method breaks test condition
+        
+        Args:   
+           reason (str): reason of break      
+           
+        Returns:
+           void
+           
+        Raises:
+           exception: BreakTest
+                
+        """   
+        
         self.status = 'break'
         raise BreakTest(reason)
     
     def break_test_case(self, reason):
+        """Method breaks test case
+        
+        Args:   
+           reason (str): reason of break      
+           
+        Returns:
+           void
+                
+        """   
+                
         self.status                      = 'break' # testc condition break
         self.parent.break_test_case(reason)
     
     def break_test_scenario(self, reason):
+        """Method breaks test scenario
+        
+        Args:   
+           reason (str): reason of break      
+           
+        Returns:
+           void
+                
+        """   
+                
         self.status                      = 'break' # testc condition break        
         self.parent.parent.break_test_scenario(reason)
     
     def break_test_set(self, reason):
+        """Method breaks test set
+        
+        Args:   
+           reason (str): reason of break      
+           
+        Returns:
+           void
+                
+        """   
+                
         self.status                      = 'break' # testc condition break
         self.parent.parent.parent.break_test_set(reason)
                 
     def break_test_run(self, reason):
+        """Method breaks test run
+        
+        Args:   
+           reason (str): reason of break      
+           
+        Returns:
+           void
+                
+        """   
+                
         self.status                      = 'break' # testc condition break        
         self._current.te.test_run.break_test_run(reason)        
 

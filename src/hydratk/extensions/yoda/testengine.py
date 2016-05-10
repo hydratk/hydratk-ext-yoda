@@ -25,17 +25,50 @@ from hydratk.lib.debugging.simpledebug import dmsg
 class This(object):
     _obj = None
     
-    def __init__(self, map_obj = None):                
+    def __init__(self, map_obj=None):    
+        """Class constructor
+        
+        Called when object is initialized
+        
+        Args:   
+           map_obj (obj): test object     
+                
+        """   
+                            
         if map_obj is not None:
             self._obj = map_obj
     
-    def __setattr__(self,name,value):
+    def __setattr__(self, name, value):
+        """Method sets attribute
+        
+        Args:   
+           name (str): attribute name
+           value (obj): attribute value    
+           
+        Returns:
+           void
+                
+        """   
+                
         if hasattr(self, name):
             setattr(self, name, value)
         else:
             setattr(self._obj, name, value)
     
-    def __getattr__(self,name):
+    def __getattr__(self, name):
+        """Method gets attribute
+        
+        Args:   
+           name (str): attribute name   
+           
+        Returns:
+           obj: attribute value
+           
+        Raises:
+           error: AttributeError
+                
+        """ 
+                
         if hasattr(self._obj, name):
             f = getattr(self._obj, name)
             if hasattr(f, '__call__'):
@@ -57,63 +90,92 @@ class Current(object):
 
     @property
     def te(self):
+        """ te property getter """
+        
         return self._te
 
     @te.setter
     def te(self, te):
+        """ te property setter """
+        
         self._te = te
-
     
     @property
     def test_set(self):
+        """ test_set property getter """
+        
         return self._tset
 
     @test_set.setter
     def test_set(self, tset):
+        """ test_set property setter """
+        
         self._tset = tset
     
     @property
     def tset(self):
+        """ tset property getter """
+        
         return self._tset
 
     @tset.setter
     def tset(self, tset):
+        """ tset property setter """
+        
         self._tset = tset     
     
     @property
     def test_scenario(self):
+        """ test_scenarion property getter """
+        
         return self._ts
     
     @property
     def ts(self):
+        """ ts property getter """
+        
         return self._ts
    
     @ts.setter
     def ts(self, ts):
+        """ ts property setter """
+        
         self._ts = ts 
         
     @property
     def test_case(self):
+        """ test_case property getter """
+        
         return self._tca
         
     @property
     def tca(self):
+        """ tca property getter """
+        
         return self._tca
     
     @tca.setter
     def tca(self, tca):
+        """ tca property setter """
+        
         self._tca = tca 
     
     @property
     def test_condition(self):
+        """ test_condition property getter """
+        
         return self._tco
         
     @property
     def tco(self):
+        """ tco property getter """
+        
         return self._tco
     
     @tco.setter
     def tco(self, tco):
+        """ tco property setter """ 
+        
         self._tco = tco 
 
     
@@ -128,63 +190,110 @@ class Parent(object):
     
     @property
     def test_set(self):
+        """ test_property getter """
+        
         return self._tset
 
     @test_set.setter
     def test_set(self, tset):
+        """ test_set property setter """
+        
         self._tset = tset
     
     @property
     def tset(self):
+        """ tset property getter """
+        
         return self._tset
 
     @tset.setter
     def tset(self, tset):
+        """ tset property setter """
+        
         self._tset = tset     
     
     @property
     def test_scenario(self):
+        """ test_scenarion property getter """
+        
         return self._ts
     
     @property
     def ts(self):
+        """ ts property getter """
+        
         return self._ts
    
     @ts.setter
     def ts(self, ts):
+        """ ts proeprty setter """
+        
         self._ts = ts 
         
     @property
     def test_case(self):
+        """ test_case property getter """
+        
         return self._tca
         
     @property
     def tca(self):
+        """ tca property getter """
+        
         return self._tca
     
     @tca.setter
     def tca(self, tca):
+        """ tca property setter """
+        
         self._tca = tca 
         
 class TestSet(testobject.TestSet):
     '''Test Scenarios list'''
     _ts = []
    
-    def append_ts(self,ts_obj):
+    def append_ts(self, ts_obj):
+        """Method adds new scenario to test set
+        
+        Args:   
+           ts_obj (obj): test scenario 
+           
+        Returns:
+           void
+                
+        """     
+            
         if isinstance(ts_obj, TestScenario):
             self._ts.append(ts_obj)
-    
-       
-    
+            
 class TestScenario(testobject.TestScenario):
     '''Test Cases list'''
     _tc = []
     _next = None
     
     def repeat(self):
+        """Method enables scenario to be repeated
+        
+        Args:   
+           
+        Returns:
+           void
+                
+        """ 
+                
         self._action = 'repeat' 
         
     def append_tca(self, tca):
+        """Method adds new test case to test scenario
+        
+        Args:   
+           tca (obj): test case   
+           
+        Returns:
+           void
+                
+        """ 
+                
         if isinstance(tca, TestCase):                                   
             self._tca.append(tca)            
         
@@ -195,9 +304,28 @@ class TestCase(testobject.TestCase):
     _next = None
     
     def repeat(self):
+        """Method enables case to be repeated
+        
+        Args:    
+           
+        Returns:
+           void
+                
+        """ 
+                
         self._action = 'repeat' 
     
     def append_tco(self, tco):
+        """Method adds new test condition to test case
+        
+        Args:   
+           tco (obj): test condition   
+           
+        Returns:
+           void
+                
+        """ 
+                
         if isinstance(tco, TestCondition):
             self._tco.append(tco)
             
@@ -205,13 +333,35 @@ class TestCondition(testobject.TestCondition):
     _next = None
     
     def repeat(self):
+        """Method enables condition to be repeated
+        
+        Args:   
+           
+        Returns:
+           void
+                
+        """ 
+                
         self._action = 'repeat'     
 
 
 class MacroParser(object):
     _hooks = {}
     
-    def mp_add_hooks(self,*args, **kwargs):        
+    def mp_add_hooks(self, *args, **kwargs): 
+        """Method registers macro hooks
+        
+        Macro is identified by name and contains callback
+        
+        Args:   
+           args (args): arguments
+           kwargs (kwargs): key value arguments   
+           
+        Returns:
+           void
+                
+        """ 
+                       
         for hdata in args:
             for mdef,cb in hdata.items():
                 if type(mdef).__name__ == 'str' and mdef != '' and callable(cb):
@@ -222,13 +372,45 @@ class MacroParser(object):
                 self._hooks[mdef] = cb    
     
     def mp_add_hook(self, name, cb):
+        """Method registers macro hook
+
+        Args:   
+           name (str): macro
+           cb (callable): callback  
+           
+        Returns:
+           void
+                
+        """ 
+                
         if type(name).__name__ == 'str' and callable(cb):
             self._hooks[name] = cb
     
     def mp_parse(self, content):
+        """Method parses macro string
+        
+        Args:   
+           content (str): macro string 
+           
+        Returns:
+           obj: regexp group
+                
+        """ 
+                
         return re.sub(r'#<<(.*)::(.*)>>#',self._mp_processor,content)
     
-    def _mp_processor(self,match):
+    def _mp_processor(self, match):
+        """Method executes macro
+        
+        Args:   
+           match (obj): regexp group
+           
+        Returns:
+           obj: callback result
+           str: when macro is not defined
+                
+        """ 
+                
         mdef = match.group(1).strip()
         mval = match.group(2).strip()
         if mdef in self._hooks:
@@ -269,117 +451,179 @@ class TestEngine(MacroParser):
     
     @property
     def code_stack(self):
+        """ code_stack property getter """
+        
         return self._code_stack
               
     @property
     def test_repo_root(self):
+        """ test_repo_root property getter """
+        
         return self._test_repo_root
     
     @test_repo_root.setter
     def test_repo_root(self, path):
+        """ test_repo_root property setter """
+        
         self._test_repo_root = path
     
     @property
     def libs_repo(self):
+        """ libs_repo prooperty getter """
+        
         return self._libs_repo
     
     @libs_repo.setter
     def libs_repo(self, path):
+        """ libs_repo property setter """
+        
         self._libs_repo = path
     
     @property
     def templates_repo(self):
+        """ templates_repo property getter """
+        
         return self._templates_repo
     
     @templates_repo.setter
     def templates_repo(self, path):
+        """ templates_repo property setter """
+        
         self._templates_repo = path
 
     @property
     def have_test_results_db(self):
+        """ have_test_results_db property getter """
+        
         return self._test_results_db is not None
     
     @property
     def test_results_db(self):
+        """ test_results_db property getter """
+        
         return self._test_results_db
     
     @test_results_db.setter
     def test_results_db(self, db):
+        """ test_results_db property setter """
+        
         self._test_results_db = db
         self._have_test_results_db = True if self._test_results_db is not None else False
         
     @property
     def helpers_repo(self):
+        """ helpers_repo property getter """
+        
         return self._helpers_repo
     
     @helpers_repo.setter
     def helpers_repo(self, path):
+        """ helpers_repo property setter """
+        
         self._helpers_repo = path
 
     @property
     def ts_filter(self):
+        """ ts_filter property getter """
+        
         return self._ts_filter;
     
     @ts_filter.setter
     def ts_filter(self, fltr):
+        """ ts_filter property setter """
+        
         self._ts_filter = fltr
     
     @property
     def tca_filter(self):
+        """ tca_filter property getter """
+        
         return self._tca_filter;
     
     @tca_filter.setter
     def tca_filter(self, fltr):
+        """ tca_filter property setter """
+        
         self._tca_filter = fltr
         
     @property
     def tco_filter(self):
+        """ tco_filter property getter """
+        
         return self._tco_filter;
     
     @tco_filter.setter
     def tco_filter(self, fltr):
+        """ tco_filter property setter """
+        
         self._tco_filter = fltr
     
     @property
-    def run_mode_area(self):        
+    def run_mode_area(self):
+        """ run_mode_area property getter """
+                
         return self._run_mode
     
     @run_mode_area.setter
-    def run_mode_area(self, mode):        
+    def run_mode_area(self, mode):
+        """ run_mode_area property setter """
+                
         if mode in ('inrepo','global'):
             self._run_mode_src = mode
     
     @property
     def run_mode_src(self):
+        """ run_mode_src property getter """
+        
         return self._run_mode_src
     
     @run_mode_src.setter
-    def run_mode_src(self, mode):        
+    def run_mode_src(self, mode):
+        """ run_mode_src property setter """
+                
         if mode in ('folder','singlefile'):
             self._run_mode_src = mode
     
     @property
-    def exec_level(self):        
+    def exec_level(self):   
+        """ exec_level property getter """
+             
         return self._exec_level
     
     @property
-    def test_simul_mode(self):        
+    def test_simul_mode(self):
+        """ test_simul_mode property getter """
+                
         return self._test_simul_mode
             
     @test_simul_mode.setter
-    def test_simul_mode(self, mode):        
+    def test_simul_mode(self, mode):
+        """ test_simul_mode property setter """
+                
         if mode in (True,False):
             self._test_simul_mode = mode
     
     @property
     def test_run(self):
+        """ test_run property getter """
+        
         return self._test_run
 
     @test_run.setter
     def test_run(self, test_run):
+        """ test_run property setter """
+        
         self._test_run = test_run    
     
-    def __init__(self):       
+    def __init__(self):   
+        """Class constructor
+        
+        Called when object is initialized
+        
+        Args:   
+                
+        """ 
+                    
         self._test_run        = testobject.TestRun(self)
         self._tset_struct     = None
         self._tset_obj        = None
@@ -403,10 +647,29 @@ class TestEngine(MacroParser):
                         })
     
     def new_test_run(self):
+        """Method creates new test run
+        
+        Args:   
+           
+        Returns:
+           void
+                
+        """ 
+                
         self._test_run = testobject.TestRun()
         self._current  = Current()
                   
     def _h_include(self, content_file):
+        """Method loads content of included file
+        
+        Args:  
+           content_file (str): filename including path
+           
+        Returns:
+           str: content
+                
+        """ 
+                
         if content_file != '' and content_file[0] != '/': # repo
             content_file = self._templates_repo + content_file
        
@@ -417,7 +680,17 @@ class TestEngine(MacroParser):
         
         return result
             
-    def load_tset_from_file(self, tset_file):        
+    def load_tset_from_file(self, tset_file):       
+        """Method loads test content from file
+        
+        Args:  
+           tset_file (str): filename including path 
+           
+        Returns:
+           bool: result
+                
+        """ 
+                 
         result = False
         if tset_file != '' and os.path.exists(tset_file):
             tset_str = fs.file_get_contents(tset_file)
@@ -425,7 +698,18 @@ class TestEngine(MacroParser):
             self._tset_file = tset_file          
         return result 
     
-    def load_tset_from_str(self, tset_str, origin_file = False):
+    def load_tset_from_str(self, tset_str, origin_file=False):
+        """Method loads test set content from string
+        
+        Args:  
+           tset_str (str): test set content
+           origin_file (bool): string loaded from file
+           
+        Returns:
+           dict: test set
+                
+        """ 
+                
         tset_struct = False
         if tset_str != '':
             if origin_file == False:
@@ -434,20 +718,53 @@ class TestEngine(MacroParser):
             tset_struct = yaml.load(tset_str) #tset_struct                 
         return tset_struct
     
-    def _parse_ts_node(self,ts_node, ts):
+    def _parse_ts_node(self, ts_node, ts):
+        """Method parses test scenario
+        
+        Args:  
+           ts_node (dict): test scenario node
+           ts (obj): test scenario object
+           
+        Returns:
+           void
+                
+        """ 
+                
         for ts_key, ts_val in ts_node.items():
             if not (re.match('Test-Case', ts_key)):
                 self._mh.dmsg('htk_on_debug_info',"Parsing Test-Scenario attributes {0}={1}".format(ts_key,ts_val), self._mh.fromhere(), 5)
                 #print("Test-Scenario {0}={1}").format(ts_key,ts_val)
                 ts.setattr(ts_key.lower(),ts_val)
             
-    def _parse_tca_node(self, tca_node, tca):        
+    def _parse_tca_node(self, tca_node, tca):   
+        """Method parses test case
+        
+        Args:  
+           tca_node (dict): test case node
+           tca (obj): test case object
+           
+        Returns:
+           void
+                
+        """ 
+                     
         for tca_key, tca_val in tca_node.items():
             if not (re.match('Test-Condition', tca_key)):
                 self._mh.dmsg('htk_on_debug_info',"Parsing Test-Case attributes {0}={1}".format(tca_key,tca_val), self._mh.fromhere(), 5)                
                 tca.setattr(tca_key.lower(),tca_val)
     
     def _parse_tco_node(self, tco_node, tco):
+        """Method parses test condition
+        
+        Args:  
+           tco_node (dict): test condition node
+           tco (obj): test condition object
+           
+        Returns:
+           void
+                
+        """ 
+                
         for tco_key, tco_val in tco_node.items():
             if tco_key == 'expected-result':
                 tco.expected_result = tco_val
@@ -455,6 +772,18 @@ class TestEngine(MacroParser):
             tco.setattr(tco_key.lower(), tco_val)            
                        
     def parse_tset_struct(self, tset_struct):
+        """Method parses test set
+        
+        Hierarchy test scenario, case, condition
+        
+        Args:  
+           tset_struct (dict): test set structure
+           
+        Returns:
+           obj: test set
+                
+        """ 
+                
         tset_obj = False
         if (type(tset_struct).__name__ == 'dict'):
             tset_obj = TestSet(self._current, self._tset_file)
@@ -497,6 +826,20 @@ class TestEngine(MacroParser):
         return tset_obj
     
     def exec_test(self, test_path):
+        """Method executes inline test
+        
+        Args:  
+           test_path (str): test path
+           
+        Returns:
+           void
+           
+        Raises:
+           exception: Exception
+           event: yoda_before_parse_test_file
+                
+        """ 
+                
         self._exec_level += 1        
         dmsg('Inline test exec: {0}'.format(test_path))
         if test_path is not None and test_path != '':
@@ -556,6 +899,16 @@ class TestEngine(MacroParser):
             self._exec_level  += 1            
     
     def get_all_tests_from_container(self, container_file):
+        """Method returns all tests found in container
+        
+        Args:  
+           container_file (str): filename including path
+           
+        Returns:
+           list: tests 
+                
+        """ 
+                
         dmsg('Parsing test container file: {0}'.format(container_file))
         test_files = []
         if os.path.isfile(container_file):
@@ -571,7 +924,7 @@ class TestEngine(MacroParser):
         return test_files   
     
     def get_all_tests_from_path(self, test_path):
-        """Method returs all found test in path
+        """Method returns all found test in path
            
            Test files are filtered by .jedi file extension
         
@@ -579,7 +932,7 @@ class TestEngine(MacroParser):
            test_path (str): test path
         
         Returns:            
-           test_files (list)
+           list: test_files
                   
         """  
                
