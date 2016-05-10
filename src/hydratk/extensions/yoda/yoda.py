@@ -77,7 +77,7 @@ class Extension(extension.Extension):
         self._run_mode    = self._mh.run_mode #synchronizing run mode
         if int(self._mh.cfg['Extensions']['Yoda']['test_results_output_create']) in (0,1):
             self._test_results_output_create = bool(int(self._mh.cfg['Extensions']['Yoda']['test_results_output_create']))
-        if type(self._mh.cfg['Extensions']['Yoda']['test_results_output_handler'] == 'list'):
+        if type(self._mh.cfg['Extensions']['Yoda']['test_results_output_handler']).__name__ == 'list':
             self._test_results_output_handler = self._mh.cfg['Extensions']['Yoda']['test_results_output_handler']
              
         self._init_repos()          
@@ -112,15 +112,7 @@ class Extension(extension.Extension):
             
     def _do_imports(self):
         pass                 
-    
-    #def __getstate__(self):
-    #    odict = self.__dict__.copy() # copy the dict since we change it
-    #    odict['_mh'] = None              # remove filehandle entry
-    #    return odict
-
-    #def __setstate__(self, d):
-    #    self.__dict__.update(d)
-        
+            
     def _register_actions(self):               
         hook = [
                 {'event' : 'htk_on_cmd_options', 'callback' : self.init_check },
