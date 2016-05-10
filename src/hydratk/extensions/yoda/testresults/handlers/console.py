@@ -18,11 +18,31 @@ class TestResultsOutputHandler(object):
     _db_dsn  = None
     _db_con  = None
     
-    def __init__(self, db_dsn, options = {}):
+    def __init__(self, db_dsn, options={}):
+        """Class constructor
+        
+        Called when object is initialized
+        
+        Args:
+           db_dsn (str): dsn
+           options (dict): output options
+            
+        """ 
+                
         self._db_dsn  = db_dsn
         self._options = options
         
     def create(self, test_run):
+        """Methods creates test run output for console print
+        
+        Args:
+           test_run (obj): test run object
+           
+        Returns:
+           void
+            
+        """ 
+                
         mh = MasterHead.get_head()
         self._db_con     = testresults.TestResultsDB(self._db_dsn)
         total_test_sets  = self._db_con.db_data("get_total_test_sets", {'test_run_id' : test_run.id })[0]["total_test_sets"]

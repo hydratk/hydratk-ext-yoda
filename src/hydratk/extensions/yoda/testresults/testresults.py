@@ -233,15 +233,35 @@ class TestResultsDB(object):
     
     @property
     def custom_data_filter(self):
+        """ custom_data_filter property getter """
+        
         return self._custom_data_filter
     
     def __init__(self, dsn):
+        """Class constructor
+        
+        Called when object is initialized
+        
+        Args:
+           dsn (str): dsn
+            
+        """    
+               
         self._trdb = dbo.DBO(dsn)
         self._trdb.dbcon.text_factory = bytes        
         self._trdb.result_as_dict(True)
         self._dsn = dsn
     
     def db_check_ok(self):
+        """Method checks if database is successfully created 
+        
+        Args:
+        
+        Returns:
+           bool: result
+            
+        """   
+                
         result = False        
         if self._trdb.database_exists() == True:            
             self._trdb.cursor.execute(check_db_struct[self._trdb.driver_name]['query'])
@@ -251,7 +271,20 @@ class TestResultsDB(object):
                     result = True                      
         return result
     
-    def create_database(self, force = False):
+    def create_database(self, force=False):
+        """Method creates database
+        
+        Args:
+           force (bool): recreate database if exists
+        
+        Returns:
+           void
+           
+        Raises:
+           exception: Exception
+            
+        """   
+                
         if self._trdb.database_exists() == True:
             if force == True:
                 self._trdb.remove_database()
@@ -262,11 +295,33 @@ class TestResultsDB(object):
             cprint("Database created successfully")
            
     def db_action(self, action, columns):
+        """Method executes write query
+        
+        Args:
+           action (str): query
+           columns (dict): binded columns
+        
+        Returns:
+           void
+            
+        """   
+                
         dmsg("Running action: {} {}".format(action, str(columns)), 3)
         self._trdb.cursor.execute(db_actions[self._trdb.driver_name][action], columns)
         self._trdb.commit()
     
     def db_data(self, action, columns):
+        """Method executes read query
+        
+        Args:
+           action (str): query
+           columns (list): returned columns
+        
+        Returns:
+           dict: query result
+            
+        """   
+                
         dmsg("Get data action: {} {}".format(action, str(columns)), 3)
         self._trdb.cursor.execute(db_actions[self._trdb.driver_name][action], columns)
         return self._trdb.cursor.fetchall()
@@ -284,6 +339,16 @@ class TestResultsOutputFactory(object):
     _handler_opt  = {}
         
     def __init__(self, db_dsn, handler_def='console'):
+        """Class constructor
+        
+        Called when object is initiazed
+        
+        Args:
+           db_dsn (str): dsn
+           handler_def (str): output handler, console|html|text
+            
+        """   
+                
         self._dispatch_handler_def(handler_def)
         if self._handler_name not in tro_handlers:
             raise ValueError('Unknown handler: {}'.format(self._handler_name))
@@ -305,11 +370,41 @@ class TestResultsOutputFactory(object):
         else:
             raise TypeError("handler_name have to be a nonempty string, got {}, value: {}".format(type(handler_def).__name__, handler_def))
     
-    def __getattr__(self,name):
+    def __getattr__(self, name):
+        """Method gets attribute
+        
+        Args:
+           name (str): attribute name
+        
+        Returns:
+           obj: attribute value
+            
+        """   
+                
         return getattr(self._handler, name)
     
     def __getitem__(self, name):
+        """Method gets item
+        
+        Args:
+           name (str): item name
+        
+        Returns:
+           obj: item value
+            
+        """ 
+                
         return getattr(self._handler, name) 
               
     def _import_tro_handler(self, handler_name):
+        """Method imports output handler
+        
+        Args:
+           handler_name (str): handler
+        
+        Returns:
+           obj: module
+            
+        """ 
+                
         return importlib.import_module(tro_handlers[handler_name])

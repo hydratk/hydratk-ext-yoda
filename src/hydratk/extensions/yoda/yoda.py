@@ -69,6 +69,15 @@ class Extension(extension.Extension):
     def __setstate__(self, d): self.__dict__.update(d)
 
     def _init_extension(self):
+        """Method initializes extension
+        
+        Args:  
+           
+        Returns:
+           void
+                
+        """ 
+                
         self._ext_name    = 'Yoda'
         self._ext_version = '0.2.0'
         self._ext_author  = 'Petr Czaderna <pc@hydratk.org>'
@@ -86,6 +95,20 @@ class Extension(extension.Extension):
         return True
     
     def _init_repos(self):
+        """Method initializes test repositories
+        
+        Configuration option Extensions/Yoda/test_repo_root
+        lib - low level auxiliary test methods
+        helpers - high level auxiliary test methods
+        yoda-tests - test scripts
+        
+        Args:  
+           
+        Returns:
+           void
+                
+        """ 
+                
         self._test_repo_root = self._mh.cfg['Extensions']['Yoda']['test_repo_root']
         self._libs_repo      = self._mh.cfg['Extensions']['Yoda']['test_repo_root'] + '/lib'
         self._templates_repo = self._mh.cfg['Extensions']['Yoda']['test_repo_root'] + '/yoda-tests/'
@@ -99,6 +122,15 @@ class Extension(extension.Extension):
         self._mh.dmsg('htk_on_debug_info', dmsg, self._mh.fromhere())
     
     def _update_repos(self):
+        """Method updates test repositories
+        
+        Args:  
+           
+        Returns:
+           void
+                
+        """ 
+                
         self._libs_repo      = self._test_repo_root + '/lib'
         self._templates_repo = self._test_repo_root + '/yoda-tests/'
         self._helpers_repo   = self._test_repo_root + '/helpers'
@@ -121,7 +153,16 @@ class Extension(extension.Extension):
     #def __setstate__(self, d):
     #    self.__dict__.update(d)
         
-    def _register_actions(self):               
+    def _register_actions(self): 
+        """Method registers event hooks
+        
+        Args:  
+           
+        Returns:
+           void
+                
+        """ 
+                              
         hook = [
                 {'event' : 'htk_on_cmd_options', 'callback' : self.init_check },
                 {'event' : 'yoda_before_init_tests', 'callback' : self.check_test_results_db },
@@ -141,7 +182,16 @@ class Extension(extension.Extension):
     #def __getinitargs__(self):
     #    return (None,)
                                 
-    def check_pp_mode(self,ev):
+    def check_pp_mode(self, ev):
+        """Method registers event hooks for parallel processing 
+        
+        Args:  
+           
+        Returns:
+           void
+                
+        """ 
+                
         if self._mh.run_mode == const.CORE_RUN_MODE_PP_APP:
             hook = [{'event' : 'htk_on_cobserver_ctx_switch', 'callback' : self.pp_app_check },
                     #{'event' : 'htk_on_cobserver_ctx_switch', 'callback' : self.pp_app_check2 }
@@ -151,6 +201,15 @@ class Extension(extension.Extension):
             #self._mh.register_async_fn_ex('pp_test2',worker2, Extension.worker_result)
          
     def _register_htk_actions(self):
+        """Method registers command hooks
+        
+        Args:  
+           
+        Returns:
+           void
+           
+        """ 
+                
         dmsg("Registering htk actions")
         self._mh.match_cli_command('yoda-run')              
         self._mh.match_cli_command('yoda-simul')
@@ -175,6 +234,15 @@ class Extension(extension.Extension):
           
     
     def _register_standalone_actions(self):
+        """Method registers command hooks for standalone mode
+        
+        Args:  
+           
+        Returns:
+           void
+                
+        """ 
+                
         dmsg("Registering standalone actions")
         option_profile = 'yoda'
         help_title       = '{h}' + self._ext_name + ' v' + self._ext_version + '{e}'
@@ -211,7 +279,21 @@ class Extension(extension.Extension):
     def pp_actions(self,ev):
         pass
          
-    def pp_app_check(self,ev):
+    def pp_app_check(self, ev):
+        """Method ensures test run completion when all parallel execution are completed
+        
+        Args:  
+           ev (obj): not used
+           
+        Returns:
+           void
+           
+        Raises:
+           exception: Exception
+           event: yoda_before_check_results
+                
+        """ 
+                
         dmsg("Got context switch, active tickets: {}".format(len(self._active_tickets)))
         if len(self._active_tickets) > 0:
             for index, ticket_id in enumerate(self._active_tickets):
@@ -241,6 +323,15 @@ class Extension(extension.Extension):
             
               
     def create_test_results_db(self):
+        """Method creates results database
+        
+        Args:  
+           
+        Returns:
+           obj: database
+                
+        """ 
+                
         dsn = self._mh.ext_cfg['Yoda']['db_results_dsn']
         dmsg("Create db results dsn: {0}".format(dsn))
         trdb = TestResultsDB(dsn)
@@ -254,6 +345,9 @@ class Extension(extension.Extension):
         
         Args:
            ev (object): hydratk.core.event.Event
+           
+        Returns:
+           void
         
         """             
         test_repo = CommandlineTool.get_input_option('yoda-test-repo-root-dir')             
@@ -289,12 +383,34 @@ class Extension(extension.Extension):
         if test_run_name != False:
             self._test_engine.test_run.name = test_run_name                   
     
-    def init_test_simul(self):        
+    def init_test_simul(self):    
+        """Method enables simulated execution
+        
+        Args:  
+           
+        Returns:
+           void
+                
+        """ 
+                    
         self._test_engine.test_simul_mode = True              
-        self.init_tests()
+        self.init_tests()    
     
+    def init_test_results_db(self):  
+        """Method initialized results database
+        
+        Configuration option - Yoda/db_results_dsn
+        
+        Args:  
+           
+        Returns:
+           void
     
-    def init_test_results_db(self):        
+        Raises:
+           exception: Exception
+                
+        """ 
+                      
         dsn = self._mh.ext_cfg['Yoda']['db_results_dsn']                  
         dmsg("Initializing test results database, dsn: {}".format(dsn))            
         trdb = TestResultsDB(dsn)            
@@ -303,9 +419,24 @@ class Extension(extension.Extension):
         else:
             dmsg("Test result database dsn: {0} check ok.".format(dsn))
             self._test_engine.test_results_db = trdb
-        
-            
+                    
     def check_test_results_db(self, ev):        
+        """Method check if results database is successfully created
+        
+        Configuration option - Yoda/db_results_autocreate
+        It is created if autocreate enabled
+        
+        Args:  
+           ev: not used
+           
+        Returns:
+           void
+           
+        Raises:
+           exception: Exception
+                
+        """ 
+                
         if self._use_test_results_db:            
             dsn = self._mh.ext_cfg['Yoda']['db_results_dsn']                  
             dmsg("Initializing test results database, dsn: {}".format(dsn))            
@@ -327,7 +458,17 @@ class Extension(extension.Extension):
             dmsg("Test results database disabled")
              
     def init_tests(self):
-        """Method is initializing tests           
+        """Method is initializing tests 
+        
+        Args:
+        
+        Returns:
+           void
+           
+        Raises:
+           event: yoda_before_init_tests
+           event: yoda_before_process_tests     
+           event: yoda_before_check_results     
                   
         """
         
@@ -371,7 +512,7 @@ class Extension(extension.Extension):
     def init_global_tests(self,test_base_path):        
         pass
     
-    def init_inrepo_tests(self, test_base_path):
+    def init_inrepo_tests(self, test_base_path):      
         
         if os.path.exists(self._test_repo_root):
             if os.path.exists(self.test_base_path):
@@ -381,8 +522,19 @@ class Extension(extension.Extension):
         else:           
             self._mh.dmsg('htk_on_error', self._mh._trn.msg(' yoda_invalid_test_repo_root', self._test_repo_root), self._mh.fromhere())      
     
-    def init_helpers(self):        
-        """ Add default helpers repo directory"""
+    def init_helpers(self):  
+        """Method initializes helpers repository
+        
+        Args:
+        
+        Returns:
+           void
+           
+        Raises:
+           event: yoda_before_append_helpers_dir  
+                  
+        """              
+
         self._use_helpers_dir.append(self._helpers_repo)  
         ev = event.Event('yoda_before_append_helpers_dir', self._use_helpers_dir)        
         if (self._mh.fire_event(ev) > 0):
@@ -398,7 +550,18 @@ class Extension(extension.Extension):
                         self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_helpers_dir_not_exists', helpers_dir), self._mh.fromhere())                             
     
     def init_libs(self):        
-        """ Add default libraries repo directory"""
+        """Method initializes libraries repository
+        
+        Args:
+        
+        Returns:
+           void
+           
+        Raises:
+           event: yoda_before_append_lib_dir  
+                  
+        """ 
+        
         self._use_lib_dir.append(self._libs_repo)  
         ev = event.Event('yoda_before_append_lib_dir', self._use_lib_dir)        
         if (self._mh.fire_event(ev) > 0):
@@ -414,6 +577,20 @@ class Extension(extension.Extension):
                         self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_lib_dir_not_exists',lib_dir), self._mh.fromhere())
                              
     def process_tests(self, test_files):
+        """Method determines whether test sets will be executed in single or parallel mode
+        
+        Args:
+           test_files (obj): list or str, test files
+        
+        Returns:
+           void
+           
+        Raises:
+           exception: Exception
+           event: yoda_before_parse_test_file  
+                  
+        """ 
+                
         dmsg("Process tests test_simul_mode {}, run_mode {}".format(self._test_engine._test_simul_mode, self._mh.run_mode))
         total_ts = len(test_files)
         if total_ts > 0:
@@ -475,12 +652,35 @@ class Extension(extension.Extension):
             self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_no_tests_found_in_path', self._current_test_base_path), self._mh.fromhere())
     
     def pp_process_test_set(self, test_set_file):
+        """Method creates ticket to execute test set in parallel mode
+        
+        Args:
+           test_set_file (str): filename
+        
+        Returns:
+           void
+                  
+        """ 
+                
         dmsg("Processing test set {} in parallel mode".format(test_set_file))
         ticket_id = self._mh.async_ext_fn((self,'pp_run_test_set'), None, test_set_file)
         dmsg("Got ticket id: {} for test set: {}".format(ticket_id,test_set_file))
         self._active_tickets.append(ticket_id)
     
     def pp_run_test_set(self, test_set_file):
+        """Method executes test set in parallel mode
+        
+        Args:
+           test_set_file (str): filename
+        
+        Returns:
+           void
+           
+        Raises:
+           exception: Exception 
+                  
+        """ 
+                
         self.init_test_results_db()
         dmsg("Processing test set {}".format(test_set_file), 1)
         tset_struct = self._test_engine.load_tset_from_file(test_set_file)
@@ -511,6 +711,19 @@ class Extension(extension.Extension):
             raise Exception("Failed to load tset_struct")
         
     def process_test_set(self,test_set_file):
+        """Method executes test set in single mode
+        
+        Args:
+           test_set_file (str): filename
+        
+        Returns:
+           void
+           
+        Raises:
+           exception: Exception 
+                  
+        """ 
+                
         tset_struct = self._test_engine.load_tset_from_file(test_set_file)
         if tset_struct != False:                    
             tset_obj = self._test_engine.parse_tset_struct(tset_struct);
@@ -536,7 +749,19 @@ class Extension(extension.Extension):
                     
  
     
-    def _check_results(self):        
+    def _check_results(self):  
+        """Method prepares results in requested format
+        
+        Args:
+        
+        Returns:
+           void
+           
+        Raises:
+           event: yoda_on_check_results 
+                  
+        """ 
+                      
         ev = event.Event('yoda_on_check_results', self._test_engine.test_run.id)
         self._mh.fire_event(ev)
         if ev.will_run_default():
@@ -544,9 +769,7 @@ class Extension(extension.Extension):
                 for output_handler in self._test_results_output_handler:   
                     trof = TestResultsOutputFactory(self._mh.ext_cfg['Yoda']['db_results_dsn'], output_handler)
                     trof.create(self._test_engine.test_run)
-                
-                       
-                    
+                                                           
     def _check_custom_results2(self, test_run):
         from xtermcolor import colorize
         from hydratk.lib.string.operation import strip_accents
