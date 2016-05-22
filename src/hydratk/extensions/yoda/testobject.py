@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""This code is a part of Yoda extension
+"""Providing automated testing functionality
 
 .. module:: yoda.testobject
    :platform: Unix
@@ -19,7 +19,9 @@ import os
 import cPickle as pickle
 from hydratk.lib.debugging.simpledebug import dmsg
 
-class TestObject(object):    
+class TestObject(object):  
+    """Class TestObject
+    """  
     
     @property
     def parent(self):
@@ -82,7 +84,8 @@ class TestObject(object):
     def get_auto_break(self):
         """Method gets auto_break from configuration Yoda/auto_break
         
-        Args:         
+        Args:    
+           none     
            
         Returns:
            str: configured auto_break
@@ -150,7 +153,7 @@ Exception: {exc_name}
 
     @property
     def log(self):
-        """ log property getter """ 
+        """ log property getter, setter """ 
         
         return self._log
     
@@ -168,14 +171,20 @@ Exception: {exc_name}
      
 
 class BreakTestRun(Exception):
+    """Class BreakTestRun
+    """
+    
     pass
 
 class BreakTest(Exception):
+    """Class BreakTest
+    """
+    
     _test_object = None
     
     @property
     def test_object(self):
-        """ test_object property getter """
+        """ test_object property getter, setter """
         
         return self._test_object
     
@@ -186,11 +195,14 @@ class BreakTest(Exception):
         self._test_object = test_obj
 
 class BreakTestCase(Exception):
+    """Class BreakTestCase
+    """
+    
     _test_object = None
     
     @property
     def test_object(self):
-        """ test_object property getter """
+        """ test_object property getter, setter """
         
         return self._test_object
     
@@ -201,11 +213,14 @@ class BreakTestCase(Exception):
         self._test_object = test_obj
 
 class BreakTestScenario(Exception):
+    """Class BreakTestScenario
+    """
+    
     _test_object = None
     
     @property
     def test_object(self):
-        """ test_object property getter """
+        """ test_object property getter, setter """
         
         return self._test_object
     
@@ -216,11 +231,14 @@ class BreakTestScenario(Exception):
         self._test_object = test_obj
 
 class BreakTestSet(Exception):
+    """Class BreakTestSet
+    """
+    
     _test_object = None
     
     @property
     def test_object(self):
-        """ test_object property getter """
+        """ test_object property getter, setter """
         
         return self._test_object
     
@@ -231,6 +249,9 @@ class BreakTestSet(Exception):
         self._test_object = test_obj
             
 class TestRun(TestObject):
+    """Class TestRun
+    """
+    
     _id                     = None
     _name                   = 'Undefined'
     _attr                   = {}
@@ -286,6 +307,7 @@ class TestRun(TestObject):
         """Method creates new record in results database
         
         Args:          
+           none
            
         Returns:
            void
@@ -308,7 +330,8 @@ class TestRun(TestObject):
     def update_db_record(self):
         """Method updates record in results database
         
-        Args:         
+        Args:    
+           none     
            
         Returns:
            void
@@ -337,7 +360,8 @@ class TestRun(TestObject):
         
         Data can be filtered
         
-        Args:         
+        Args:  
+           none       
            
         Returns:
            void
@@ -366,7 +390,7 @@ class TestRun(TestObject):
                
     @property
     def te(self):
-        """ te property getter """
+        """ te property getter, setter """
         
         return self._te
     
@@ -390,7 +414,7 @@ class TestRun(TestObject):
     
     @property
     def name(self):
-        """ name property getter """
+        """ name property getter, setter """
         
         return self._name
     
@@ -402,7 +426,7 @@ class TestRun(TestObject):
            
     @property
     def total_test_sets(self):
-        """ total_test_sets property getter """
+        """ total_test_sets property getter, setter """
         
         return self._total_test_sets
     
@@ -414,7 +438,7 @@ class TestRun(TestObject):
         
     @property
     def total_tests(self):
-        """ total_tests property getter """
+        """ total_tests property getter, setter """
         
         return self._total_tests
     
@@ -426,7 +450,7 @@ class TestRun(TestObject):
 
     @property
     def failed_tests(self):
-        """ failed_tests property getter """
+        """ failed_tests property getter, setter """
         
         return self._failed_tests
     
@@ -438,7 +462,7 @@ class TestRun(TestObject):
 
     @property
     def passed_tests(self):
-        """ passed_tests property getter """
+        """ passed_tests property getter, setter """
         
         return self._passed_tests
     
@@ -450,7 +474,7 @@ class TestRun(TestObject):
 
     @property
     def skipped_tests(self):
-        """ skipped_tests property getter """
+        """ skipped_tests property getter, setter """
         
         return self._skipped_tests
     
@@ -462,7 +486,7 @@ class TestRun(TestObject):
 
     @property
     def norun_tests(self):
-        """norun_tests property getter """
+        """norun_tests property getter, setter """
         
         return self._norun_tests
     
@@ -474,7 +498,7 @@ class TestRun(TestObject):
 
     @property
     def run_tests(self):
-        """ run_tests property getter """
+        """ run_tests property getter, setter """
         
         return self._run_tests
     
@@ -486,7 +510,7 @@ class TestRun(TestObject):
                 
     @property
     def failures(self):
-        """ failures property getter """
+        """ failures property getter, setter """
         
         return self._passed_tests
     
@@ -498,7 +522,7 @@ class TestRun(TestObject):
 
     @property
     def status(self):
-        """ status property getter """
+        """ status property getter, setter """
         
         return self._status;
     
@@ -510,7 +534,7 @@ class TestRun(TestObject):
         
     @property
     def start_time(self):
-        """ start_time property getter """
+        """ start_time property getter, setter """
         
         return self._start_time
     
@@ -522,7 +546,7 @@ class TestRun(TestObject):
 
     @property
     def end_time(self):
-        """ end_time property getter """
+        """ end_time property getter, setter """
         
         return self._end_time
     
@@ -534,7 +558,7 @@ class TestRun(TestObject):
 
     @property
     def tset(self):
-        """ tset property getter """
+        """ tset property getter, setter """
         
         return self._tset
     
@@ -547,7 +571,8 @@ class TestRun(TestObject):
     def __repr__(self):
         """Method overrides __repr__
         
-        Args:           
+        Args: 
+           none          
            
         Returns:
            str
@@ -591,6 +616,9 @@ class TestRun(TestObject):
         raise BreakTestRun(reason)
          
 class TestSet(TestObject):
+    """Class TestSet
+    """
+    
     _id                      = None
     _attr                    = {}
     _current_test_base_path  = ''
@@ -626,7 +654,7 @@ class TestSet(TestObject):
     
     @property
     def test_run(self):
-        """ test_run property getter """
+        """ test_run property getter, setter """
                 
         return self._test_run
     
@@ -638,7 +666,7 @@ class TestSet(TestObject):
     
     @property
     def current_test_base_path(self):
-        """ current_test_base_path property getter """
+        """ current_test_base_path property getter, setter """
         
         return self._current_test_base_path
     
@@ -650,7 +678,7 @@ class TestSet(TestObject):
    
     @property
     def current_test_set_file(self):
-        """ current_test_set_file property getter """
+        """ current_test_set_file property getter, setter """
         
         return self._current_test_set_file
     
@@ -662,7 +690,7 @@ class TestSet(TestObject):
          
     @property
     def parsed_tests(self):
-        """ parsed_tests property getter """
+        """ parsed_tests property getter, setter """
         
         return self._parsed_tests
     
@@ -674,7 +702,7 @@ class TestSet(TestObject):
    
     @property
     def total_tests(self):
-        """ total_tests property getter """
+        """ total_tests property getter, setter """
         
         return self._total_tests
     
@@ -686,7 +714,7 @@ class TestSet(TestObject):
 
     @property
     def failed_tests(self):
-        """ failed_tests property getter """
+        """ failed_tests property getter, setter """
         
         return self._failed_tests
     
@@ -698,7 +726,7 @@ class TestSet(TestObject):
 
     @property
     def passed_tests(self):
-        """ passed_tests property getter """
+        """ passed_tests property getter, setter """
         
         return self._passed_tests
     
@@ -710,7 +738,7 @@ class TestSet(TestObject):
 
     @property
     def failed_ts(self):
-        """ failed_ts property getter """
+        """ failed_ts property getter, setter """
         
         return self._failed_ts
     
@@ -722,7 +750,7 @@ class TestSet(TestObject):
 
     @property
     def passed_ts(self):
-        """ passed_ts property getter """
+        """ passed_ts property getter, setter """
         
         return self._passed_ts
     
@@ -734,7 +762,7 @@ class TestSet(TestObject):
 
     @property
     def failures(self):
-        """ failures property getter """
+        """ failures property getter, setter """
         
         return self._failures;
     
@@ -747,7 +775,7 @@ class TestSet(TestObject):
                 
     @property
     def ts(self):
-        """ ts property getter """
+        """ ts property getter, setter """
         
         return self._ts
     
@@ -759,7 +787,7 @@ class TestSet(TestObject):
 
     @property
     def start_time(self):
-        """ start_time property getter """
+        """ start_time property getter, setter """
         
         return self._start_time
     
@@ -771,7 +799,7 @@ class TestSet(TestObject):
 
     @property
     def end_time(self):
-        """ end_time property getter """
+        """ end_time property getter, setter """
         
         return self._end_time
     
@@ -817,7 +845,8 @@ class TestSet(TestObject):
     def create_db_record(self):      
         """Method creates new record in results database
         
-        Args:           
+        Args:  
+           none         
            
         Returns:
            void
@@ -842,7 +871,8 @@ class TestSet(TestObject):
     def update_db_record(self):
         """Method updates record in results database
         
-        Args:           
+        Args:  
+           none         
            
         Returns:
            void
@@ -868,7 +898,8 @@ class TestSet(TestObject):
         
         Data can be filtered
         
-        Args:         
+        Args:  
+           none       
            
         Returns:
            void
@@ -898,7 +929,8 @@ class TestSet(TestObject):
     def __repr__(self):
         """Method overrides __repr__
         
-        Args:         
+        Args:  
+           none       
            
         Returns:
            str
@@ -935,7 +967,9 @@ class TestSet(TestObject):
         
     def reset_data(self):
         """Method resets test set attributes
+        
         Args:         
+           none
            
         Returns:
            void
@@ -961,7 +995,8 @@ class TestSet(TestObject):
         Execution progress is stored in results database
         Test run and test can be broken during execution 
         
-        Args:         
+        Args:  
+           none       
            
         Returns:
            void
@@ -1053,6 +1088,9 @@ class TestSet(TestObject):
     
         
 class TestScenario(TestObject):
+    """Class TestScenario
+    """
+    
     _id             = None
     _num            = None
     _attr           = {}
@@ -1146,7 +1184,8 @@ class TestScenario(TestObject):
         
         Data can be filtered
         
-        Args:         
+        Args:     
+           none    
            
         Returns:
            void
@@ -1178,7 +1217,8 @@ class TestScenario(TestObject):
         
         Data can be filtered
         
-        Args:         
+        Args:  
+           none       
            
         Returns:
            void
@@ -1210,7 +1250,8 @@ class TestScenario(TestObject):
         
         Data can be filtered
         
-        Args:         
+        Args:  
+           none       
            
         Returns:
            void
@@ -1243,7 +1284,8 @@ class TestScenario(TestObject):
         Execution progress is stored in results database
         Test run, set, scenarion can be broken during execution 
         
-        Args:         
+        Args:  
+           none       
            
         Returns:
            bool: True
@@ -1507,7 +1549,7 @@ class TestScenario(TestObject):
     
     @property
     def resolution(self):
-        """ resolution property getter """
+        """ resolution property getter, setter """
         
         return self._resolution;
     
@@ -1519,7 +1561,7 @@ class TestScenario(TestObject):
         
     @property
     def status(self):
-        """ status property getter """
+        """ status property getter, setter """
         
         return self._status;
     
@@ -1531,7 +1573,7 @@ class TestScenario(TestObject):
 
     @property
     def prereq_passed(self):
-        """ prereq_passed property getter """
+        """ prereq_passed property getter, setter """
         
         return self._prereq_passed;
     
@@ -1543,7 +1585,7 @@ class TestScenario(TestObject):
         
     @property
     def postreq_passed(self):
-        """ postreq_passed property getter """
+        """ postreq_passed property getter, setter """
         
         return self._postreq_passed;
     
@@ -1555,7 +1597,7 @@ class TestScenario(TestObject):
 
     @property
     def events_passed(self):
-        """ events_passed property getter """
+        """ events_passed property getter, setter """
         
         return self._events_passed;
     
@@ -1567,7 +1609,7 @@ class TestScenario(TestObject):
         
     @property
     def failures(self):
-        """ failures property getter """
+        """ failures property getter, setter """
         
         return self._failures;
     
@@ -1580,7 +1622,7 @@ class TestScenario(TestObject):
 
     @property
     def action(self):
-        """ action property getter """
+        """ action property getter, setter """
         
         return self._action
     
@@ -1592,7 +1634,7 @@ class TestScenario(TestObject):
 
     @property
     def total_tests(self):
-        """ total_tests property getter """
+        """ total_tests property getter, setter """
         
         return self._total_tests;
     
@@ -1604,7 +1646,7 @@ class TestScenario(TestObject):
 
     @property
     def passed_tests(self):
-        """ passed_tests property getter """
+        """ passed_tests property getter, setter """
         
         return self._passed_tests
     
@@ -1616,7 +1658,7 @@ class TestScenario(TestObject):
 
     @property
     def failed_tests(self):
-        """ failed_tests property getter """
+        """ failed_tests property getter, setter """
         
         return self._failed_tests
     
@@ -1628,7 +1670,7 @@ class TestScenario(TestObject):
                 
     @property
     def start_time(self):
-        """ start_time property getter """
+        """ start_time property getter, setter """
         
         return self._start_time
     
@@ -1640,7 +1682,7 @@ class TestScenario(TestObject):
 
     @property
     def end_time(self):
-        """ end_time property getter """
+        """ end_time property getter, setter """
         
         return self._end_time
     
@@ -1697,6 +1739,9 @@ class TestScenario(TestObject):
     
                                     
 class TestCase(TestObject):
+    """Class TestCase
+    """
+    
     _id             = None
     _num            = None
     _attr           = {}
@@ -1782,7 +1827,8 @@ class TestCase(TestObject):
     def create_db_record(self):
         """Method creates new record in results database
         
-        Args:  
+        Args: 
+           none 
            
         Returns:
            void
@@ -1812,7 +1858,8 @@ class TestCase(TestObject):
     def update_db_record(self):
         """Method updates record in results database
 
-        Args:         
+        Args:
+           none         
            
         Returns:
            void
@@ -1844,7 +1891,8 @@ class TestCase(TestObject):
         
         Data can be filtered
         
-        Args:         
+        Args: 
+           none        
            
         Returns:
            void
@@ -1877,7 +1925,8 @@ class TestCase(TestObject):
         Execution progress is stored in results database
         Test run, set, scenario, case can be broken during execution 
         
-        Args:         
+        Args:   
+           none      
            
         Returns:
            bool: True
@@ -2045,7 +2094,7 @@ class TestCase(TestObject):
     
     @property
     def resolution(self):
-        """ resolution property getter """
+        """ resolution property getter, setter """
         
         return self._resolution;
     
@@ -2057,7 +2106,7 @@ class TestCase(TestObject):
         
     @property
     def status(self):
-        """ status property getter """
+        """ status property getter, setter """
         
         return self._status;
     
@@ -2069,7 +2118,7 @@ class TestCase(TestObject):
 
     @property
     def failures(self):
-        """ failures property getter """
+        """ failures property getter, setter """
         return self._failures;
     
     @failures.setter
@@ -2081,7 +2130,7 @@ class TestCase(TestObject):
 
     @property
     def tco_failures(self):
-        """ tco_failures property getter """
+        """ tco_failures property getter, setter """
         
         return self._tco_failures;
     
@@ -2094,7 +2143,7 @@ class TestCase(TestObject):
                 
     @property
     def action(self):
-        """ action property getter """
+        """ action property getter, setter """
         
         return self._action;
     
@@ -2106,7 +2155,7 @@ class TestCase(TestObject):
 
     @property
     def total_tests(self):
-        """ total_tests property getter """
+        """ total_tests property getter, setter """
         
         return self._total_tests;
     
@@ -2118,7 +2167,7 @@ class TestCase(TestObject):
 
     @property
     def passed_tests(self):
-        """ passed_tests property getter """
+        """ passed_tests property getter, setter """
         
         return self._passed_tests;
     
@@ -2130,7 +2179,7 @@ class TestCase(TestObject):
 
     @property
     def failed_tests(self):
-        """ failed_tests property getter """
+        """ failed_tests property getter, setter """
         
         return self._failed_tests;
     
@@ -2142,7 +2191,7 @@ class TestCase(TestObject):
         
     @property
     def failed_tco(self):
-        """ failed_tco property getter """
+        """ failed_tco property getter, setter """
         
         return self._failed_tco;
     
@@ -2154,7 +2203,7 @@ class TestCase(TestObject):
 
     @property
     def passed_tco(self):
-        """ passed_tco property getter """
+        """ passed_tco property getter, setter """
         
         return self._passed_tco;
     
@@ -2166,7 +2215,7 @@ class TestCase(TestObject):
 
     @property
     def start_time(self):
-        """ start_time property getter """
+        """ start_time property getter, setter """
         
         return self._start_time;
     
@@ -2178,7 +2227,7 @@ class TestCase(TestObject):
 
     @property
     def end_time(self):
-        """ end_time property getter """
+        """ end_time property getter, setter """
         
         return self._end_time;
     
@@ -2190,7 +2239,7 @@ class TestCase(TestObject):
     
     @property
     def events_passed(self):
-        """ events_passed property getter """
+        """ events_passed property getter, setter """
         
         return self._events_passed;
     
@@ -2247,6 +2296,9 @@ class TestCase(TestObject):
         
             
 class TestCondition(TestObject):
+    """Class TestCondition
+    """
+    
     _num                  = None
     _id                   = None
     _attr                 = {} 
@@ -2324,6 +2376,7 @@ class TestCondition(TestObject):
         """Method creates new record in results database
         
         Args:   
+           none
            
         Returns:
            void
@@ -2355,6 +2408,7 @@ class TestCondition(TestObject):
         """Method updates record in results database
         
         Args:   
+           none
            
         Returns:
            void
@@ -2387,7 +2441,8 @@ class TestCondition(TestObject):
         
         Data can be filtered
         
-        Args:         
+        Args:
+           none         
            
         Returns:
            void
@@ -2420,7 +2475,8 @@ class TestCondition(TestObject):
         Execution progress is stored in results database
         Test run, set, scenario, case, condition can be broken during execution 
         
-        Args:         
+        Args:     
+           none    
            
         Returns:
            bool: True
@@ -2664,7 +2720,7 @@ class TestCondition(TestObject):
         
     @property
     def resolution(self):
-        """ resolution property getter """
+        """ resolution property getter, setter """
         
         return self._resolution;
     
@@ -2677,7 +2733,7 @@ class TestCondition(TestObject):
         
     @property
     def status(self):
-        """ status property getter """
+        """ status property getter, setter """
         
         return self._status;
     
@@ -2689,7 +2745,7 @@ class TestCondition(TestObject):
     
     @property
     def failures(self):
-        """ failures property getter """
+        """ failures property getter, setter """
         
         return self._failures;
     
@@ -2702,7 +2758,7 @@ class TestCondition(TestObject):
 
     @property
     def action(self):
-        """ action property getter """
+        """ action property getter, setter """
         
         return self._action;
     
@@ -2714,7 +2770,7 @@ class TestCondition(TestObject):
       
     @property
     def expected_result(self):
-        """ expected_result property getter """
+        """ expected_result property getter, setter """
         
         return self._expected_result;
     
@@ -2726,7 +2782,7 @@ class TestCondition(TestObject):
         
     @property
     def test_resolution(self):
-        """ test_resolution property getter """
+        """ test_resolution property getter, setter """
         
         return self._test_resolution;
     
@@ -2738,7 +2794,7 @@ class TestCondition(TestObject):
         
     @property
     def test_result(self):
-        """ test_result property getter """
+        """ test_result property getter, setter """
         
         return self._test_result;
     
@@ -2750,7 +2806,7 @@ class TestCondition(TestObject):
         
     @property
     def test_output(self):
-        """ test_output property getter """
+        """ test_output property getter, setter """
         
         return self._test_output;
     
@@ -2762,7 +2818,7 @@ class TestCondition(TestObject):
 
     @property
     def test_assert(self):
-        """ test_assert property getter """
+        """ test_assert property getter, setter """
         
         return self._test_assert;
     
@@ -2774,7 +2830,7 @@ class TestCondition(TestObject):
         
     @property
     def test_validate(self):
-        """ test_validate property gette """
+        """ test_validate property getter, setter """
         
         return self._test_validate;
     
@@ -2786,7 +2842,7 @@ class TestCondition(TestObject):
 
     @property
     def start_time(self):
-        """ start_time property getter """
+        """ start_time property getter, setter """
         
         return self._start_time;
     
@@ -2798,7 +2854,7 @@ class TestCondition(TestObject):
 
     @property
     def end_time(self):
-        """ end_time property getter """
+        """ end_time property getter, setter """
         
         return self._end_time;
     
@@ -2810,7 +2866,7 @@ class TestCondition(TestObject):
     
     @property
     def events_passed(self):
-        """ events_passed property getter """
+        """ events_passed property getter, setter """
         
         return self._events_passed;
     
@@ -2822,7 +2878,7 @@ class TestCondition(TestObject):
 
     @property
     def test_exec_passed(self):
-        """ test_exec_passed property getter """
+        """ test_exec_passed property getter, setter """
         
         return self._test_exec_passed;
     
@@ -2834,7 +2890,7 @@ class TestCondition(TestObject):
 
     @property
     def validate_exec_passed(self):
-        """ validate_exec_passed property gette """
+        """ validate_exec_passed property getter, setter """
         
         return self._validate_exec_passed;
     

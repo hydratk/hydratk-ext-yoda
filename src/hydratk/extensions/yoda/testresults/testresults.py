@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""This code is a part of Yoda extension
+"""Providing manipulation with test results
 
 .. module:: yoda.testresults.testresults
    :platform: Unix
@@ -223,6 +223,9 @@ db_actions = {
 }
  
 class TestResultsDB(object):
+    """Class TestResultsDB
+    """
+    
     _trdb = None
     _dsn  = None
     _custom_data_filter = {
@@ -256,6 +259,7 @@ class TestResultsDB(object):
         """Method checks if database is successfully created 
         
         Args:
+           none
         
         Returns:
            bool: result
@@ -334,6 +338,9 @@ tro_handlers = {
                }
 
 class TestResultsOutputFactory(object):
+    """Class TestResultsOutputFactory
+    """
+    
     _handler_name = None
     _handler      = None
     _handler_opt  = {}

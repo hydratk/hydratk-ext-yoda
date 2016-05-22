@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""This code is a part of Yoda extension
+"""Providing custom bootstrapper for yoda standalone app
 
 .. module:: yoda.bootstrapper
    :platform: Unix
@@ -19,6 +19,7 @@ def run_app():
     """Methods runs yoda standalone application
         
     Args:
+       none
     
     Returns:
        void

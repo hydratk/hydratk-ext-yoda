@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""This code is a part of Yoda extension
+"""Providing automated testing functionality
 
 .. module:: yoda.yoda
    :platform: Unix
@@ -43,6 +43,9 @@ from hydratk.extensions.yoda.testobject import BreakTestSet
 
 
 class Extension(extension.Extension):
+    """Class Extension
+    """
+    
     _test_repo_root                      = None
     _templates_repo                      = None
     _helpers_repo                        = None
@@ -71,7 +74,8 @@ class Extension(extension.Extension):
     def _init_extension(self):
         """Method initializes extension
         
-        Args:  
+        Args: 
+           none 
            
         Returns:
            void
@@ -103,6 +107,7 @@ class Extension(extension.Extension):
         yoda-tests - test scripts
         
         Args:  
+           none
            
         Returns:
            void
@@ -125,6 +130,7 @@ class Extension(extension.Extension):
         """Method updates test repositories
         
         Args:  
+           none
            
         Returns:
            void
@@ -157,6 +163,7 @@ class Extension(extension.Extension):
         """Method registers event hooks
         
         Args:  
+           none
            
         Returns:
            void
@@ -186,6 +193,7 @@ class Extension(extension.Extension):
         """Method registers event hooks for parallel processing 
         
         Args:  
+           none
            
         Returns:
            void
@@ -204,6 +212,7 @@ class Extension(extension.Extension):
         """Method registers command hooks
         
         Args:  
+           none        
            
         Returns:
            void
@@ -237,6 +246,7 @@ class Extension(extension.Extension):
         """Method registers command hooks for standalone mode
         
         Args:  
+           none
            
         Returns:
            void
@@ -325,7 +335,8 @@ class Extension(extension.Extension):
     def create_test_results_db(self):
         """Method creates results database
         
-        Args:  
+        Args: 
+           none 
            
         Returns:
            obj: database
@@ -387,6 +398,7 @@ class Extension(extension.Extension):
         """Method enables simulated execution
         
         Args:  
+           none
            
         Returns:
            void
@@ -402,6 +414,7 @@ class Extension(extension.Extension):
         Configuration option - Yoda/db_results_dsn
         
         Args:  
+           none
            
         Returns:
            void
@@ -461,6 +474,7 @@ class Extension(extension.Extension):
         """Method is initializing tests 
         
         Args:
+           none
         
         Returns:
            void
@@ -526,6 +540,7 @@ class Extension(extension.Extension):
         """Method initializes helpers repository
         
         Args:
+           none
         
         Returns:
            void
@@ -553,6 +568,7 @@ class Extension(extension.Extension):
         """Method initializes libraries repository
         
         Args:
+           none
         
         Returns:
            void
@@ -753,6 +769,7 @@ class Extension(extension.Extension):
         """Method prepares results in requested format
         
         Args:
+           none
         
         Returns:
            void

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""This code is a part of Yoda extension
+"""Providing automated testing functionality
 
 .. module:: yoda.testengine
    :platform: Unix
@@ -23,6 +23,9 @@ from hydratk.lib.system import fs
 from hydratk.lib.debugging.simpledebug import dmsg
 
 class This(object):
+    """Class This
+    """
+    
     _obj = None
     
     def __init__(self, map_obj=None):    
@@ -78,6 +81,9 @@ class This(object):
         else: raise AttributeError('Undefined attribute "{0}"'.format(name))       
 
 class Current(object):
+    """Class Current
+    """
+    
     _tset  = None
     _ts    = None
     _tca   = None
@@ -90,7 +96,7 @@ class Current(object):
 
     @property
     def te(self):
-        """ te property getter """
+        """ te property getter, setter """
         
         return self._te
 
@@ -102,7 +108,7 @@ class Current(object):
     
     @property
     def test_set(self):
-        """ test_set property getter """
+        """ test_set property getter, setter """
         
         return self._tset
 
@@ -114,7 +120,7 @@ class Current(object):
     
     @property
     def tset(self):
-        """ tset property getter """
+        """ tset property getter, setter """
         
         return self._tset
 
@@ -132,7 +138,7 @@ class Current(object):
     
     @property
     def ts(self):
-        """ ts property getter """
+        """ ts property getter, setter """
         
         return self._ts
    
@@ -150,7 +156,7 @@ class Current(object):
         
     @property
     def tca(self):
-        """ tca property getter """
+        """ tca property getter, setter """
         
         return self._tca
     
@@ -168,7 +174,7 @@ class Current(object):
         
     @property
     def tco(self):
-        """ tco property getter """
+        """ tco property getter, setter """
         
         return self._tco
     
@@ -180,6 +186,9 @@ class Current(object):
 
     
 class Parent(object):
+    """Class Parent
+    """
+    
     _tset  = None
     _ts    = None
     _tca   = None    
@@ -190,7 +199,7 @@ class Parent(object):
     
     @property
     def test_set(self):
-        """ test_property getter """
+        """ test_property getter, setter """
         
         return self._tset
 
@@ -202,7 +211,7 @@ class Parent(object):
     
     @property
     def tset(self):
-        """ tset property getter """
+        """ tset property getter, setter """
         
         return self._tset
 
@@ -220,7 +229,7 @@ class Parent(object):
     
     @property
     def ts(self):
-        """ ts property getter """
+        """ ts property getter, setter """
         
         return self._ts
    
@@ -238,7 +247,7 @@ class Parent(object):
         
     @property
     def tca(self):
-        """ tca property getter """
+        """ tca property getter, setter """
         
         return self._tca
     
@@ -249,7 +258,9 @@ class Parent(object):
         self._tca = tca 
         
 class TestSet(testobject.TestSet):
-    '''Test Scenarios list'''
+    """Class TestSet
+    """
+    
     _ts = []
    
     def append_ts(self, ts_obj):
@@ -267,14 +278,17 @@ class TestSet(testobject.TestSet):
             self._ts.append(ts_obj)
             
 class TestScenario(testobject.TestScenario):
-    '''Test Cases list'''
+    """Class TestScenario
+    """
+    
     _tc = []
     _next = None
     
     def repeat(self):
         """Method enables scenario to be repeated
         
-        Args:   
+        Args:  
+           none 
            
         Returns:
            void
@@ -299,14 +313,17 @@ class TestScenario(testobject.TestScenario):
         
 
 class TestCase(testobject.TestCase):
-    '''Test Condition list'''
+    """Class TestCase
+    """
+    
     _tco = []
     _next = None
     
     def repeat(self):
         """Method enables case to be repeated
         
-        Args:    
+        Args: 
+           none   
            
         Returns:
            void
@@ -330,12 +347,16 @@ class TestCase(testobject.TestCase):
             self._tco.append(tco)
             
 class TestCondition(testobject.TestCondition):
+    """Class TestCondition
+    """
+    
     _next = None
     
     def repeat(self):
         """Method enables condition to be repeated
         
         Args:   
+           none
            
         Returns:
            void
@@ -346,6 +367,9 @@ class TestCondition(testobject.TestCondition):
 
 
 class MacroParser(object):
+    """Class MacroParser
+    """
+    
     _hooks = {}
     
     def mp_add_hooks(self, *args, **kwargs): 
@@ -419,6 +443,9 @@ class MacroParser(object):
         
         
 class TestEngine(MacroParser):
+    """Class TestEngine
+    """
+    
     _mh              = None
     _test_run        = False
     _exec_level      = 1
@@ -457,7 +484,7 @@ class TestEngine(MacroParser):
               
     @property
     def test_repo_root(self):
-        """ test_repo_root property getter """
+        """ test_repo_root property getter, setter """
         
         return self._test_repo_root
     
@@ -469,7 +496,7 @@ class TestEngine(MacroParser):
     
     @property
     def libs_repo(self):
-        """ libs_repo prooperty getter """
+        """ libs_repo prooperty getter, setter """
         
         return self._libs_repo
     
@@ -481,7 +508,7 @@ class TestEngine(MacroParser):
     
     @property
     def templates_repo(self):
-        """ templates_repo property getter """
+        """ templates_repo property getter, setter """
         
         return self._templates_repo
     
@@ -499,7 +526,7 @@ class TestEngine(MacroParser):
     
     @property
     def test_results_db(self):
-        """ test_results_db property getter """
+        """ test_results_db property getter, setter """
         
         return self._test_results_db
     
@@ -512,7 +539,7 @@ class TestEngine(MacroParser):
         
     @property
     def helpers_repo(self):
-        """ helpers_repo property getter """
+        """ helpers_repo property getter, setter """
         
         return self._helpers_repo
     
@@ -524,7 +551,7 @@ class TestEngine(MacroParser):
 
     @property
     def ts_filter(self):
-        """ ts_filter property getter """
+        """ ts_filter property getter, setter """
         
         return self._ts_filter;
     
@@ -536,7 +563,7 @@ class TestEngine(MacroParser):
     
     @property
     def tca_filter(self):
-        """ tca_filter property getter """
+        """ tca_filter property getter, setter """
         
         return self._tca_filter;
     
@@ -548,7 +575,7 @@ class TestEngine(MacroParser):
         
     @property
     def tco_filter(self):
-        """ tco_filter property getter """
+        """ tco_filter property getter, setter """
         
         return self._tco_filter;
     
@@ -560,7 +587,7 @@ class TestEngine(MacroParser):
     
     @property
     def run_mode_area(self):
-        """ run_mode_area property getter """
+        """ run_mode_area property getter, setter """
                 
         return self._run_mode
     
@@ -573,7 +600,7 @@ class TestEngine(MacroParser):
     
     @property
     def run_mode_src(self):
-        """ run_mode_src property getter """
+        """ run_mode_src property getter, setter """
         
         return self._run_mode_src
     
@@ -592,7 +619,7 @@ class TestEngine(MacroParser):
     
     @property
     def test_simul_mode(self):
-        """ test_simul_mode property getter """
+        """ test_simul_mode property getter, setter """
                 
         return self._test_simul_mode
             
@@ -605,7 +632,7 @@ class TestEngine(MacroParser):
     
     @property
     def test_run(self):
-        """ test_run property getter """
+        """ test_run property getter, setter """
         
         return self._test_run
 
@@ -621,7 +648,8 @@ class TestEngine(MacroParser):
         Called when object is initialized
         
         Args:   
-                
+           none
+
         """ 
                     
         self._test_run        = testobject.TestRun(self)
@@ -649,7 +677,8 @@ class TestEngine(MacroParser):
     def new_test_run(self):
         """Method creates new test run
         
-        Args:   
+        Args:  
+           none 
            
         Returns:
            void
@@ -1000,6 +1029,9 @@ class TestEngine(MacroParser):
         return test_files  
 
 class CodeStack():
+    """Class CodeStack
+    """
+    
     _locals = {}
     
     def __init__(self):

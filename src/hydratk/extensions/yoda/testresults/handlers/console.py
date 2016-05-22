@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""This code is a part of Yoda extension
+"""Default test results console output handler
 
 .. module:: yoda.testresults.handlers.console
    :platform: Unix
@@ -14,6 +14,9 @@ from hydratk.extensions.yoda.testresults import testresults
 from hydratk.core.masterhead import MasterHead
 
 class TestResultsOutputHandler(object):
+    """Class TestResultsOutputHandler
+    """
+    
     _options = {}
     _db_dsn  = None
     _db_con  = None
