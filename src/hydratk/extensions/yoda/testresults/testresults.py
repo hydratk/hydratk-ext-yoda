@@ -16,7 +16,7 @@ from hydratk.lib.debugging.simpledebug import dmsg
 
 check_db_struct = {
             'sqlite' : { 'query'    : "SELECT count(*) expected from sqlite_master where type='table'",
-                         'expected' : 6
+                         'expected' : 7
                         }                     
 }
 
@@ -111,14 +111,25 @@ db_struct = {
                        );
                        
     CREATE TABLE custom_data(
+                        id VARCHAR NOT NULL, -- test_run_id + test_obj_id + key
                         test_run_id VARCHAR NOT NULL,
                         test_obj_id VARCHAR NOT NULL, -- test_run.id, test_set.id ..
                         test_obj_name VARCHAR NOT NULL, -- test_run, test_set, ...
                         key VARCHAR NOT NULL,
-                        value VARCHAR NOT NULL,
+                        value VARCHAR,
                         pickled INTEGER,
+                        PRIMARY KEY(id),
                         FOREIGN KEY(test_run_id) REFERENCES test_run(id)
-    )                                                    
+                       );
+                       
+    CREATE TABLE  custom_data_opt(
+                        id VARCHAR NOT NULL, -- custom_data_id + opt_name
+                        custom_data_id VARCHAR NOT NULL,
+                        opt_name VARCHAR NOT NULL,
+                        opt_value VARCHAR,
+                        PRIMARY KEY(id),
+                        FOREIGN KEY(custom_data_id) REFERENCES custom_data(id)
+                       );                                                    
 """
 }
 
@@ -203,20 +214,23 @@ db_actions = {
                                                   struct_log=:struct_log
                               WHERE id=:id
                             """,
-                   'create_custom_data'          : "INSERT INTO custom_data VALUES(?,?,?,?,?,?)",
+                   'write_custom_data'           : "INSERT OR REPLACE INTO custom_data VALUES(?,?,?,?,?,?,?)", 
+                   'create_custom_data'          : "INSERT INTO custom_data VALUES(?,?,?,?,?,?,?)",
+                   'write_custom_data_opt'       : "INSERT OR REPLACE INTO custom_data_opt VALUES(?,?,?,?)",                   
+                   'create_custom_data_opt'      : "INSERT INTO custom_data_opt VALUES(?,?,?)",
                    'get_test_stats'              : "select sum(total_tests) total_tests, sum(failed_tests) failed_tests, sum(passed_tests) passed_tests from test_set where test_run_id = :test_run_id",
                    'get_total_test_sets'         : "select count(tset_id) total_test_sets from test_set where test_run_id = :test_run_id",
                    'get_total_tests'             : "select count(tco_id) total_tests from test_condition where test_run_id = :test_run_id",
                    'get_failed_tests'            : "select count(tco_id) failed_tests from test_condition where test_run_id = :test_run_id and test_resolution = 'failed'",
                    'get_passed_tests'            : "select count(tco_id) passed_tests from test_condition where test_run_id = :test_run_id and test_resolution = 'passed'",                                                                                                                                                                                                       
                    'get_test_sets'               : "select * from test_set where test_run_id = :test_run_id",
-                   'get_test_scenarios'          : """select distinct * from test_scenario left join custom_data on test_scenario.id = custom_data.test_obj_id
+                   'get_test_scenarios'          : """select distinct test_scenario.*, custom_data.key 'key', custom_data.value 'value', custom_data.pickled 'pickled' from test_scenario left join custom_data on test_scenario.id = custom_data.test_obj_id
                                                         where test_scenario.test_run_id = :test_run_id and test_scenario.test_set_id = :test_set_id and custom_data.key = 'name'                                                       
                                                    """,
-                   'get_test_cases'              : """select distinct * from test_case left join custom_data on test_case.id = custom_data.test_obj_id
+                   'get_test_cases'              : """select distinct test_case.*, custom_data.key 'key', custom_data.value 'value', custom_data.pickled 'pickled' from test_case left join custom_data on test_case.id = custom_data.test_obj_id
                                                         where test_case.test_run_id = :test_run_id and test_case.test_set_id = :test_set_id and test_case.test_scenario_id = :test_scenario_id and custom_data.key = 'name'                                                       
                                                    """,
-                   'get_test_conditions'         : """select distinct * from test_condition left join custom_data on test_condition.id = custom_data.test_obj_id
+                   'get_test_conditions'         : """select distinct test_condition.*, custom_data.key 'key', custom_data.value 'value', custom_data.pickled 'pickled' from test_condition left join custom_data on test_condition.id = custom_data.test_obj_id
                                                         where test_condition.test_run_id = :test_run_id and test_condition.test_set_id = :test_set_id and test_condition.test_scenario_id = :test_scenario_id and test_condition.test_case_id = :test_case_id and custom_data.key = 'name'                                                       
                                                    """                                                                                                        
                 }                           
@@ -233,6 +247,10 @@ class TestResultsDB(object):
                'TestCase'      : ['id', 'events'],            
                'TestCondition' : ['id', 'events', 'test', 'validate', 'expected_result']
                }
+    
+    @property
+    def trdb(self):
+        return self._trdb
     
     @property
     def custom_data_filter(self):

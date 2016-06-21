@@ -64,15 +64,14 @@ class TestResultsOutputHandler(object):
         test_sets = self._db_con.db_data("get_test_sets", {'test_run_id' : test_run.id })   
         for test_set in test_sets:
             print("\n{0}".format(mh._trn.msg('yoda_test_set_summary', test_set['tset_id'])))
-            test_scenarios = self._db_con.db_data("get_test_scenarios", {'test_run_id' : test_run.id, 'test_set_id' : test_set['id'] })                                                 
+            test_scenarios = self._db_con.db_data("get_test_scenarios", {'test_run_id' : test_run.id, 'test_set_id' : test_set['id'] })                                                             
             for ts in test_scenarios:                
                 print("  {0}".format(mh._trn.msg('yoda_test_scenario_summary', ts['value'],ts['total_tests'], ts['failed_tests'],ts['passed_tests'])))                                                                                                         
                 if ts['failures'] == True:                    
                     if ts['prereq_passed'] in (True,None):                        
                         if ts['prereq_passed'] == True: print("    + {0}".format(mh._trn.msg('yoda_test_scenario_prereq_passed')))                       
-                        test_cases = self._db_con.db_data("get_test_cases", {'test_run_id' : test_run.id, 'test_set_id' : test_set['id'], 'test_scenario_id' : ts['id'] })                                                                   
-                        for tca in test_cases:
-                            #print(tca)                                                                                                                                        
+                        test_cases = self._db_con.db_data("get_test_cases", {'test_run_id' : test_run.id, 'test_set_id' : test_set['id'], 'test_scenario_id' : ts['id'] })                                                                                   
+                        for tca in test_cases:                                                                                                                                                                   
                             if tca['failures'] > 0: #tca.failed_tco
                                 print("    {0}".format(mh._trn.msg('yoda_test_case',tca['value'])))
                                 test_conditions = self._db_con.db_data("get_test_conditions", {'test_run_id' : test_run.id, 'test_set_id' : test_set['id'], 'test_scenario_id' : ts['id'], 'test_case_id' : tca['id'] })                                                                                      

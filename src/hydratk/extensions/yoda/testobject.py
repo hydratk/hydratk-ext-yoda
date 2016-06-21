@@ -22,13 +22,143 @@ from hydratk.lib.debugging.simpledebug import dmsg
 class TestObject(object):  
     """Class TestObject
     """  
+    _attr_opt = {}
     
     @property
     def parent(self):
         """ parent property getter """
         
         return self._parent    
-    
+
+
+    def exec_test(self, test_path):
+        """Method executes test block
+        
+        Args:  
+           test_path (str): test path     
+           
+        Returns:
+           void
+                
+        """   
+                
+        self._current.te.exec_test(test_path)
+
+        
+    def write_custom_data(self):
+        """Method writes test scenarion custom data to results database
+        
+        Data can be filtered
+        
+        Args:  
+           none       
+           
+        Returns:
+           void
+                
+        """ 
+        
+        if self._obj_name == 'TestRun':
+            test_results_db = self._te.test_results_db
+            test_run_id     = self._te.test_run.id
+        else:
+            test_results_db = self._current.te.test_results_db
+            test_run_id     = self._current.te.test_run.id
+            
+        # obj_name = 'ObjName'        
+        have_filter = self._obj_name in test_results_db.custom_data_filter
+        for key, value in self._attr.items():
+            pickled = 0
+            if have_filter:
+                if key in test_results_db.custom_data_filter[self._obj_name]:
+                    continue
+            if type(value).__name__ not in ['int','float','str']:
+                value = pickle.dumps(value)
+                pickled = 1
+            custom_data_id = hashlib.md5("{}{}{}".format(test_run_id, self._id,key)).hexdigest()
+            test_results_db.db_action(
+                                          'write_custom_data',
+                                         [
+                                          custom_data_id,
+                                          test_run_id,
+                                          self._id,
+                                          self._test_obj_name, # e.g:'Test-Scenario'
+                                          key,
+                                          value,
+                                          pickled                                                                                                    
+                                         ]
+                                      )
+            
+            #Write custom data options
+            if key in self._attr_opt:                
+                for opt_name, opt_value in self._attr_opt[key].items():
+                    custom_data_opt_id = hashlib.md5("{}{}".format(custom_data_id, opt_name)).hexdigest()                
+                    test_results_db.db_action(
+                                                  'write_custom_data_opt',
+                                                 [
+                                                  custom_data_opt_id,
+                                                  custom_data_id,
+                                                  opt_name,
+                                                  opt_value                                                                                                                                          
+                                                 ])     
+                        
+    def setattr_opt(self, attr_key, opt_name, opt_value = None):
+        """Method sets attribute
+        
+        Args:         
+           attr_key (str): attribute key name
+           opt (obj): option name
+           opt_value(mixed) : option value             
+           
+        Returns:
+           bool: True on success
+        
+        Raises:
+           ValuError
+           KeyError         
+        """ 
+                
+        if type(attr_key).__name__ == 'str' and attr_key != '':
+            if attr_key in self._attr:
+                if opt_name not in (None,''):                    
+                    if attr_key not in self._attr_opt:
+                        self._attr_opt[attr_key] = {}
+                    if type(opt_name).__name__ == 'dict':
+                        self._attr_opt[attr_key].update(opt_name)
+                    else:
+                        self._attr_opt[attr_key][opt_name] = opt_value
+                    return True
+                else: raise ValueError('Attribute option name cannot be NoneType or an empty string')
+            else: raise KeyError("Attribute key {} doesn't exists".format(attr_key))
+        else: raise ValueError('Attribute key have to be a nonempty string')
+
+    def getattr_opt(self, attr_key, opt):
+        """Method gets attribute
+        
+        Args:         
+           name (str): attribute name   
+           
+        Returns:
+           obj: attribute value
+            
+        Raises:
+           ValuError
+           KeyError                
+        """  
+
+        if attr_key in (None,''):
+            raise ValueError('Attribute option name cannot be NoneType or an empty string') 
+        if opt not in (None,''):
+            raise ValueError('Attribute key cannot be NoneType or an empty string')
+        
+        if attr_key not in self._attr_opt:
+            raise KeyError("Undefined attribute key {}".format(attr_key))
+        if opt not in self._attr_opt[attr_key]:
+            raise KeyError("Undefined Attribute option {}".format(opt))
+      
+        result = self._attr_opt[attr_key][opt]
+        return result
+            
     def getattr(self, name):
         """Method gets attribute
         
@@ -46,24 +176,29 @@ class TestObject(object):
             result = self._attr[name]
         return result
         
-    def setattr(self, key, val):
+    def setattr(self, key, val, options = None):
         """Method sets attribute
         
         Args:         
            key (str): attribute name
-           val (obj): attribute value   
+           val (obj): attribute value
+           options (dict) attribute options   
            
         Returns:
            void
                 
         """ 
                 
-        if key != '':
+        if type(key).__name__ == 'str' and key != '':
             key = key.lower();
             key = key.replace('-','_')
             self._attr[key] = val
-    
+            if options is not None:
+                self.setattr_opt(key, options)
+        else:
+            raise ValueError('Attribute key type must be a non empty string, got {}'.format(type(key).__name__))
             
+                   
     def __getattr__(self, name):  
         """Method gets attribute
         
@@ -149,8 +284,13 @@ Exception: {exc_name}
     def attr(self):
         """ attr property getter """
         
-        return self._attr;    
+        return self._attr;        
 
+    @property
+    def attr_opt(self):
+        """ attr_opt property getter """
+        return self._attr_opt        
+         
     @property
     def log(self):
         """ log property getter, setter """ 
@@ -253,6 +393,8 @@ class TestRun(TestObject):
     """
     
     _id                     = None
+    _obj_name               = 'TestRun'
+    _test_obj_name          = 'Test-Run'    
     _name                   = 'Undefined'
     _attr                   = {}
     _total_test_sets        = 0
@@ -354,39 +496,7 @@ class TestRun(TestObject):
                                                   'log'          : self._log,
                                                   'struct_log'   : pickle.dumps(self._struct_log)  
                                                 })
-    
-    def write_custom_data(self):
-        """Method writes test run custom data to results database
-        
-        Data can be filtered
-        
-        Args:  
-           none       
-           
-        Returns:
-           void
-                
-        """ 
-                
-        have_filter = 'TestRun' in self._te.test_results_db.custom_data_filter
-        for key, value in self._attr.items():
-            pickled = 0
-            if have_filter:
-                if key in self._te.test_results_db.custom_data_filter['TestRun']:
-                    continue
-            if type(value).__name__ not in ['int','float','str']:
-                value = pickle.dumps(value)
-                pickled = 1
-            self._te.test_results_db.db_action(
-                                                   'create_custom_data',
-                                                 [
-                                                  self._te.test_run.id,
-                                                  self._id,
-                                                  'Test-Run',
-                                                  key,
-                                                  value,
-                                                  pickled                                                                                                    
-                                                 ]) 
+                     
                
     @property
     def te(self):
@@ -620,6 +730,8 @@ class TestSet(TestObject):
     """
     
     _id                      = None
+    _obj_name                = 'TestSet'
+    _test_obj_name           = 'Test-Set'
     _attr                    = {}
     _current_test_base_path  = ''
     _current_test_set_file   = ''
@@ -893,38 +1005,7 @@ class TestSet(TestObject):
                                                   'log'          : self._log,                                                  
                                                   'struct_log'   : pickle.dumps(self._struct_log)   
                                                 })               
-    def write_custom_data(self):
-        """Method writes test set custom data to results database
-        
-        Data can be filtered
-        
-        Args:  
-           none       
-           
-        Returns:
-           void
                 
-        """ 
-                
-        have_filter = 'TestSet' in self._current.te.test_results_db.custom_data_filter
-        for key, value in self._attr.items():
-            pickled = 0
-            if have_filter:
-                if key in self._current.te.test_results_db.custom_data_filter['TestSet']:
-                    continue
-            if type(value).__name__ not in ['int','float','str']:
-                value = pickle.dumps(value)
-                pickled = 1
-            self._current.te.test_results_db.db_action(
-                                                   'create_custom_data',
-                                                 [
-                                                  self._current.te.test_run.id,
-                                                  self._id,
-                                                  'Test-Set',
-                                                  key,
-                                                  value,
-                                                  pickled                                                                                                    
-                                                 ])    
     
     def __repr__(self):
         """Method overrides __repr__
@@ -1092,6 +1173,8 @@ class TestScenario(TestObject):
     """
     
     _id             = None
+    _obj_name       = 'TestScenario'
+    _test_obj_name  = 'Test-Scenario'    
     _num            = None
     _attr           = {}
     _tca            = []
@@ -1113,19 +1196,6 @@ class TestScenario(TestObject):
     _log            = ''
     _struct_log     = {}
 
-    
-    def exec_test(self, test_path):
-        """Method executes test block
-        
-        Args:  
-           test_path (str): test path       
-           
-        Returns:
-           void
-                
-        """ 
-                
-        self._current.te.exec_test(test_path)
     
     def __init__(self, ts_num, parent_tset, current):
         """Class constructor
@@ -1245,39 +1315,6 @@ class TestScenario(TestObject):
                                                   'struct_log'     : pickle.dumps(self._struct_log)   
                                                 }) 
         
-    def write_custom_data(self):
-        """Method writes test scenarion custom data to results database
-        
-        Data can be filtered
-        
-        Args:  
-           none       
-           
-        Returns:
-           void
-                
-        """ 
-                
-        have_filter = 'TestCase' in self._current.te.test_results_db.custom_data_filter
-        for key, value in self._attr.items():
-            pickled = 0
-            if have_filter:
-                if key in self._current.te.test_results_db.custom_data_filter['TestScenario']:
-                    continue
-            if type(value).__name__ not in ['int','float','str']:
-                value = pickle.dumps(value)
-                pickled = 1
-            self._current.te.test_results_db.db_action(
-                                                   'create_custom_data',
-                                                 [
-                                                  self._current.te.test_run.id,
-                                                  self._id,
-                                                  'Test-Scenario',
-                                                  key,
-                                                  value,
-                                                  pickled                                                                                                    
-                                                 ])   
-
     def run(self):    
         """Method runs test scenario (test cases within)
         
@@ -1743,6 +1780,8 @@ class TestCase(TestObject):
     """
     
     _id             = None
+    _obj_name       = 'TestCase'
+    _test_obj_name  = 'Test-Case'    
     _num            = None
     _attr           = {}
     _resolution     = None
@@ -1764,20 +1803,7 @@ class TestCase(TestObject):
     _events_passed  = None
     _log            = ''
     _struct_log     = {}  
-    
-    def exec_test(self, test_path):
-        """Method executes test block
-        
-        Args:  
-           test_path (str): test path     
-           
-        Returns:
-           void
-                
-        """   
-                
-        self._current.te.exec_test(test_path)
-        
+            
     def __init__(self, tca_num, parent_ts, current):
         """Class constructor
         
@@ -1884,40 +1910,7 @@ class TestCase(TestObject):
                                                   'log'              : self._log,                                                  
                                                   'struct_log'       : pickle.dumps(self._struct_log)   
                                                 })   
-
-
-    def write_custom_data(self):
-        """Method writes test case custom data to results database
-        
-        Data can be filtered
-        
-        Args: 
-           none        
-           
-        Returns:
-           void
-                
-        """ 
-                
-        have_filter = 'TestCase' in self._current.te.test_results_db.custom_data_filter
-        for key, value in self._attr.items():
-            pickled = 0
-            if have_filter:
-                if key in self._current.te.test_results_db.custom_data_filter['TestCase']:
-                    continue
-            if type(value).__name__ not in ['int','float','str']:
-                value = pickle.dumps(value)
-                pickled = 1
-            self._current.te.test_results_db.db_action(
-                                                   'create_custom_data',
-                                                 [
-                                                  self._current.te.test_run.id,
-                                                  self._id,
-                                                  'Test-Case',
-                                                  key,
-                                                  value,
-                                                  pickled                                                                                                    
-                                                 ]) 
+         
                 
     def run(self):  
         """Method runs test case (test conditions within)
@@ -2298,9 +2291,11 @@ class TestCase(TestObject):
 class TestCondition(TestObject):
     """Class TestCondition
     """
-    
-    _num                  = None
+
     _id                   = None
+    _obj_name             = 'TestCondition'
+    _test_obj_name        = 'Test-Condition'
+    _num                  = None        
     _attr                 = {} 
     _resolution           = None
     _status               = None
@@ -2323,19 +2318,7 @@ class TestCondition(TestObject):
     _log                  = ''
     _struct_log           = {}       
     
-    def exec_test(self, test_path):
-        """Method executes test block
-        
-        Args: 
-           test_path (str): test path    
-           
-        Returns:
-           void
-                
-        """  
-                
-        self._current.te.exec_test(test_path)
-        
+            
     def __init__(self, tco_num, parent_tca, current):
         """Class constructor
         
@@ -2435,39 +2418,7 @@ class TestCondition(TestObject):
                                                   'log'                  : self._log,                                                  
                                                   'struct_log'           : pickle.dumps(self._struct_log)   
                                                 })   
-     
-    def write_custom_data(self):
-        """Method writes test condition custom data to results database
-        
-        Data can be filtered
-        
-        Args:
-           none         
-           
-        Returns:
-           void
-                
-        """ 
-                
-        have_filter = 'TestCondition' in self._current.te.test_results_db.custom_data_filter
-        for key, value in self._attr.items():
-            pickled = 0
-            if have_filter:
-                if key in self._current.te.test_results_db.custom_data_filter['TestCondition']:
-                    continue
-            if type(value).__name__ not in ['int','float','str']:
-                value = pickle.dumps(value)
-                pickled = 1
-            self._current.te.test_results_db.db_action(
-                                                   'create_custom_data',
-                                                 [
-                                                  self._current.te.test_run.id,
-                                                  self._id,
-                                                  'Test-Condition',
-                                                  key,
-                                                  value,
-                                                  pickled                                                                                                    
-                                                 ]) 
+                  
                             
     def run(self):           
         """Method runs test condition
@@ -2676,7 +2627,8 @@ class TestCondition(TestObject):
         elif self.action == 'break':
             self.status = 'break'
             self.action = None 
-
+        
+        #print(self.events)
         if self.events != None and 'after_finish' in self.events:                                
             try:
                 ev = Event('yoda_events_after_finish_tco', self.events['after_finish'])        

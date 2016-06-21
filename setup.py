@@ -41,7 +41,7 @@ entry_points = {
                }          
                 
 setup(name='hydratk-ext-yoda',
-      version='0.2.0',
+      version='0.2.1',
       description='Test Automation Tool',
       long_description=readme,
       author='Petr Czaderna',

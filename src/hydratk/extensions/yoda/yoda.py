@@ -54,8 +54,7 @@ class Extension(extension.Extension):
     _current_test_base_path              = None 
     _use_helpers_dir                     = []
     _use_lib_dir                         = []    
-    _test_engine                         = None
-    _use_test_results_db                 = True #deprecated, will be removed in future, test results database is mandatory    
+    _test_engine                         = None    
     _test_results_db                     = None
     _test_results_output_create          = True
     _test_results_output_handler         = ['console'] 
@@ -83,14 +82,14 @@ class Extension(extension.Extension):
         """ 
                 
         self._ext_name    = 'Yoda'
-        self._ext_version = '0.2.0'
+        self._ext_version = '0.2.1'
         self._ext_author  = 'Petr Czaderna <pc@hydratk.org>'
         self._ext_year    = '2014 - 2016'
         
         self._run_mode    = self._mh.run_mode #synchronizing run mode
         if int(self._mh.cfg['Extensions']['Yoda']['test_results_output_create']) in (0,1):
             self._test_results_output_create = bool(int(self._mh.cfg['Extensions']['Yoda']['test_results_output_create']))
-        if type(self._mh.cfg['Extensions']['Yoda']['test_results_output_handler'] == 'list'):
+        if type(self._mh.cfg['Extensions']['Yoda']['test_results_output_handler']).__name__ == 'list':
             self._test_results_output_handler = self._mh.cfg['Extensions']['Yoda']['test_results_output_handler']
              
         self._init_repos()          
@@ -183,7 +182,6 @@ class Extension(extension.Extension):
         else:
             self._register_htk_actions()
              
-        self._use_test_results_db = True
         self._test_engine = TestEngine()
     
     #def __getinitargs__(self):
@@ -207,6 +205,8 @@ class Extension(extension.Extension):
             self._mh.register_event_hook(hook)           
             #self._mh.register_async_fn('pp_test', worker1)
             #self._mh.register_async_fn_ex('pp_test2',worker2, Extension.worker_result)
+            self.init_libs()                   
+            self.init_helpers()
          
     def _register_htk_actions(self):
         """Method registers command hooks
@@ -366,13 +366,7 @@ class Extension(extension.Extension):
             self._test_repo_root = test_repo    
             self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_test_repo_root_override',test_repo), self._mh.fromhere())
             self._update_repos()
-        
-        db_results_enabled_state = True
-        if db_results_enabled_state != False and int(db_results_enabled_state) in (0,1):            
-            self._use_test_results_db = True
-            dmsg("Using database test results")
-        
-        
+                
         test_results_output_create = CommandlineTool.get_input_option('yoda-test-results-output-create')
         if test_results_output_create != False and int(test_results_output_create) in (0,1):
             self._mh.ext_cfg['Yoda']['test_results_output_create']  = int(test_results_output_create)
@@ -448,27 +442,25 @@ class Extension(extension.Extension):
         Raises:
            exception: Exception
                 
-        """ 
-                
-        if self._use_test_results_db:            
-            dsn = self._mh.ext_cfg['Yoda']['db_results_dsn']                  
-            dmsg("Initializing test results database, dsn: {}".format(dsn))            
-            trdb = TestResultsDB(dsn)            
-            if trdb.db_check_ok() == False:
-                if int(self._mh.ext_cfg['Yoda']['db_results_autocreate']) == 1:
-                    try:
-                        dmsg("Create db results dsn: {0}".format(dsn))
-                        trdb.create_database()
-                        self._test_engine.test_results_db = trdb
-                    except:
-                        print(str(sys.exc_info()))                       
-                else:
-                    raise Exception("Required test results database not available dsn: {0} check failed".format(dsn))
+        """                 
+        
+        dsn = self._mh.ext_cfg['Yoda']['db_results_dsn']                  
+        dmsg("Initializing test results database, dsn: {}".format(dsn))            
+        trdb = TestResultsDB(dsn)            
+        if trdb.db_check_ok() == False:
+            if int(self._mh.ext_cfg['Yoda']['db_results_autocreate']) == 1:
+                try:
+                    dmsg("Create db results dsn: {0}".format(dsn))
+                    trdb.create_database()
+                    self._test_engine.test_results_db = trdb
+                except:
+                    print(str(sys.exc_info()))                       
             else:
-                dmsg("Test result database dsn: {0} check ok.".format(dsn))
-                self._test_engine.test_results_db = trdb
+                raise Exception("Required test results database not available dsn: {0} check failed".format(dsn))
         else:
-            dmsg("Test results database disabled")
+            dmsg("Test result database dsn: {0} check ok.".format(dsn))
+            self._test_engine.test_results_db = trdb
+
              
     def init_tests(self):
         """Method is initializing tests 
@@ -498,7 +490,7 @@ class Extension(extension.Extension):
             if test_path == False:
                 test_path = ''           
                                 
-            self.init_libs();                     
+            self.init_libs()                     
             self.init_helpers()
             if test_path != '' and test_path[0] == '/': # global test set
                 self._test_engine.run_mode_area = 'global'                
@@ -786,48 +778,4 @@ class Extension(extension.Extension):
                 for output_handler in self._test_results_output_handler:   
                     trof = TestResultsOutputFactory(self._mh.ext_cfg['Yoda']['db_results_dsn'], output_handler)
                     trof.create(self._test_engine.test_run)
-                                                           
-    def _check_custom_results2(self, test_run):
-        from xtermcolor import colorize
-        from hydratk.lib.string.operation import strip_accents
-           
-        test_run_summary = self._mh._trn.msg('yoda_test_run_summary', test_run.total_test_sets, test_run.total_tests, test_run.failed_tests, test_run.passed_tests)
-        bar_len = len(strip_accents(test_run_summary))
-        trs_tpl = """
-+{bar}+
-|{test_run_summary}|
-+{bar}+""".format(bar = bar_len * '-', test_run_summary=test_run_summary)                
-        print(trs_tpl)                        
-        for test_set in test_run.tset:
-            print("\n{0}".format(self._mh._trn.msg('yoda_test_set_summary', test_set.current_test_set_file)))                           
-            for ts in test_set.ts:
-                print("  {0}".format(self._mh._trn.msg('yoda_test_scenario_summary', ts.name,ts.total_tests, ts.failed_tests,ts.passed_tests)))                                                                                                         
-                if ts.failures == True:                    
-                    if ts.prereq_passed in (True,None):                        
-                        if ts.prereq_passed == True: print("    + {0}".format(self._mh._trn.msg('yoda_test_scenario_prereq_passed')))                         
-                        for tca in ts.tca:                                                                                                                                        
-                            if tca.tco_failures == True: #tca.failed_tco
-                                print("    {0}".format(self._mh._trn.msg('yoda_test_case',tca.name)))                                                           
-                                for tco in tca.tco:
-                                    if tco.test_resolution == 'Failed':
-                                        print("      {0}".format(self._mh._trn.msg('yoda_test_condition',tco.name)))
-                                        print("            {}".format(self._mh._trn.msg('yoda_expected_result',str(tco.expected_result).strip())))                                        
-                                        print("            {}".format(self._mh._trn.msg('yoda_actual_result',str(tco.test_result))))
-                                        print("            {}".format(self._mh._trn.msg('yoda_log',colorize(str(tco.log),rgb=0x00bfff))))
-                                    if tco.events_passed == False:
-                                        print(colorize("    ! {0}".format(self._mh._trn.msg('yoda_test_condition_events_failed', tco.log)),rgb=0xd70000))
-                                    if tco.test_exec_passed == False:
-                                        print(colorize("    ! {0}".format(self._mh._trn.msg('yoda_test_condition_test_exec_failed', tco.log)),rgb=0xd70000))
-                                    if tco.validate_exec_passed == False:
-                                        print(colorize("    ! {0}".format(self._mh._trn.msg('yoda_test_condition_validate_exec_failed', tco.log)),rgb=0xd70000))
-                            if tca.events_passed == False:
-                                print(colorize("    ! {0}".format(self._mh._trn.msg('yoda_test_case_events_failed', tca.log)),rgb=0xd70000))
-                                                                                                                                                         
-                    else:
-                        print(colorize("     ! {0}".format(self._mh._trn.msg('yoda_test_scenario_prereq_failed', colorize(ts.log, rgb=0xd70000))),rgb=0xd70000))
-                    if ts.events_passed == False:
-                        print(colorize("    ! {0}".format(self._mh._trn.msg('yoda_test_scenario_events_failed', ts.log)),rgb=0xd70000))
-                    if ts.postreq_passed == True:
-                        print("    + {0}".format(self._mh._trn.msg('yoda_test_scenario_postreq_passed')))
-                    elif ts.postreq_passed == False:
-                        print(colorize("    ! {0}".format(self._mh._trn.msg('yoda_test_scenario_postreq_failed', colorize(ts.log, rgb=0xd70000))),rgb=0xd70000))        
+        
