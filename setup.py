@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 
-with open("README.md", "r") as f:
+with open("README.rst", "r") as f:
     readme = f.readlines()
     
 classifiers = [
@@ -23,16 +23,20 @@ classifiers = [
     "Topic :: Utilities"
 ]
 
-packages=[
-          'hydratk.extensions.yoda', 
-         ]
-         
-data_files=[
-            ('/etc/hydratk/conf.d', ['etc/hydratk/conf.d/hydratk-ext-yoda.conf']),
-            ('/var/local/hydratk/yoda/yoda-tests/test1',['var/local/hydratk/yoda/yoda-tests/test1/example1.yoda']),
-            ('/var/local/hydratk/yoda/helpers/yodahelpers',['var/local/hydratk/yoda/helpers/yodahelpers/__init__.py']),
-            ('/var/local/hydratk/yoda/lib/yodalib',['var/local/hydratk/yoda/lib/yodalib/__init__.py'])            
+packages = [
+            'hydratk.extensions.yoda', 
            ]
+
+requires = [
+            'hydratk'
+           ]
+         
+data_files = [
+              ('/etc/hydratk/conf.d', ['etc/hydratk/conf.d/hydratk-ext-yoda.conf']),
+              ('/var/local/hydratk/yoda/yoda-tests/test1',['var/local/hydratk/yoda/yoda-tests/test1/example1.yoda']),
+              ('/var/local/hydratk/yoda/helpers/yodahelpers',['var/local/hydratk/yoda/helpers/yodahelpers/__init__.py']),
+              ('/var/local/hydratk/yoda/lib/yodalib',['var/local/hydratk/yoda/lib/yodalib/__init__.py'])            
+             ]
 
 entry_points = {
                 'console_scripts': [
@@ -49,6 +53,7 @@ setup(name='hydratk-ext-yoda',
       url='http://extensions.hydratk.org/yoda',
       license='BSD',
       packages=find_packages('src'),
+      install_requires=requires,
       package_dir={'' : 'src'},
       classifiers=classifiers,
       data_files=data_files,
