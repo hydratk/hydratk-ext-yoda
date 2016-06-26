@@ -1,8 +1,11 @@
+# -*- coding: utf-8 -*-
 from setuptools import setup, find_packages
-
+from sys import argv
+from os import path
+from subprocess import call
 
 with open("README.rst", "r") as f:
-    readme = f.readlines()
+    readme = f.read()
     
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -23,20 +26,16 @@ classifiers = [
     "Topic :: Utilities"
 ]
 
-packages = [
-            'hydratk.extensions.yoda', 
-           ]
-
 requires = [
             'hydratk'
            ]
          
-data_files = [
-              ('/etc/hydratk/conf.d', ['etc/hydratk/conf.d/hydratk-ext-yoda.conf']),
-              ('/var/local/hydratk/yoda/yoda-tests/test1',['var/local/hydratk/yoda/yoda-tests/test1/example1.yoda']),
-              ('/var/local/hydratk/yoda/helpers/yodahelpers',['var/local/hydratk/yoda/helpers/yodahelpers/__init__.py']),
-              ('/var/local/hydratk/yoda/lib/yodalib',['var/local/hydratk/yoda/lib/yodalib/__init__.py'])            
-             ]
+files = {
+         'etc/hydratk/conf.d/hydratk-ext-yoda.conf'               : '/etc/hydratk/conf.d',
+         'var/local/hydratk/yoda/yoda-tests/test1/example1.yoda'  : '/var/local/hydratk/yoda/yoda-tests/test1',
+         'var/local/hydratk/yoda/helpers/yodahelpers/__init__.py' : '/var/local/hydratk/yoda/helpers/yodahelpers',
+         'var/local/hydratk/yoda/lib/yodalib/__init__.py'         : '/var/local/hydratk/yoda/lib/yodalib'            
+        }
 
 entry_points = {
                 'console_scripts': [
@@ -44,7 +43,8 @@ entry_points = {
                 ]
                }          
                 
-setup(name='hydratk-ext-yoda',
+setup(
+      name='hydratk-ext-yoda',
       version='0.2.1',
       description='Test Automation Tool',
       long_description=readme,
@@ -56,6 +56,17 @@ setup(name='hydratk-ext-yoda',
       install_requires=requires,
       package_dir={'' : 'src'},
       classifiers=classifiers,
-      data_files=data_files,
+      zip_safe=False, 
       entry_points=entry_points      
      )
+
+if ('install' in argv or 'bdist_egg' in argv or 'bdist_wheel' in argv):
+    
+    for file, dir in files.items():    
+        if (not path.exists(dir)):
+            call('mkdir -p {0}'.format(dir), shell=True)
+            
+        call('cp {0} {1}'.format(file, dir), shell=True) 
+        
+    call('chmod -R a+r /etc/hydratk', shell=True)
+    call('chmod -R a+rwx /var/local/hydratk', shell=True)
