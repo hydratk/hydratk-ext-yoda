@@ -1,0 +1,27 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/yoda/bootstrapper/01_methods_ut.jedi
+  Name: ts_run_app
+  Desc: Test method run_app
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from os import system
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_run_cmd
+    Desc: Run command
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_yoda
+      Desc: Run command yoda
+    
+      Test: |
+        out = this.test_result = system('yoda')
+      
+      Validate: |
+        assert (out == 0), 'exit = 0'     
+ 
