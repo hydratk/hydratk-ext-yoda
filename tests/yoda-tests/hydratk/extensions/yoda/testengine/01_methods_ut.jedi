@@ -616,11 +616,11 @@ Test-Scenario-7:
       Test: |
         tca = TestCase('case1', tsc, cur)
         tsc.append_tca(tca)
-        res = tsc._tc
+        res = tsc._tca
                                                                    
       Validate: |
         this.test_result = str(res)
-        assert (len(res) == 1), '_tc contains 1 item'  
+        assert (len(res) == 1), '_tca contains 1 item'  
         
     Test-Condition-4: 
       Id: tco_04
@@ -629,11 +629,11 @@ Test-Scenario-7:
       
       Test: |
         tsc.append_tca(None)
-        res = tsc._tc
+        res = tsc._tca
                                                                    
       Validate: |
         this.test_result = str(res)
-        assert (len(res) == 1), '_tc contains 1 item'     
+        assert (len(res) == 1), '_tca contains 1 item'     
         
 Test-Scenario-8:
   Id: ts_08

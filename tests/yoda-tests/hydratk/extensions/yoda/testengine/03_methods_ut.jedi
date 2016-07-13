@@ -114,7 +114,7 @@ Test-Scenario-3:
       
       Test: |
         te = TestEngine()
-        file = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/tset_01.jedi'
+        file = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi'
         res = te.load_tset_from_file(file)
       
       Validate: |                       
@@ -145,7 +145,7 @@ Test-Scenario-4:
   
   Pre-Req: |
     from hydratk.extensions.yoda.testengine import TestEngine
-    from yodahelpers.hydratk.extensions.tscript import dummy_method
+    from yodahelpers.hydratk.extensions.yoda.tscript import dummy_method
   
   Test-Case-1:
     Id: tc_01
@@ -158,7 +158,7 @@ Test-Scenario-4:
       Desc: Load test set
       
       Test: |                       
-        file = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/tset_01.jedi'
+        file = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi'
         with open(file, 'r') as f:
             file = f.read()
             
@@ -187,7 +187,7 @@ Test-Scenario-4:
       Desc: Load test set with macro
       
       Test: |        
-        file = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/tset_02.jedi'
+        file = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_02.jedi'
         with open(file, 'r') as f:
             file = f.read()
         
@@ -212,7 +212,7 @@ Test-Scenario-5:
     from hydratk.core.masterhead import MasterHead
     from hydratk.extensions.yoda.testobject import TestSet, TestScenario  
     from hydratk.extensions.yoda.testengine import TestEngine
-    from yodahelpers.hydratk.extensions.tscript import ts
+    from yodahelpers.hydratk.extensions.yoda.tscript import ts
   
   Test-Case-1:
     Id: tc_01
@@ -251,7 +251,7 @@ Test-Scenario-6:
     from hydratk.core.masterhead import MasterHead
     from hydratk.extensions.yoda.testobject import TestSet, TestScenario, TestCase  
     from hydratk.extensions.yoda.testengine import TestEngine
-    from yodahelpers.hydratk.extensions.tscript import tc
+    from yodahelpers.hydratk.extensions.yoda.tscript import tc
   
   Test-Case-1:
     Id: tc_01
@@ -292,7 +292,7 @@ Test-Scenario-7:
     from hydratk.core.masterhead import MasterHead
     from hydratk.extensions.yoda.testobject import TestSet, TestScenario, TestCase, TestCondition  
     from hydratk.extensions.yoda.testengine import TestEngine
-    from yodahelpers.hydratk.extensions.tscript import tco
+    from yodahelpers.hydratk.extensions.yoda.tscript import tco
   
   Test-Case-1:
     Id: tc_01
@@ -334,7 +334,7 @@ Test-Scenario-8:
   Pre-Req: |
     from hydratk.core.masterhead import MasterHead
     from hydratk.extensions.yoda.testengine import TestEngine
-    from yodahelpers.hydratk.extensions.tscript import tset
+    from yodahelpers.hydratk.extensions.yoda.tscript import tset
   
   Test-Case-1:
     Id: tc_01
@@ -358,5 +358,4 @@ Test-Scenario-8:
       
       Validate: |                     
         this.test_result = str(res)
-        exp = [cur[0]+1, cur[1]+1, cur[2]+1]
-        assert (res == exp), 'total_ts, total_tca, total_tco = {0}'.format(exp)
+        assert (res[0] > 0 and res[1] > 0 and res[2] > 0), 'total_ts, total_tca, total_tco != [0, 0, 0]'
