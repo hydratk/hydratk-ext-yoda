@@ -119,7 +119,7 @@ Test-Scenario-3:
       
       Validate: |                       
         this.test_result = str(res)
-        assert (res.keys() == ['Test-Scenario-1']), 'load_tset_from_file contains Test-Scenario-1'
+        assert (list(res.keys()) == ['Test-Scenario-1']), 'load_tset_from_file contains Test-Scenario-1'
         this.test_result = res = te._tset_file
         assert (res == file), '_tset_file = {0}'.format(file)
         
@@ -167,7 +167,7 @@ Test-Scenario-4:
         
       Validate: |                       
         this.test_result = str(res)
-        assert (res.keys() == ['Test-Scenario-1']), 'load_tset_from_str contains Test-Scenario-1'   
+        assert (list(res.keys()) == ['Test-Scenario-1']), 'load_tset_from_str contains Test-Scenario-1'   
         
     Test-Condition-2: 
       Id: tco_02
