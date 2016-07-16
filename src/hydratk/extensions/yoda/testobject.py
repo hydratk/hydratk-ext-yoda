@@ -2585,7 +2585,7 @@ class TestCondition(TestObject):
                 current.ts.failures = True
                 current.tca.failures = True
                 parent.tco_failures = True
-                self.log += bytes(ae)
+                self.log += str(ae)
                 self.test_resolution = 'Failed'
                 self.expected_result = ae                         
                     
