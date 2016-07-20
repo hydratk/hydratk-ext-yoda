@@ -1,0 +1,639 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/yoda/testengine/02_methods_ut.jedi
+  Name: ts_mp_init
+  Desc: Test MacroParser __init__ method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import MacroParser
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_init
+    Desc: Initialize MacroParser
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_init
+      Desc: Initialize
+      
+      Test: |
+        mp = MacroParser()
+        res = mp.__class__.__name__
+      
+      Validate: |
+        this.test_result = res
+        assert (res == 'MacroParser'), '__init__ = MacroParser'
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/yoda/testengine/02_methods_ut.jedi
+  Name: ts_mp_mp_add_hooks
+  Desc: Test MacroParser mp_add_hooks method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import MacroParser
+    from yodahelpers.hydratk.core.events import dummy_method, dummy_method_2
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_hooks
+    Desc: Add hooks
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_args
+      Desc: Add hooks as args
+      
+      Test: |
+        mp = MacroParser()
+        mp._hooks = {}
+        hooks = {'hook': dummy_method, 'hook2': dummy_method_2}
+        mp.mp_add_hooks(hooks)
+        res = mp._hooks
+      
+      Validate: |     
+        this.test_result = str(res)
+        assert (res == hooks), '_hooks = {0}'.format(hooks)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_kwargs
+      Desc: Add hooks as kwargs
+      
+      Test: |
+        mp = MacroParser()
+        mp._hooks = {}
+        hooks = {'hook': dummy_method, 'hook2': dummy_method_2}
+        mp.mp_add_hooks(**hooks)
+        res = mp._hooks
+      
+      Validate: |     
+        this.test_result = str(res)
+        assert (res == hooks), '_hooks = {0}'.format(hooks)     
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/yoda/testengine/02_methods_ut.jedi
+  Name: ts_mp_mp_add_hook
+  Desc: Test MacroParser mp_add_hook method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import MacroParser
+    from yodahelpers.hydratk.core.events import dummy_method, dummy_method_2
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_hook
+    Desc: Add hook
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_hook
+      Desc: Add hook   
+      
+      Test: |
+        mp = MacroParser()
+        mp._hooks = {}
+        hook, cb = 'test', dummy_method
+        mp.mp_add_hook(hook, cb)
+        res = mp._hooks
+      
+      Validate: |      
+        this.test_result = str(res)
+        exp = {hook: cb}
+        assert (res == exp), '_hooks = {0}'.format(exp)  
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_invalid
+      Desc: Invalid hook
+      
+      Test: |
+        mp.mp_add_hook('test2', 'callback')
+        res = mp._hooks
+      
+      Validate: |      
+        this.test_result = str(res)
+        exp = {hook: cb}
+        assert (res == exp), '_hooks = {0}'.format(exp) 
+        
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/yoda/testengine/02_methods_ut.jedi
+  Name: ts_mp_mp_parse
+  Desc: Test MacroParser mp_parse method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import MacroParser
+    from yodahelpers.hydratk.core.events import dummy_method
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_parse
+    Desc: Parse macro
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_parse
+      Desc: Parse
+      
+      Test: |
+        mp = MacroParser()
+        mp.mp_add_hook('test', dummy_method)
+        reg = r'#<<test::test2>>#'
+        res = mp.mp_parse(reg)
+      
+      Validate: |             
+        this.test_result = res
+        assert (res), 'mp_parse = True'     
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_no_hook
+      Desc: No registered hook
+      
+      Test: |
+        del mp._hooks['test']
+        res = mp.mp_parse(reg)
+      
+      Validate: |             
+        this.test_result = res
+        exp = '<<test is undefined>>'
+        assert (res == exp), 'mp_parse = {0}'.format(exp)   
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_invalid
+      Desc: Invalid regexp
+      
+      Test: |
+        reg = '#<<>>#'
+        res = mp.mp_parse(reg)
+      
+      Validate: |             
+        this.test_result = res
+        assert (res == reg), 'mp_parse = {0}'.format(reg)   
+        
+Test-Scenario-5:
+  Id: ts_05
+  Path: hydratk/extensions/yoda/testengine/02_methods_ut.jedi
+  Name: ts_mp_mp_processor
+  Desc: Test MacroParser _mp_processor method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import MacroParser
+    from yodahelpers.hydratk.core.events import dummy_method
+    from re import search
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_parse
+    Desc: Parse macro
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_parse
+      Desc: Parse
+      
+      Test: |
+        mp = MacroParser()
+        mp.mp_add_hook('test', dummy_method)
+        reg = search(r'(.*)::(.*)', 'test::test2')
+        res = mp._mp_processor(reg)
+      
+      Validate: |             
+        this.test_result = res
+        assert (res), '_mp_processor = True'   
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_no_hook
+      Desc: No registered hook
+      
+      Test: |
+        del mp._hooks['test']
+        res = mp._mp_processor(reg)
+      
+      Validate: |             
+        this.test_result = res
+        exp = '<<test is undefined>>'
+        assert (res == exp), '_mp_processor = {0}'.format(exp)
+        
+Test-Scenario-6:
+  Id: ts_06
+  Path: hydratk/extensions/yoda/testengine/02_methods_ut.jedi
+  Name: ts_te_init
+  Desc: Test TestEngine __init__ method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import TestEngine
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_init
+    Desc: Initialize TestEngine
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_init
+      Desc: Initialize
+      
+      Test: |
+        te = TestEngine()
+        res = te.__class__.__name__
+      
+      Validate: |                  
+        this.test_result = res
+        assert (res == 'TestEngine'), '__init__ = TestEngine'
+        res = te._hooks
+        this.test_result = str(res)
+        assert (len(res.keys()) == 1), '_hooks contain 1 item'      
+        
+Test-Scenario-7:
+  Id: ts_07
+  Path: hydratk/extensions/yoda/testengine/02_methods_ut.jedi
+  Name: ts_te_props
+  Desc: Test TestEngine properties
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import TestEngine
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getters
+    Desc: Getter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_code_stack
+      Desc: Getter code_stack
+      
+      Test: |
+        te = TestEngine()
+        res = te.code_stack
+      
+      Validate: |          
+        this.test_result = str(res)
+        exp = te._code_stack
+        assert (res == exp), 'code_stack = {0}'.format(exp)   
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_test_repo_root
+      Desc: Getter test_repo_root
+      
+      Test: |
+        res = te.test_repo_root
+      
+      Validate: |          
+        this.test_result = str(res)
+        exp = te._test_repo_root
+        assert (res == exp), 'test_repo_root = {0}'.format(exp)     
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_libs_repo
+      Desc: Getter libs_repo
+      
+      Test: |
+        res = te.libs_repo
+      
+      Validate: |          
+        this.test_result = str(res)
+        exp = te._libs_repo
+        assert (res == exp), 'libs_repo = {0}'.format(exp)  
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_templates_repo
+      Desc: Getter templates_repo
+      
+      Test: |
+        res = te.templates_repo
+      
+      Validate: |          
+        this.test_result = str(res)
+        exp = te._templates_repo
+        assert (res == exp), 'templates_repo = {0}'.format(exp)   
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_have_test_results_db
+      Desc: Getter have_test_results_db
+      
+      Test: |
+        res = te.have_test_results_db
+      
+      Validate: |          
+        this.test_result = str(res)
+        assert (not res), 'test_repo_root = False'
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_test_results_db
+      Desc: Getter test_results_db
+      
+      Test: |
+        res = te.test_results_db
+      
+      Validate: |          
+        this.test_result = str(res)
+        exp = te._test_results_db
+        assert (res == exp), 'test_results_db = {0}'.format(exp) 
+        
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_helpers_repo
+      Desc: Getter helpers_repo
+      
+      Test: |
+        res = te.helpers_repo
+      
+      Validate: |          
+        this.test_result = str(res)
+        exp = te._helpers_repo
+        assert (res == exp), 'helpers_repo = {0}'.format(exp)   
+        
+    Test-Condition-8: 
+      Id: tco_08
+      Name: tco_ts_filter
+      Desc: Getter ts_filter
+      
+      Test: |
+        res = te.ts_filter
+      
+      Validate: |          
+        this.test_result = str(res)
+        exp = te._ts_filter
+        assert (res == exp), 'ts_filter = {0}'.format(exp)       
+        
+    Test-Condition-9: 
+      Id: tco_09
+      Name: tco_tca_filter
+      Desc: Getter tca_filter
+      
+      Test: |
+        res = te.tca_filter
+      
+      Validate: |          
+        this.test_result = str(res)
+        exp = te._tca_filter
+        assert (res == exp), 'tca_filter = {0}'.format(exp)      
+        
+    Test-Condition-10: 
+      Id: tco_10
+      Name: tco_tco_filter
+      Desc: Getter tco_filter
+      
+      Test: |
+        res = te.tco_filter
+      
+      Validate: |          
+        this.test_result = str(res)
+        exp = te._tco_filter
+        assert (res == exp), 'tco_filter = {0}'.format(exp) 
+        
+    Test-Condition-11: 
+      Id: tco_11
+      Name: tco_run_mode_area
+      Desc: Getter run_mode_area
+      
+      Test: |
+        res = te.run_mode_area
+      
+      Validate: |          
+        this.test_result = str(res)
+        exp = te._run_mode_area
+        assert (res == exp), 'run_mode_area = {0}'.format(exp)
+        
+    Test-Condition-12: 
+      Id: tco_12
+      Name: tco_run_mode_src
+      Desc: Getter run_mode_src
+      
+      Test: |
+        res = te.run_mode_src
+      
+      Validate: |          
+        this.test_result = str(res)
+        exp = te._run_mode_src
+        assert (res == exp), 'run_mode_src = {0}'.format(exp)  
+        
+    Test-Condition-13: 
+      Id: tco_13
+      Name: tco_exec_level
+      Desc: Getter exec_level
+      
+      Test: |
+        res = te.exec_level
+      
+      Validate: |          
+        this.test_result = str(res)
+        exp = te._exec_level
+        assert (res == exp), 'exec_level = {0}'.format(exp)   
+        
+    Test-Condition-14: 
+      Id: tco_14
+      Name: tco_test_simul_mode
+      Desc: Getter test_simul_mode
+      
+      Test: |
+        res = te.test_simul_mode
+      
+      Validate: |          
+        this.test_result = str(res)
+        exp = te._test_simul_mode
+        assert (res == exp), 'test_simul_mode = {0}'.format(exp) 
+        
+    Test-Condition-15: 
+      Id: tco_15
+      Name: tco_test_run
+      Desc: Getter test_run
+      
+      Test: |
+        res = te.test_run
+      
+      Validate: |          
+        this.test_result = str(res)
+        exp = te._test_run
+        assert (res == exp), 'test_run = {0}'.format(exp)
+        
+  Test-Case-2:
+    Id: tc_02
+    Name: tc_setters
+    Desc: Setter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_test_repo_root
+      Desc: Setter test_repo_root
+      
+      Test: |
+        te = TestEngine()
+        obj = 'test'
+        te.test_repo_root = obj
+        res = te.test_repo_root
+      
+      Validate: |          
+        this.test_result = str(res)
+        assert (res == obj), 'test_repo_root = {0}'.format(obj)                
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_libs_repo
+      Desc: Setter libs_repo
+      
+      Test: |
+        te.libs_repo = obj
+        res = te.libs_repo
+      
+      Validate: |          
+        this.test_result = str(res)
+        assert (res == obj), 'libs_repo = {0}'.format(obj)      
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_templates_repo
+      Desc: Setter templates_repo
+      
+      Test: |
+        te.templates_repo = obj
+        res = te.templates_repo
+      
+      Validate: |          
+        this.test_result = str(res)
+        assert (res == obj), 'templates_repo = {0}'.format(obj) 
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_test_results_db
+      Desc: Setter test_results_db
+      
+      Test: |
+        te.test_results_db = obj
+        res = te.test_results_db
+      
+      Validate: |          
+        this.test_result = str(res)
+        assert (res == obj), 'test_results_db = {0}'.format(obj)  
+        this.test_result = res = te.have_test_results_db
+        assert (res), 'have_test_results_db = True'   
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_helpers_repo
+      Desc: Setter helpers_repo
+      
+      Test: |
+        te.helpers_repo = obj
+        res = te.helpers_repo
+      
+      Validate: |          
+        this.test_result = str(res)
+        assert (res == obj), 'helpers_repo = {0}'.format(obj) 
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_ts_filter
+      Desc: Setter ts_filter
+      
+      Test: |
+        te.ts_filter = obj
+        res = te.ts_filter
+      
+      Validate: |          
+        this.test_result = str(res)
+        assert (res == obj), 'ts_filter = {0}'.format(obj)  
+        
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_tca_filter
+      Desc: Setter tca_filter
+      
+      Test: |
+        te.tca_filter = obj
+        res = te.tca_filter
+      
+      Validate: |          
+        this.test_result = str(res)
+        assert (res == obj), 'tca_filter = {0}'.format(obj) 
+        
+    Test-Condition-8: 
+      Id: tco_08
+      Name: tco_tco_filter
+      Desc: Setter tco_filter
+      
+      Test: |
+        te.tco_filter = obj
+        res = te.tco_filter
+      
+      Validate: |          
+        this.test_result = str(res)
+        assert (res == obj), 'tco_filter = {0}'.format(obj) 
+        
+    Test-Condition-9: 
+      Id: tco_09
+      Name: tco_run_mode_area
+      Desc: Setter run_mode_area
+      
+      Test: |
+        te.run_mode_area = 'inrepo'
+        res = te.run_mode_area
+      
+      Validate: |          
+        this.test_result = str(res)
+        assert (res == 'inrepo'), 'run_mode_area = inrepo'
+        
+    Test-Condition-10: 
+      Id: tco_10
+      Name: tco_run_mode_src
+      Desc: Setter run_mode_src
+      
+      Test: |
+        te.run_mode_src = 'singlefile'
+        res = te.run_mode_src
+      
+      Validate: |          
+        this.test_result = str(res)
+        assert (res == 'singlefile'), 'run_mode_src = singlefile'   
+        
+    Test-Condition-11: 
+      Id: tco_11
+      Name: tco_test_simul_mode
+      Desc: Setter test_simul_mode
+      
+      Test: |
+        te.test_simul_mode = True
+        res = te.test_simul_mode
+      
+      Validate: |          
+        this.test_result = str(res)
+        assert (res), 'test_simul_mode = True'   
+        
+    Test-Condition-12: 
+      Id: tco_12
+      Name: tco_test_run
+      Desc: Setter test_run
+      
+      Test: |
+        te.test_run = obj
+        res = te.test_run
+      
+      Validate: |          
+        this.test_result = str(res)
+        assert (res == obj), 'test_run = {0}'.format(obj)                                                                                                                                                                  

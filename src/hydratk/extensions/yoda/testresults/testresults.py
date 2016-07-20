@@ -328,7 +328,7 @@ class TestResultsDB(object):
             
         """   
                 
-        dmsg("Running action: {} {}".format(action, str(columns)), 3)
+        dmsg("Running action: {0} {1}".format(action, str(columns)), 3)
         self._trdb.cursor.execute(db_actions[self._trdb.driver_name][action], columns)
         self._trdb.commit()
     
@@ -344,7 +344,7 @@ class TestResultsDB(object):
             
         """   
                 
-        dmsg("Get data action: {} {}".format(action, str(columns)), 3)
+        dmsg("Get data action: {0} {1}".format(action, str(columns)), 3)
         self._trdb.cursor.execute(db_actions[self._trdb.driver_name][action], columns)
         return self._trdb.cursor.fetchall()
 
@@ -376,7 +376,7 @@ class TestResultsOutputFactory(object):
                 
         self._dispatch_handler_def(handler_def)
         if self._handler_name not in tro_handlers:
-            raise ValueError('Unknown handler: {}'.format(self._handler_name))
+            raise ValueError('Unknown handler: {0}'.format(self._handler_name))
         
         handler_mod   = self._import_tro_handler(self._handler_name)
         self._handler = handler_mod.TestResultsOutputHandler(db_dsn, self._handler_opt)
@@ -393,7 +393,7 @@ class TestResultsOutputFactory(object):
                     self._handler_opt[opt_data[0]] = opt_data[1]
                 
         else:
-            raise TypeError("handler_name have to be a nonempty string, got {}, value: {}".format(type(handler_def).__name__, handler_def))
+            raise TypeError("handler_name have to be a nonempty string, got {0}, value: {1}".format(type(handler_def).__name__, handler_def))
     
     def __getattr__(self, name):
         """Method gets attribute

@@ -281,7 +281,7 @@ class TestScenario(testobject.TestScenario):
     """Class TestScenario
     """
     
-    _tc = []
+    _tca = []
     _next = None
     
     def repeat(self):
@@ -589,14 +589,14 @@ class TestEngine(MacroParser):
     def run_mode_area(self):
         """ run_mode_area property getter, setter """
                 
-        return self._run_mode
+        return self._run_mode_area
     
     @run_mode_area.setter
     def run_mode_area(self, mode):
         """ run_mode_area property setter """
                 
         if mode in ('inrepo','global'):
-            self._run_mode_src = mode
+            self._run_mode_area = mode
     
     @property
     def run_mode_src(self):
@@ -903,7 +903,7 @@ class TestEngine(MacroParser):
                         tset_obj = self.parse_tset_struct(tset_struct);
                         if tset_obj != False:
                             try:
-                                dmsg("Creating test set {} database record".format(tf), 1)                    
+                                dmsg("Creating test set {0} database record".format(tf), 1)                    
                                 tset_obj.create_db_record()
                             except:
                                 print(sys.exc_info())

@@ -1,0 +1,190 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/yoda/yoda/01_methods_ut.jedi
+  Name: ts_state
+  Desc: Test state methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.core.masterhead import MasterHead
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getstate
+    Desc: Method __getstate__
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_get
+      Desc: Get state
+      
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        res = ext.__getstate__()
+      
+      Validate: |
+        this.test_result = str(res)
+        exp = ext.__dict__
+        assert (res == exp), '__getstate__ = {0}'.format(exp)
+        
+  Test-Case-2:
+    Id: tc_02
+    Name: tc_setstate
+    Desc: Method __setstate__
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_set
+      Desc: Set state
+      
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        old = ext.__getstate__()
+        d = {'test_item': 'test'}
+        ext.__setstate__(d)
+        res = ext.__getstate__()
+      
+      Validate: |
+        this.test_result = str(res)
+        assert (res['test_item'] == 'test'), '__getstate__ contains {0}'.format(d) 
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/yoda/yoda/01_methods_ut.jedi
+  Name: ts_init_extension
+  Desc: Test _init_extension method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.core.masterhead import MasterHead
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_init
+    Desc: Initialize extension
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_init
+      Desc: Initialize extension
+      
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        ext._ext_id = ext._ext_name = None
+        ext._init_extension()
+        res = [ext._ext_id, ext._ext_name]
+      
+      Validate: |
+        this.test_result = str(res)
+        exp = ['yoda', 'Yoda']
+        assert (res == exp), '_ext_id, _ext_name = {0}'.format(exp)
+        exp = [1, True, ['console']]
+        res = [ext._run_mode, ext._test_results_output_create, ext._test_results_output_handler]
+        this.test_result = str(res)
+        assert (res == exp), '_run_mode, _test_results_output_create, _test_results_output_handler = {0}'.format(exp) 
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/yoda/yoda/01_methods_ut.jedi
+  Name: ts_init_repos
+  Desc: Test _init_repos method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.core.masterhead import MasterHead
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_init_repos
+    Desc: Initialize repositories
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_init
+      Desc: Initialize
+
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        ext._init_repos()
+        res = [ext._test_repo_root, ext._libs_repo, ext._templates_repo, ext._helpers_repo]
+      
+      Validate: |
+        this.test_result = str(res)
+        root = mh._config['Extensions']['Yoda']['test_repo_root']
+        exp = [root, root+'/lib', root+'/yoda-tests/', root+'/helpers']
+        assert (res == exp), '_test_repo_root, _libs_repo, _templates_repo, _helpers_repo = {0}'.format(exp)
+        
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/yoda/yoda/01_methods_ut.jedi
+  Name: ts_update_repos
+  Desc: Test _update_repos method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.core.masterhead import MasterHead
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_update_repos
+    Desc: Update repositories
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_update
+      Desc: Update
+
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        ext._update_repos()
+        res = [ext._libs_repo, ext._templates_repo, ext._helpers_repo]
+      
+      Validate: |
+        this.test_result = str(res)
+        root = ext._test_repo_root
+        exp = [root+'/lib', root+'/yoda-tests/', root+'/helpers']
+        assert (res == exp), '_libs_repo, _templates_repo, _helpers_repo = {0}'.format(exp) 
+        
+Test-Scenario-5:
+  Id: ts_05
+  Path: hydratk/extensions/yoda/yoda/01_methods_ut.jedi
+  Name: ts_create_test_results_db
+  Desc: Test create_test_results_db method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.core.masterhead import MasterHead
+    from os import path, system
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_create_db
+    Desc: Create database
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create
+      Desc: Database exists, error raised
+      
+      Test: |
+        try:
+            mh = MasterHead.get_head()
+            ext = mh._ext['Yoda']
+            ext.create_test_results_db()
+            ex = False
+        except Exception:
+            ex = True
+      
+      Validate: |              
+        this.test_result = ex
+        assert (ex), 'create_test_results_db raises Exception'

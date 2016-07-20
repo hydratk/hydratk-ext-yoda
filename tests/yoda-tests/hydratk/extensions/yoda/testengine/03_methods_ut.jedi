@@ -1,0 +1,361 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/yoda/testengine/03_methods_ut.jedi
+  Name: ts_te_new_test_run
+  Desc: Test TestEngine new_test_run method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import TestEngine
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_new_run
+    Desc: Set new test run
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_set
+      Desc: Set
+      
+      Test: |
+        te = TestEngine()
+        te.new_test_run()
+        res = [te._test_run.__class__.__name__, te._current.__class__.__name__]
+      
+      Validate: |
+        this.test_result = str(res)
+        exp = ['TestRun', 'Current']
+        assert (res == exp), '_test_run, _current = {0}'.format(exp)
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/yoda/testengine/03_methods_ut.jedi
+  Name: ts_te_h_include
+  Desc: Test TestEngine _h_include method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from os import system
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_include
+    Desc: Include template    
+        
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_abspath
+      Desc: Absolute file path
+      
+      Test: |             
+        file = '/var/local/hydratk/test.jedi'
+        cont = 'test'
+        with open(file, 'w+') as f:
+            f.write(cont)
+          
+        te = TestEngine()    
+        res = te._h_include(file)
+      
+      Validate: |
+        this.test_result = res
+        assert (res == cont), '_h_include = {0}'.format(cont)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_relpath
+      Desc: Relative file path
+      
+      Test: |        
+        te._templates_repo = '/var/local/hydratk/'
+        res = te._h_include('test.jedi')
+      
+      Validate: |
+        this.test_result = res
+        assert (res == cont), '_h_include = {0}'.format(cont)        
+        system('rm -f {0}'.format(file))
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_invalid
+      Desc: Invalid file
+      
+      Test: |
+        res = te._h_include('test.jedi')
+      
+      Validate: |
+        this.test_result = res
+        exp = '<<include !! {0} file not found>>'.format(file)
+        assert (res == exp), '_h_include = {0}'.format(exp) 
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/yoda/testengine/03_methods_ut.jedi
+  Name: ts_te_load_tset_from_file
+  Desc: Test TestEngine load_tset_from_file method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import TestEngine
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_load_tset
+    Desc: Load test set    
+        
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_tset
+      Desc: Load test set
+      
+      Test: |
+        te = TestEngine()
+        file = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi'
+        res = te.load_tset_from_file(file)
+      
+      Validate: |                       
+        this.test_result = str(res)
+        assert (list(res.keys()) == ['Test-Scenario-1']), 'load_tset_from_file contains Test-Scenario-1'
+        this.test_result = res = te._tset_file
+        assert (res == file), '_tset_file = {0}'.format(file)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_invalid
+      Desc: Invalid test set
+      
+      Test: |
+        res = te.load_tset_from_file('test.jedi')
+      
+      Validate: |
+        this.test_result = res
+        assert (not res), 'load_tset_from_file = False'
+        
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/yoda/testengine/03_methods_ut.jedi
+  Name: ts_te_load_tset_from_str
+  Desc: Test TestEngine load_tset_from_str method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from yodahelpers.hydratk.extensions.yoda.tscript import dummy_method
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_load_tset
+    Desc: Load test set    
+        
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_tset
+      Desc: Load test set
+      
+      Test: |                       
+        file = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi'
+        with open(file, 'r') as f:
+            file = f.read()
+            
+        te = TestEngine()
+        res = te.load_tset_from_str(file) 
+        
+      Validate: |                       
+        this.test_result = str(res)
+        assert (list(res.keys()) == ['Test-Scenario-1']), 'load_tset_from_str contains Test-Scenario-1'   
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_invalid
+      Desc: Invalid test set
+      
+      Test: |
+        res = te.load_tset_from_str('')
+      
+      Validate: |
+        this.test_result = res
+        assert (not res), 'load_tset_from_str = False' 
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_macro
+      Desc: Load test set with macro
+      
+      Test: |        
+        file = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_02.jedi'
+        with open(file, 'r') as f:
+            file = f.read()
+        
+        te.mp_add_hook('test', dummy_method)
+        res = te.load_tset_from_str(file)  
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = 'a = True\n'                          
+        node = res['Test-Scenario-1']['Test-Case-1']['Test-Condition-1']['Test']
+        assert (node == exp), 'load_tset_from_str contains {0}'.format(exp)
+        
+Test-Scenario-5:
+  Id: ts_05
+  Path: hydratk/extensions/yoda/testengine/03_methods_ut.jedi
+  Name: ts_te_parse_ts_node
+  Desc: Test TestEngine _parse_ts_node method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.core.masterhead import MasterHead
+    from hydratk.extensions.yoda.testobject import TestSet, TestScenario  
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from yodahelpers.hydratk.extensions.yoda.tscript import ts
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_parse
+    Desc: Parse test scenario    
+        
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_parse
+      Desc: Parse
+      
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        cur = ext._test_engine.test_run
+        tset = TestSet(cur, '<str>') 
+        tsc = TestScenario('test1', tset, cur)      
+        te = TestEngine()
+        te._parse_ts_node(ts, tsc)        
+        res = [tsc.id, tsc.path, tsc.name, tsc.desc, tsc.author, tsc.version]
+      
+      Validate: | 
+        this.test_result = str(res)
+        exp = [ts['Id'], ts['Path'], ts['Name'], ts['Desc'], ts['Author'], ts['Version']]
+        assert (res == exp), 'id, path, name, desc, author, version = {0}'.format(exp)  
+        
+Test-Scenario-6:
+  Id: ts_06
+  Path: hydratk/extensions/yoda/testengine/03_methods_ut.jedi
+  Name: ts_te_parse_tca_node
+  Desc: Test TestEngine _parse_tca_node method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.core.masterhead import MasterHead
+    from hydratk.extensions.yoda.testobject import TestSet, TestScenario, TestCase  
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from yodahelpers.hydratk.extensions.yoda.tscript import tc
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_parse
+    Desc: Parse test case    
+        
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_parse
+      Desc: Parse
+      
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        cur = ext._test_engine.test_run
+        tset = TestSet(cur, '<str>') 
+        tsc = TestScenario('test1', tset, cur)      
+        tsc._attr['id'] = 'test1'
+        tca = TestCase('case1', tsc, cur)         
+        te = TestEngine()
+        te._parse_tca_node(tc, tca)        
+        res = [tca.id, tca.name, tca.desc]
+      
+      Validate: | 
+        this.test_result = str(res)
+        exp = [tc['Id'], tc['Name'], tc['Desc']]
+        assert (res == exp), 'id, name, desc = {0}'.format(exp)    
+        
+Test-Scenario-7:
+  Id: ts_07
+  Path: hydratk/extensions/yoda/testengine/03_methods_ut.jedi
+  Name: ts_te_parse_tco_node
+  Desc: Test TestEngine _parse_tco_node method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.core.masterhead import MasterHead
+    from hydratk.extensions.yoda.testobject import TestSet, TestScenario, TestCase, TestCondition  
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from yodahelpers.hydratk.extensions.yoda.tscript import tco
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_parse
+    Desc: Parse test condition    
+        
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_parse
+      Desc: Parse
+      
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        cur = ext._test_engine.test_run
+        tset = TestSet(cur, '<str>') 
+        tsc = TestScenario('test1', tset, cur)      
+        tsc._attr['id'] = 'test1'
+        tca = TestCase('case1', tsc, cur) 
+        tca._attr['id'] = 'case1'
+        tcon = TestCondition('con1', tca, cur)                
+        te = TestEngine()
+        te._parse_tco_node(tco, tcon)        
+        res = [tcon.id, tcon.name, tcon.desc]
+      
+      Validate: | 
+        this.test_result = str(res)
+        exp = [tco['Id'], tco['Name'], tco['Desc']]
+        assert (res == exp), 'id, name, desc = {0}'.format(exp)         
+        
+Test-Scenario-8:
+  Id: ts_08
+  Path: hydratk/extensions/yoda/testengine/03_methods_ut.jedi
+  Name: ts_te_parse_tset_struct
+  Desc: Test TestEngine _parse_tset_struct method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.core.masterhead import MasterHead
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from yodahelpers.hydratk.extensions.yoda.tscript import tset
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_parse
+    Desc: Parse test set    
+        
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_parse
+      Desc: Parse 
+      
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        te = TestEngine()
+        te._current = ext._test_engine.test_run
+        cur = [8, 8, 13]
+        te._tset_file = 'file.jedi'       
+        res = te.parse_tset_struct(tset).parsed_tests
+        res = [res['total_ts'], res['total_tca'], res['total_tco']]
+      
+      Validate: |                     
+        this.test_result = str(res)
+        assert (res[0] > 0 and res[1] > 0 and res[2] > 0), 'total_ts, total_tca, total_tco != [0, 0, 0]'

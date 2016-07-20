@@ -1,0 +1,1067 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/yoda/testobject/02_methods_ut.jedi
+  Name: ts_ts_init
+  Desc: Test TestSet __init__ method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.core.masterhead import MasterHead
+    from hydratk.extensions.yoda.testobject import TestSet
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_init
+    Desc: Initialize TestSet
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_init
+      Desc: Initialize
+      
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        cur = ext._test_engine.test_run
+        ts = TestSet(cur, '<str>')
+        res = ts.__class__.__name__
+      
+      Validate: |
+        this.test_result = res
+        assert (res == 'TestSet'), '__init__ = TestSet'
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/yoda/testobject/02_methods_ut.jedi
+  Name: ts_ts_props
+  Desc: Test TestSet properties
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |   
+    from hydratk.core.masterhead import MasterHead 
+    from hydratk.extensions.yoda.testobject import TestSet
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getters
+    Desc: Getter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_id
+      Desc: Getter id
+      
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        cur = ext._test_engine.test_run
+        ts = TestSet(cur, '<str>')
+        res = ts.id
+      
+      Validate: |        
+        this.test_result = str(res)
+        exp = ts._id
+        assert (res == exp), 'id = {0}'.format(exp)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_test_run
+      Desc: Getter test_run
+      
+      Test: |
+        res = ts.test_run
+      
+      Validate: |        
+        this.test_result = str(res)
+        exp = ts._test_run
+        assert (res == exp), 'test_run = {0}'.format(exp)  
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_current_test_base_path
+      Desc: Getter current_test_base_path
+      
+      Test: |
+        res = ts.current_test_base_path
+      
+      Validate: |        
+        this.test_result = str(res)
+        exp = ts._current_test_base_path
+        assert (res == exp), 'current_test_base_path = {0}'.format(exp)   
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_current_test_set_file
+      Desc: Getter current_test_set_file
+      
+      Test: |
+        res = ts.current_test_set_file
+      
+      Validate: |        
+        this.test_result = str(res)
+        exp = ts._current_test_set_file
+        assert (res == exp), 'current_test_set_file = {0}'.format(exp)    
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_parsed_tests
+      Desc: Getter parsed_tests
+      
+      Test: |
+        res = ts.parsed_tests
+      
+      Validate: |        
+        this.test_result = str(res)
+        exp = ts._parsed_tests
+        assert (res == exp), 'parsed_tests = {0}'.format(exp)  
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_total_tests
+      Desc: Getter total_tests
+      
+      Test: |
+        res = ts.total_tests
+      
+      Validate: |        
+        this.test_result = str(res)
+        exp = ts._total_tests
+        assert (res == exp), 'total_tests = {0}'.format(exp)  
+        
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_failed_tests
+      Desc: Getter failed_tests
+      
+      Test: |
+        res = ts.failed_tests
+      
+      Validate: |        
+        this.test_result = str(res)
+        exp = ts._failed_tests
+        assert (res == exp), 'failed_tests = {0}'.format(exp) 
+        
+    Test-Condition-8: 
+      Id: tco_08
+      Name: tco_passed_tests
+      Desc: Getter passed_tests
+      
+      Test: |
+        res = ts.passed_tests
+     
+      Validate: |        
+        this.test_result = str(res)
+        exp = ts._passed_tests
+        assert (res == exp), 'passed_tests = {0}'.format(exp)  
+        
+    Test-Condition-9: 
+      Id: tco_09
+      Name: tco_failed_ts
+      Desc: Getter failed_ts
+      
+      Test: |
+        res = ts.failed_ts
+      
+      Validate: |        
+        this.test_result = str(res)
+        exp = ts._failed_ts
+        assert (res == exp), 'failed_ts = {0}'.format(exp) 
+        
+    Test-Condition-10: 
+      Id: tco_10
+      Name: tco_passed_ts
+      Desc: Getter passed_ts
+      
+      Test: |
+        res = ts.passed_ts
+      
+      Validate: |        
+        this.test_result = str(res)
+        exp = ts._passed_ts
+        assert (res == exp), 'passed_ts = {0}'.format(exp)  
+        
+    Test-Condition-11: 
+      Id: tco_11
+      Name: tco_failures
+      Desc: Getter failures
+      
+      Test: |
+        res = ts.failures
+      
+      Validate: |        
+        this.test_result = str(res)
+        exp = ts._failures
+        assert (res == exp), 'failures = {0}'.format(exp)              
+        
+    Test-Condition-12: 
+      Id: tco_12
+      Name: tco_ts
+      Desc: Getter ts
+      
+      Test: |
+        res = ts.ts
+      
+      Validate: |        
+        this.test_result = str(res)
+        exp = ts._ts
+        assert (res == exp), 'ts = {0}'.format(exp)  
+        
+    Test-Condition-13: 
+      Id: tco_13
+      Name: tco_start_time
+      Desc: Getter start_time
+      
+      Test: |
+        res = ts.start_time
+      
+      Validate: |        
+        this.test_result = str(res)
+        exp = ts._start_time
+        assert (res == exp), 'start_time = {0}'.format(exp)
+        
+    Test-Condition-14: 
+      Id: tco_14
+      Name: tco_end_time
+      Desc: Getter end_time
+      
+      Test: |
+        res = ts.end_time
+      
+      Validate: |        
+        this.test_result = str(res)
+        exp = ts._end_time
+        assert (res == exp), 'end_time = {0}'.format(exp)   
+        
+  Test-Case-2:
+    Id: tc_02
+    Name: tc_setters
+    Desc: Setter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_test_run
+      Desc: Setter test_run
+      
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        cur = ext._test_engine.test_run
+        ts = TestSet(cur, '<str>')
+        obj = 'test'
+        ts.test_run = obj
+        res = ts.test_run
+        
+      Validate: |      
+        this.test_result = str(res)
+        assert (res == obj), 'test_run = {0}'.format(obj)              
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_current_test_base_path
+      Desc: Setter current_test_base_path
+      
+      Test: |
+        ts.current_test_base_path = obj
+        res = ts.current_test_base_path
+        
+      Validate: |      
+        this.test_result = str(res)
+        assert (res == obj), 'current_test_base_path = {0}'.format(obj)              
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_current_test_set_file
+      Desc: Setter current_test_set+file
+      
+      Test: |
+        ts.current_test_set_file = obj
+        res = ts.current_test_set_file
+        
+      Validate: |      
+        this.test_result = str(res)
+        assert (res == obj), 'current_test_set_file = {0}'.format(obj) 
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_parsed_tests
+      Desc: Setter parsed_tests
+      
+      Test: |
+        ts.parsed_tests = obj
+        res = ts.parsed_tests
+        
+      Validate: |      
+        this.test_result = str(res)
+        assert (res == obj), 'parsed_tests = {0}'.format(obj)  
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_total_tests
+      Desc: Setter total_tests
+      
+      Test: |
+        ts.total_tests = obj
+        res = ts.total_tests
+        
+      Validate: |      
+        this.test_result = str(res)
+        assert (res == obj), 'total_tests = {0}'.format(obj)       
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_failed_tests
+      Desc: Setter failed_tests
+      
+      Test: |
+        ts.failed_tests = obj
+        res = ts.failed_tests
+        
+      Validate: |      
+        this.test_result = str(res)
+        assert (res == obj), 'failed_tests = {0}'.format(obj)   
+        
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_passed_tests
+      Desc: Setter passed_tests
+      
+      Test: |
+        ts.passed_tests = obj
+        res = ts.passed_tests
+        
+      Validate: |      
+        this.test_result = str(res)
+        assert (res == obj), 'passed_tests = {0}'.format(obj)        
+        
+    Test-Condition-8: 
+      Id: tco_08
+      Name: tco_failed_ts
+      Desc: Setter failed_ts
+      
+      Test: |
+        ts.failed_ts = obj
+        res = ts.failed_ts
+        
+      Validate: |      
+        this.test_result = str(res)
+        assert (res == obj), 'failed_ts = {0}'.format(obj)     
+        
+    Test-Condition-9: 
+      Id: tco_09
+      Name: tco_passed_ts
+      Desc: Setter passed_ts
+      
+      Test: |
+        ts.passed_ts = obj
+        res = ts.passed_ts
+        
+      Validate: |      
+        this.test_result = str(res)
+        assert (res == obj), 'passed_ts = {0}'.format(obj)   
+        
+    Test-Condition-10: 
+      Id: tco_10
+      Name: tco_failures
+      Desc: Setter failures
+      
+      Test: |
+        ts.failures = True
+        res = ts.failures
+        
+      Validate: |      
+        this.test_result = str(res)
+        assert (res), 'failures = True'
+        
+    Test-Condition-11: 
+      Id: tco_11
+      Name: tco_ts
+      Desc: Setter ts
+      
+      Test: |
+        ts.ts = obj
+        res = ts.ts
+        
+      Validate: |      
+        this.test_result = str(res)
+        assert (res == obj), 'ts = {0}'.format(obj)             
+        
+    Test-Condition-12: 
+      Id: tco_12
+      Name: tco_start_time
+      Desc: Setter start_time
+      
+      Test: |
+        ts.start_time = obj
+        res = ts.start_time
+        
+      Validate: |      
+        this.test_result = str(res)
+        assert (res == obj), 'start_time = {0}'.format(obj)
+        
+    Test-Condition-13: 
+      Id: tco_13
+      Name: tco_end_time
+      Desc: Setter end_time
+      
+      Test: |
+        ts.end_time = obj
+        res = ts.end_time
+        
+      Validate: |      
+        this.test_result = str(res)
+        assert (res == obj), 'end_time = {0}'.format(obj) 
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/yoda/testobject/02_methods_ut.jedi
+  Name: ts_ts_repr
+  Desc: Test TestSet __repr__ method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |   
+    from hydratk.core.masterhead import MasterHead 
+    from hydratk.extensions.yoda.testobject import TestSet
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_repr
+    Desc: Print representation
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_repr
+      Desc: Representation      
+      
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        cur = ext._test_engine.test_run
+        ts = TestSet(cur, '<str>')
+        res = ts.__repr__()
+        
+      Validate: |      
+        this.test_result = res
+        exp = ('_id' in res and '_current_test_base_path' in res and '_current_test_set_file' in res)
+        assert (exp), '__repr__ contains _id, _current_test_base_path, _current_test_set_file'  
+        
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/yoda/testobject/02_methods_ut.jedi
+  Name: ts_ts_reset_data
+  Desc: Test TestSet reset_data method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |   
+    from hydratk.core.masterhead import MasterHead 
+    from hydratk.extensions.yoda.testobject import TestSet
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_reset
+    Desc: Reset test set
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_reset
+      Desc: Reset      
+      
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        cur = ext._test_engine.test_run
+        ts = TestSet(cur, '<str>')  
+        ts.total_tests = ts.failed_tests = ts.passed_tests = None
+        ts.reset_data()
+        res = [ts.total_tests, ts.failed_tests, ts.passed_tests]                                                                                                                                           
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = [0, 0, 0]
+        assert (res == exp), 'total_tests, failed_tests, passed_tests = {0}'.format(exp)
+        
+Test-Scenario-5:
+  Id: ts_05
+  Path: hydratk/extensions/yoda/testobject/02_methods_ut.jedi
+  Name: ts_ts_break_test_set
+  Desc: Test TestSet break_test_set method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |   
+    from hydratk.core.masterhead import MasterHead 
+    from hydratk.extensions.yoda.testobject import TestSet, BreakTestSet
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_break
+    Desc: Break, error is raised
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_break
+      Desc: Break  
+      
+      Test: |
+        try:
+            mh = MasterHead.get_head()
+            ext = mh._ext['Yoda']
+            cur = ext._test_engine.test_run
+            ts = TestSet(cur, '<str>')   
+            ts.break_test_set('test')
+            ex = False
+        except BreakTestSet:
+            ex = True
+                  
+      Validate: |
+        this.test_result = ex
+        assert (ex), 'break_test_set raises BreakTestSet'    
+        
+Test-Scenario-6:
+  Id: ts_06
+  Path: hydratk/extensions/yoda/testobject/02_methods_ut.jedi
+  Name: ts_tsc_init
+  Desc: Test TestScenario __init__ method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.core.masterhead import MasterHead
+    from hydratk.extensions.yoda.testobject import TestSet, TestScenario
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_init
+    Desc: Initialize TestScenario
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_init
+      Desc: Initialize
+      
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        cur = ext._test_engine.test_run
+        ts = TestSet(cur, '<str>') 
+        tsc = TestScenario('test1', ts, cur)
+        res = tsc.__class__.__name__
+        
+      Validate: |
+        this.test_result = res
+        assert (res == 'TestScenario'), '__init__ = TestScenario' 
+        
+Test-Scenario-7:
+  Id: ts_07
+  Path: hydratk/extensions/yoda/testobject/02_methods_ut.jedi
+  Name: ts_tsc_props
+  Desc: Test TestScenario properties
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.core.masterhead import MasterHead
+    from hydratk.extensions.yoda.testobject import TestSet, TestScenario
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getters
+    Desc: Getter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_obj_id
+      Desc: Getter obj_id
+      
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        cur = ext._test_engine.test_run
+        ts = TestSet(cur, '<str>') 
+        tsc = TestScenario('test1', ts, cur) 
+        res = tsc.obj_id             
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = tsc._id
+        assert (res == exp), 'obj_id = {0}'.format(exp) 
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_id
+      Desc: Getter id
+      
+      Test: |
+        tsc._attr['id'] = None
+        res = tsc.id             
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = tsc._attr['id']
+        assert (res == exp), 'id = {0}'.format(exp)   
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_num
+      Desc: Getter num
+      
+      Test: |
+        res = tsc.num             
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = tsc._num
+        assert (res == exp), 'num = {0}'.format(exp)  
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_tca
+      Desc: Getter tca
+      
+      Test: |
+        res = tsc.tca            
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = tsc._tca
+        assert (res == exp), 'tca = {0}'.format(exp)  
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_resolution
+      Desc: Getter resolution
+      
+      Test: |
+        res = tsc.resolution     
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = tsc._resolution
+        assert (res == exp), 'resolution = {0}'.format(exp)     
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_status
+      Desc: Getter status
+      
+      Test: |
+        res = tsc.status         
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = tsc._status
+        assert (res == exp), 'status = {0}'.format(exp)      
+        
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_prereq_passed
+      Desc: Getter prereq_passed
+      
+      Test: |
+        res = tsc.prereq_passed  
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = tsc._prereq_passed
+        assert (res == exp), 'prereq_passed = {0}'.format(exp)
+        
+    Test-Condition-8: 
+      Id: tco_08
+      Name: tco_postreq_passed
+      Desc: Getter postreq_passed
+      
+      Test: |
+        res = tsc.postreq_passed             
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = tsc._postreq_passed
+        assert (res == exp), 'postreq_passed = {0}'.format(exp) 
+        
+    Test-Condition-9: 
+      Id: tco_09
+      Name: tco_events_passed
+      Desc: Getter events_passed
+      
+      Test: |
+        res = tsc.events_passed             
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = tsc._events_passed
+        assert (res == exp), 'events_passed = {0}'.format(exp) 
+        
+    Test-Condition-10: 
+      Id: tco_10
+      Name: tco_failures
+      Desc: Getter failures
+      
+      Test: |
+        res = tsc.failures       
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = tsc._failures
+        assert (res == exp), 'failures = {0}'.format(exp) 
+        
+    Test-Condition-11: 
+      Id: tco_11
+      Name: tco_action
+      Desc: Getter action
+      
+      Test: |
+        res = tsc.action         
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = tsc._action
+        assert (res == exp), 'action = {0}'.format(exp)   
+        
+    Test-Condition-12: 
+      Id: tco_12
+      Name: tco_total_tests
+      Desc: Getter total_tests
+      
+      Test: |
+        res = tsc.total_tests    
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = tsc._total_tests
+        assert (res == exp), 'total_tests = {0}'.format(exp)
+        
+    Test-Condition-13: 
+      Id: tco_13
+      Name: tco_passed_tests
+      Desc: Getter passed_tests
+      
+      Test: |
+        res = tsc.passed_tests             
+       
+      Validate: |
+        this.test_result = str(res)
+        exp = tsc._passed_tests
+        assert (res == exp), 'passed_tests = {0}'.format(exp) 
+        
+    Test-Condition-14: 
+      Id: tco_14
+      Name: tco_failed_tests
+      Desc: Getter failed_tests
+      
+      Test: |
+        res = tsc.failed_tests   
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = tsc._failed_tests
+        assert (res == exp), 'failed_tests = {0}'.format(exp)
+        
+    Test-Condition-15: 
+      Id: tco_15
+      Name: tco_start_time
+      Desc: Getter start_time
+      
+      Test: |
+        res = tsc.start_time     
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = tsc._start_time
+        assert (res == exp), 'start_time = {0}'.format(exp)  
+        
+    Test-Condition-16: 
+      Id: tco_16
+      Name: tco_end_time
+      Desc: Getter end_time
+      
+      Test: |
+        res = tsc.end_time       
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = tsc._end_time
+        assert (res == exp), 'end_time = {0}'.format(exp)        
+        
+  Test-Case-2:
+    Id: tc_02
+    Name: tc_setters
+    Desc: Setter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_resolution
+      Desc: Setter resolution
+      
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        cur = ext._test_engine.test_run
+        ts = TestSet(cur, '<str>') 
+        tsc = TestScenario('test1', ts, cur)
+        obj = 'test' 
+        tsc.resolution = obj
+        res = tsc.resolution        
+        
+      Validate: |
+        this.test_result = str(res)
+        assert (res == obj), 'resolution = {0}'.format(obj)    
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_status
+      Desc: Setter status
+      
+      Test: |
+        tsc.status = obj
+        res = tsc.status        
+        
+      Validate: |
+        this.test_result = str(res)
+        assert (res == obj), 'status = {0}'.format(obj)   
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_prereq_passed
+      Desc: Setter prereq_passed
+      
+      Test: |
+        tsc.prereq_passed = obj
+        res = tsc.prereq_passed        
+        
+      Validate: |
+        this.test_result = str(res)
+        assert (res == obj), 'prereq_passed = {0}'.format(obj) 
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_postreq_passed
+      Desc: Setter postreq_passed
+      
+      Test: |
+        tsc.postreq_passed = obj
+        res = tsc.postreq_passed        
+        
+      Validate: |
+        this.test_result = str(res)
+        assert (res == obj), 'postreq_passed = {0}'.format(obj)   
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_events_passed
+      Desc: Setter events_passed
+      
+      Test: |
+        tsc.events_passed = obj
+        res = tsc.events_passed        
+        
+      Validate: |
+        this.test_result = str(res)
+        assert (res == obj), 'events_passed = {0}'.format(obj)  
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_failures
+      Desc: Setter failures
+      
+      Test: |
+        tsc.status = True
+        res = tsc.status        
+        
+      Validate: |
+        this.test_result = str(res)
+        assert (res), 'status = True'
+        
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_action
+      Desc: Setter action
+      
+      Test: |
+        tsc.action = obj
+        res = tsc.action        
+        
+      Validate: |
+        this.test_result = str(res)
+        assert (res == obj), 'action = {0}'.format(obj)    
+        
+    Test-Condition-8: 
+      Id: tco_08
+      Name: tco_total_tests
+      Desc: Setter total_tests
+      
+      Test: |
+        tsc.total_tests = obj
+        res = tsc.total_tests        
+        
+      Validate: |
+        this.test_result = str(res)
+        assert (res == obj), 'total_tests = {0}'.format(obj)  
+        
+    Test-Condition-9: 
+      Id: tco_09
+      Name: tco_passed_tests
+      Desc: Setter passed_tests
+      
+      Test: |
+        tsc.passed_tests = obj
+        res = tsc.passed_tests        
+        
+      Validate: |
+        this.test_result = str(res)
+        assert (res == obj), 'passed_tests = {0}'.format(obj)
+        
+    Test-Condition-10: 
+      Id: tco_10
+      Name: tco_failed_tests
+      Desc: Setter failed_tests
+      
+      Test: |
+        tsc.failed_tests = obj
+        res = tsc.failed_tests 
+        
+      Validate: |
+        this.test_result = str(res)
+        assert (res == obj), 'failed_tests = {0}'.format(obj) 
+        
+    Test-Condition-11: 
+      Id: tco_11
+      Name: tco_start_time
+      Desc: Setter start_time
+      
+      Test: |
+        tsc.start_time = obj
+        res = tsc.start_time   
+        
+      Validate: |
+        this.test_result = str(res)
+        assert (res == obj), 'start_time = {0}'.format(obj)  
+        
+    Test-Condition-12: 
+      Id: tco_12
+      Name: tco_end_time
+      Desc: Setter end_time
+      
+      Test: |
+        tsc.end_time = obj
+        res = tsc.end_time        
+        
+      Validate: |
+        this.test_result = str(res)
+        assert (res == obj), 'end_time = {0}'.format(obj)         
+        
+Test-Scenario-8:
+  Id: ts_08
+  Path: hydratk/extensions/yoda/testobject/02_methods_ut.jedi
+  Name: ts_tsc_break_test_scenario
+  Desc: Test TestScenario break_test_scenario method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.core.masterhead import MasterHead
+    from hydratk.extensions.yoda.testobject import TestSet, TestScenario, BreakTestScenario
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_break
+    Desc: Break test scenario, error is raised
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_break
+      Desc: Break        
+      
+      Test: |
+        try:
+            mh = MasterHead.get_head()
+            ext = mh._ext['Yoda']
+            cur = ext._test_engine.test_run
+            ts = TestSet(cur, '<str>') 
+            tsc = TestScenario('test1', ts, cur)
+            tsc.break_test_scenario('test') 
+            ex = False             
+        except BreakTestScenario:
+            ex = True
+        
+      Validate: |
+        this.test_result = ex
+        assert (ex), 'break_test_scenario raises BreakTestScenario'    
+        
+Test-Scenario-9:
+  Id: ts_09
+  Path: hydratk/extensions/yoda/testobject/02_methods_ut.jedi
+  Name: ts_tsc_break_test_set
+  Desc: Test TestScenario break_test_set method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.core.masterhead import MasterHead
+    from hydratk.extensions.yoda.testobject import TestSet, TestScenario, BreakTestSet
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_break
+    Desc: Break test set, error is raised
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_break
+      Desc: Break        
+      
+      Test: |
+        try:
+            mh = MasterHead.get_head()
+            ext = mh._ext['Yoda']
+            cur = ext._test_engine.test_run
+            ts = TestSet(cur, '<str>') 
+            tsc = TestScenario('test1', ts, cur)
+            tsc.break_test_set('test') 
+            ex = False             
+        except BreakTestSet:
+            ex = True
+        
+      Validate: |
+        this.test_result = ex
+        assert (ex), 'break_test_set raises BreakTestSet'  
+        
+Test-Scenario-10:
+  Id: ts_10
+  Path: hydratk/extensions/yoda/testobject/02_methods_ut.jedi
+  Name: ts_tsc_break_test_run
+  Desc: Test TestScenario break_test_run method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.core.masterhead import MasterHead
+    from hydratk.extensions.yoda.testobject import TestSet, TestScenario, BreakTestRun
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_break
+    Desc: Break test run, error is raised
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_break
+      Desc: Break        
+      
+      Test: |
+        try:
+            mh = MasterHead.get_head()
+            ext = mh._ext['Yoda']
+            cur = ext._test_engine.test_run
+            ts = TestSet(cur, '<str>') 
+            tsc = TestScenario('test1', ts, cur)
+            tsc.break_test_run('test') 
+            ex = False             
+        except BreakTestRun:
+            ex = True
+        
+      Validate: |
+        this.test_result = ex
+        assert (ex), 'break_test_run raises BreakTestRun'                                                                                                                                                                                                                                          

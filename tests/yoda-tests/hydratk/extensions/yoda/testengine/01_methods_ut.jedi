@@ -1,0 +1,696 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/yoda/testengine/01_methods_ut.jedi
+  Name: ts_cur_init
+  Desc: Test Current __init__ method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import Current
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_init
+    Desc: Initialize Current
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_init
+      Desc: Initialize
+      
+      Test: |
+        cur = Current()
+        res = cur.__class__.__name__
+      
+      Validate: |
+        this.test_result = res
+        assert (res == 'Current'), '__init__ = Current'
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/yoda/testengine/01_methods_ut.jedi
+  Name: ts_cur_props
+  Desc: Test Current properties
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import Current
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getters
+    Desc: Getter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_te
+      Desc: Getter te
+      
+      Test: |
+        cur = Current()
+        res = cur.te
+      
+      Validate: |   
+        this.test_result = str(res)
+        exp = cur._te
+        assert (res == exp), 'te = {0}'.format(exp)     
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_test_set
+      Desc: Getter test_set
+      
+      Test: |
+        res = cur.test_set
+      
+      Validate: |   
+        this.test_result = str(res)
+        exp = cur._tset
+        assert (res == exp), 'test_set = {0}'.format(exp)    
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_tset
+      Desc: Getter tset
+      
+      Test: |
+        res = cur.tset
+      
+      Validate: |   
+        this.test_result = str(res)
+        exp = cur._tset
+        assert (res == exp), 'tset = {0}'.format(exp)      
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_test_scenario
+      Desc: Getter test_scenario
+      
+      Test: |
+        res = cur.test_scenario
+      
+      Validate: |   
+        this.test_result = str(res)
+        exp = cur._ts
+        assert (res == exp), 'test_scenario = {0}'.format(exp) 
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_ts
+      Desc: Getter ts
+      
+      Test: |
+        res = cur.ts
+      
+      Validate: |   
+        this.test_result = str(res)
+        exp = cur._ts
+        assert (res == exp), 'ts = {0}'.format(exp)      
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_test_case
+      Desc: Getter test_case
+      
+      Test: |
+        res = cur.test_case
+      
+      Validate: |   
+        this.test_result = str(res)
+        exp = cur._tca
+        assert (res == exp), 'test_case = {0}'.format(exp)  
+        
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_tca
+      Desc: Getter tca
+      
+      Test: |
+        res = cur.tca
+      
+      Validate: |   
+        this.test_result = str(res)
+        exp = cur._tca
+        assert (res == exp), 'tca = {0}'.format(exp) 
+        
+    Test-Condition-8: 
+      Id: tco_08
+      Name: tco_test_condition
+      Desc: Getter test_condition
+      
+      Test: |
+        res = cur.test_condition
+      
+      Validate: |   
+        this.test_result = str(res)
+        exp = cur._tco
+        assert (res == exp), 'test_condition = {0}'.format(exp)
+        
+    Test-Condition-9: 
+      Id: tco_09
+      Name: tco_tco
+      Desc: Getter tco
+      
+      Test: |
+        res = cur.tco
+      
+      Validate: |   
+        this.test_result = str(res)
+        exp = cur._tco
+        assert (res == exp), 'tco = {0}'.format(exp)   
+        
+  Test-Case-2:
+    Id: tc_02
+    Name: tc_setters
+    Desc: Setter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_te
+      Desc: Setter te
+      
+      Test: |
+        cur = Current()
+        obj = 'test'
+        cur.te = obj
+        res = cur.te
+      
+      Validate: |   
+        this.test_result = str(res)
+        assert (res == obj), 'te = {0}'.format(obj)                            
+
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_test_set
+      Desc: Setter test_set
+      
+      Test: |
+        cur.test_set = obj
+        res = cur.test_set
+      
+      Validate: |   
+        this.test_result = str(res)
+        assert (res == obj), 'test_set = {0}'.format(obj)         
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_tset
+      Desc: Setter tset
+      
+      Test: |
+        cur.tset = obj
+        res = cur.tset
+      
+      Validate: |   
+        this.test_result = str(res)
+        assert (res == obj), 'tset = {0}'.format(obj) 
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_ts
+      Desc: Setter ts
+      
+      Test: |
+        cur.ts = obj
+        res = cur.ts
+      
+      Validate: |   
+        this.test_result = str(res)
+        assert (res == obj), 'ts = {0}'.format(obj)      
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_tca
+      Desc: Setter tca
+      
+      Test: |
+        cur.tca = obj
+        res = cur.tca
+      
+      Validate: |   
+        this.test_result = str(res)
+        assert (res == obj), 'tca = {0}'.format(obj)     
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_tco
+      Desc: Setter tco
+      
+      Test: |
+        cur.tco = obj
+        res = cur.tco
+      
+      Validate: |   
+        this.test_result = str(res)
+        assert (res == obj), 'tco = {0}'.format(obj)  
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/yoda/testengine/01_methods_ut.jedi
+  Name: ts_par_init
+  Desc: Test Parent __init__ method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import Parent
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_init
+    Desc: Initialize 
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_init
+      Desc: Initialize Parent
+      
+      Test: |
+        par = Parent()
+        res = par.__class__.__name__
+      
+      Validate: |
+        this.test_result = res
+        assert (res == 'Parent'), '__init__ = Parent'     
+        
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/yoda/testengine/01_methods_ut.jedi
+  Name: ts_par_props
+  Desc: Test Parent properties
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import Parent
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getters
+    Desc: Getter methods 
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_test_set
+      Desc: Getter test_set
+      
+      Test: |
+        par = Parent()
+        res = par.test_set
+      
+      Validate: |         
+        this.test_result = str(res)                                                        
+        exp = par._tset
+        assert (res == exp), 'test_set = {0}'.format(exp)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_tset
+      Desc: Getter tset
+      
+      Test: |
+        res = par.tset
+      
+      Validate: |         
+        this.test_result = str(res)                                                        
+        exp = par._tset
+        assert (res == exp), 'tset = {0}'.format(exp)      
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_test_scenario
+      Desc: Getter test_scenario
+      
+      Test: |
+        res = par.test_scenario
+      
+      Validate: |         
+        this.test_result = str(res)                                                        
+        exp = par._ts
+        assert (res == exp), 'test_scenario = {0}'.format(exp) 
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_ts
+      Desc: Getter ts
+      
+      Test: |
+        res = par.ts
+      
+      Validate: |         
+        this.test_result = str(res)                                                        
+        exp = par._ts
+        assert (res == exp), 'ts = {0}'.format(exp)          
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_test_case
+      Desc: Getter test_case
+      
+      Test: |
+        res = par.test_case
+      
+      Validate: |         
+        this.test_result = str(res)                                                        
+        exp = par._tca
+        assert (res == exp), 'test_case = {0}'.format(exp)  
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_tca
+      Desc: Getter tca
+      
+      Test: |
+        res = par.tca
+      
+      Validate: |         
+        this.test_result = str(res)                                                        
+        exp = par._tca
+        assert (res == exp), 'tca = {0}'.format(exp)   
+        
+  Test-Case-2:
+    Id: tc_02
+    Name: tc_setters
+    Desc: Setter methods 
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_test_set
+      Desc: Setter test_set
+      
+      Test: |
+        par = Parent()
+        obj = 'test'
+        par.test_set = obj
+        res = par.test_set
+      
+      Validate: |         
+        this.test_result = str(res)                                                        
+        assert (res == obj), 'test_set = {0}'.format(obj)   
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_tset
+      Desc: Setter tset
+      
+      Test: |
+        par.tset = obj
+        res = par.tset
+      
+      Validate: |         
+        this.test_result = str(res)                                                        
+        assert (res == obj), 'tset = {0}'.format(obj)  
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_ts
+      Desc: Setter ts
+      
+      Test: |
+        par.ts = obj
+        res = par.ts
+      
+      Validate: |         
+        this.test_result = str(res)                                                        
+        assert (res == obj), 'ts = {0}'.format(obj)  
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_tca
+      Desc: Setter tca
+      
+      Test: |
+        par.tca = obj
+        res = par.tca
+      
+      Validate: |         
+        this.test_result = str(res)                                                        
+        assert (res == obj), 'tca = {0}'.format(obj)    
+        
+Test-Scenario-5:
+  Id: ts_05
+  Path: hydratk/extensions/yoda/testengine/01_methods_ut.jedi
+  Name: ts_tco
+  Desc: Test TestConditon class
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |    
+    from hydratk.core.masterhead import MasterHead
+    from hydratk.extensions.yoda.testobject import TestSet, TestScenario, TestCase
+    from hydratk.extensions.yoda.testengine import TestCondition
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_methods
+    Desc: TestCondition methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_init
+      Desc: Initialize
+      
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        cur = ext._test_engine.test_run
+        ts = TestSet(cur, '<str>') 
+        tsc = TestScenario('test1', ts, cur)
+        tsc._attr['id'] = 'test1'
+        tc = TestCase('case1', tsc, cur)
+        tc._attr['id'] = 'case1'
+        tco = TestCondition('con1', tc, cur)
+        res = tco.__class__.__name__
+                                                                   
+      Validate: |
+        this.test_result = res
+        assert (res == 'TestCondition'), '__init__ = TestCondition'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_repeat
+      Desc: Repeat
+      
+      Test: |
+        tco.repeat()
+        res = tco._action
+      
+      Validate: |
+        this.test_result = res
+        assert (res == 'repeat'), '_action = repeat'
+        
+Test-Scenario-6:
+  Id: ts_06
+  Path: hydratk/extensions/yoda/testengine/01_methods_ut.jedi
+  Name: ts_tca
+  Desc: Test TestCase class
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |    
+    from hydratk.core.masterhead import MasterHead
+    from hydratk.extensions.yoda.testobject import TestSet, TestScenario
+    from hydratk.extensions.yoda.testengine import TestCase, TestCondition
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tca_methods
+    Desc: TestCase methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_init
+      Desc: Initialize
+      
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        cur = ext._test_engine.test_run
+        ts = TestSet(cur, '<str>') 
+        tsc = TestScenario('test1', ts, cur)
+        tsc._attr['id'] = 'test1'
+        tca = TestCase('case1', tsc, cur)
+        tca._attr['id'] = 'case1'        
+        res = tca.__class__.__name__
+                                                                   
+      Validate: |
+        this.test_result = res
+        assert (res == 'TestCase'), '__init__ = TestCase'   
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_repeat
+      Desc: Repeat
+      
+      Test: |
+        tca.repeat()
+        res = tca._action
+      
+      Validate: |
+        this.test_result = res
+        assert (res == 'repeat'), '_action = repeat' 
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_append
+      Desc: Append test condition
+      
+      Test: |
+        tco = TestCondition('con1', tca, cur)
+        tca.append_tco(tco)
+        res = tca._tco
+                                                                   
+      Validate: |
+        this.test_result = str(res)
+        assert (len(res) == 1), '_tco contains 1 item'  
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_invalid_tco
+      Desc: Invalid test condition
+      
+      Test: |
+        tca.append_tco(None)
+        res = tca._tco
+                                                                   
+      Validate: |
+        this.test_result = str(res)
+        assert (len(res) == 1), '_tco contains 1 item'       
+        
+Test-Scenario-7:
+  Id: ts_07
+  Path: hydratk/extensions/yoda/testengine/01_methods_ut.jedi
+  Name: ts_tsc
+  Desc: Test TestScenario class
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |    
+    from hydratk.core.masterhead import MasterHead
+    from hydratk.extensions.yoda.testobject import TestSet
+    from hydratk.extensions.yoda.testengine import TestScenario, TestCase
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tsc_methods
+    Desc: TestScenario methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_init
+      Desc: Initialize
+      
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        cur = ext._test_engine.test_run
+        ts = TestSet(cur, '<str>') 
+        tsc = TestScenario('test1', ts, cur)
+        tsc._attr['id'] = 'test1'    
+        res = tsc.__class__.__name__
+                                                                   
+      Validate: |
+        this.test_result = res
+        assert (res == 'TestScenario'), '__init__ = TestScenario'     
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_repeat
+      Desc: Repeat
+      
+      Test: |
+        tsc.repeat()
+        res = tsc._action
+      
+      Validate: |
+        this.test_result = res
+        assert (res == 'repeat'), '_action = repeat' 
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_append
+      Desc: Append test case
+      
+      Test: |
+        tca = TestCase('case1', tsc, cur)
+        tsc.append_tca(tca)
+        res = tsc._tca
+                                                                   
+      Validate: |
+        this.test_result = str(res)
+        assert (len(res) == 1), '_tca contains 1 item'  
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_invalid_tca
+      Desc: Invalid test case
+      
+      Test: |
+        tsc.append_tca(None)
+        res = tsc._tca
+                                                                   
+      Validate: |
+        this.test_result = str(res)
+        assert (len(res) == 1), '_tca contains 1 item'     
+        
+Test-Scenario-8:
+  Id: ts_08
+  Path: hydratk/extensions/yoda/testengine/01_methods_ut.jedi
+  Name: ts_ts
+  Desc: Test TestSet class
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |    
+    from hydratk.core.masterhead import MasterHead
+    from hydratk.extensions.yoda.testengine import TestSet, TestScenario, TestCase
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: ts_methods
+    Desc: TestSet methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_init
+      Desc: Initialize
+      
+      Test: |
+        mh = MasterHead.get_head()
+        ext = mh._ext['Yoda']
+        cur = ext._test_engine.test_run
+        ts = TestSet(cur, '<str>')   
+        res = ts.__class__.__name__
+                                                                   
+      Validate: |
+        this.test_result = res
+        assert (res == 'TestSet'), '__init__ = TestSet'     
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_append
+      Desc: Append test scenario
+      
+      Test: |
+        tsc = TestScenario('test1', ts, cur)
+        ts.append_ts(tsc)
+        res = ts._ts
+                                                                   
+      Validate: |
+        this.test_result = str(res)
+        assert (len(res) == 1), '_ts contains 1 item'  
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_invalid_tsc
+      Desc: Invalid test scenario
+      
+      Test: |
+        ts.append_ts(None)
+        res = ts._ts
+                                                                   
+      Validate: |
+        this.test_result = str(res)
+        assert (len(res) == 1), '_ts contains 1 item'                                                      

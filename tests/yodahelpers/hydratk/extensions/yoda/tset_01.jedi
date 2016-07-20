@@ -1,0 +1,23 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: yodahelpers/hydratk/extensions/yoda/tset_01.jedi
+  Name: ts_test
+  Desc: Test scenario
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_test
+    Desc: Test case
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_test
+      Desc: Test condition
+      
+      Test: |
+        a = 1
+      
+      Validate: |
+        assert True
