@@ -2443,7 +2443,7 @@ class TestCondition(TestObject):
         """        
                      
         '''Define missing locals'''                   
-        this              = This(self)
+        this              = self #This(self)
         self._current.tco = self
         current           = self._current
         parent            = self._parent
