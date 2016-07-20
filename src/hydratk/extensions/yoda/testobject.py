@@ -18,6 +18,7 @@ import random
 import os
 import cPickle as pickle
 from hydratk.lib.debugging.simpledebug import dmsg
+#from hydratk.extensions.yoda.testengine import This
 
 class TestObject(object):  
     """Class TestObject
@@ -2043,7 +2044,7 @@ class TestCase(TestObject):
                 ev = Event('yoda_events_after_finish_tca', self.events['after_finish'])        
                 if (mh.fire_event(ev) > 0):
                     self.events['after_finish'] = ev.argv(0)
-                if ev.will_run_default():
+                if ev.will_run_default():                    
                     test_hierarchy['test_case_node'] = 'events.after_finish'
                     if current.te.test_simul_mode == False:                                                                                                                                       
                         current.te.code_stack.execute(self.events['after_finish'], locals())                                                                      
@@ -2442,7 +2443,7 @@ class TestCondition(TestObject):
         """        
                      
         '''Define missing locals'''                   
-        this              = self
+        this              = This(self)
         self._current.tco = self
         current           = self._current
         parent            = self._parent
