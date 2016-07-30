@@ -154,17 +154,160 @@ Test-Scenario-4:
         exp = [root+'/lib', root+'/yoda-tests/', root+'/helpers']
         assert (res == exp), '_libs_repo, _templates_repo, _helpers_repo = {0}'.format(exp) 
         
-Test-Scenario-5:
-  Id: ts_05
-  Path: hydratk/extensions/yoda/yoda/01_methods_ut.jedi
-  Name: ts_create_test_results_db
-  Desc: Test create_test_results_db method
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/yoda/01_methods_ut.jedi
+  Name: ts_register_htk_actions
+  Desc: Test method _register_htk_actions
   Author: Petr Rasek <bowman@hydratk.org>
   Version: 0.1
   
   Pre-Req: |
-    from hydratk.core.masterhead import MasterHead
-    from os import path, system
+    from yodalib.hydratk.core.testhead import TestHead
+    import yodalib.hydratk.core.commandopt as commandopt    
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_register_htk_actions
+    Desc: Register Hydra actions
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_register
+      Desc: Register 
+      
+      Test: |
+        th = TestHead()     
+        ext = th._ext['Yoda']  
+        th.clear_cmd()
+        ext._register_htk_actions()
+        res = th._cmd_hooks
+        
+      Validate: |         
+        this.test_result = str(res)
+        exp = ['yoda-create-test-results-db', 'yoda-run', 'yoda-simul']
+        assert (sorted(res.keys()) == exp), '_cmd_hooks = {0}'.format(exp)
+        res = commandopt.long_opt['htk']
+        this.test_result = str(res)
+        exp = ['yoda-db-results-dsn', 'yoda-test-path', 'yoda-test-repo-root-dir', 'yoda-test-results-output-create', 'yoda-test-results-output-handler', 'yoda-test-run-name']
+        assert (sorted(res) == exp), 'long_opt = {0}'.format(exp)
+        th.clear_cmd()
+        
+Test-Scenario-5:
+  Id: ts_05
+  Path: hydratk/extensions/yoda/01_methods_ut.jedi
+  Name: ts_register_standalone_actions
+  Desc: Test method _register_standalone_actions
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.core.testhead import TestHead
+    import yodalib.hydratk.core.commandopt as commandopt           
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_register_standalone_actions
+    Desc: Register standalone actions
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_register
+      Desc: Register   
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']
+        th.clear_cmd()
+        ext._register_standalone_actions()
+        res = th._cmd_hooks
+      
+      Validate: |   
+        this.test_result = str(res)
+        exp = ['create-test-results-db', 'run', 'simul']
+        assert (sorted(res.keys()) == exp), '_cmd_hooks = {0}'.format(exp)  
+        res = commandopt.long_opt['yoda']
+        this.test_result = str(res)
+        exp = ['config', 'db-results-dsn', 'debug', 'debug-channel', 'force', 'interactive', 'language', 'run-mode',
+               'test-path', 'test-repo-root-dir', 'test-results-output-create', 'test-results-output-handler', 'test-run-name']
+        assert (sorted(res) == exp), 'long_opt = {0}'.format(exp)        
+        th.clear_cmd()     
+        
+Test-Scenario-6:
+  Id: ts_06
+  Path: hydratk/extensions/yoda/01_methods_ut.jedi
+  Name: ts_register_actions
+  Desc: Test method _register_actions
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.core.testhead import TestHead
+    import yodalib.hydratk.core.commandopt as commandopt           
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_register_actions
+    Desc: Register actions
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_htk
+      Desc: Profile htk
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']
+        th.clear_cmd()
+        th.cli_cmdopt_profile = 'htk'
+        ext._register_actions()
+        res = th._cmd_hooks        
+      
+      Validate: |  
+        this.test_result = str(res)
+        exp = ['yoda-create-test-results-db', 'yoda-run', 'yoda-simul']
+        assert (sorted(res.keys()) == exp), '_cmd_hooks = {0}'.format(exp)
+        res = commandopt.long_opt['htk']
+        this.test_result = str(res)
+        exp = ['yoda-db-results-dsn', 'yoda-test-path', 'yoda-test-repo-root-dir', 'yoda-test-results-output-create', 'yoda-test-results-output-handler', 'yoda-test-run-name']
+        assert (sorted(res) == exp), 'long_opt = {0}'.format(exp)        
+        th.clear_cmd()    
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_yoda
+      Desc: Profile yoda
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']
+        th.clear_cmd()      
+        th.cli_cmdopt_profile = 'yoda'
+        ext._register_actions()
+        res = th._cmd_hooks        
+      
+      Validate: |  
+        this.test_result = str(res)
+        exp = ['create-test-results-db', 'run', 'simul']
+        assert (sorted(res.keys()) == exp), '_cmd_hooks = {0}'.format(exp)
+        res = commandopt.long_opt['yoda']
+        this.test_result = str(res)
+        exp = ['config', 'db-results-dsn', 'debug', 'debug-channel', 'force', 'interactive', 'language', 'run-mode',
+               'test-path', 'test-repo-root-dir', 'test-results-output-create', 'test-results-output-handler', 'test-run-name']
+        assert (sorted(res) == exp), 'long_opt = {0}'.format(exp)           
+        th.clear_cmd()    
+        
+Test-Scenario-7:
+  Id: ts_07
+  Path: hydratk/extensions/yoda/01_methods_ut.jedi
+  Name: ts_create_test_results_db
+  Desc: Test method create_test_results_db
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.core.testhead import TestHead           
+    from os import path, remove    
   
   Test-Case-1:
     Id: tc_01
@@ -174,17 +317,258 @@ Test-Scenario-5:
     Test-Condition-1: 
       Id: tco_01
       Name: tco_create
-      Desc: Database exists, error raised
+      Desc: Create
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']
+        file = '/var/local/hydratk/test.db3'
+        th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:'+file
+        res = ext.create_test_results_db()
+        
+      Validate: |
+        this.test_result = str(res)
+        assert (res != None), 'create_test_results_db != None'
+        this.test_result = res = (path.exists(file))
+        assert (res), 'file {0} created'.format(file)
+        remove(file)
+        th.clear_cmd()            
+        
+Test-Scenario-8:
+  Id: ts_08
+  Path: hydratk/extensions/yoda/01_methods_ut.jedi
+  Name: ts_init_test_results_db
+  Desc: Test method init_test_results_db
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from yodalib.hydratk.core.testhead import TestHead               
+    from os import path, remove    
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_init_db
+    Desc: Initialize database
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_not_init
+      Desc: Not initialized
       
       Test: |
         try:
-            mh = MasterHead.get_head()
-            ext = mh._ext['Yoda']
-            ext.create_test_results_db()
+            th = TestHead()
+            ext = th._ext['Yoda']
+            file = '/var/local/hydratk/test.db3'
+            th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:'+file
+            ext.init_test_results_db()
             ex = False
         except Exception:
             ex = True
-      
-      Validate: |              
+        
+      Validate: |
         this.test_result = ex
-        assert (ex), 'create_test_results_db raises Exception'
+        assert (ex), 'init_test_results_db raises Exception'
+                 
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_init
+      Desc: Initialized   
+      
+      Test: |
+        trdb = ext.create_test_results_db()
+        te = ext._test_engine = TestEngine()
+        ext.init_test_results_db()        
+        res = ext._test_engine.test_results_db
+      
+      Validate: |
+        this.test_result = str(res)
+        assert (res.__class__.__name__ == trdb.__class__.__name__), 'database initialized'
+        remove(file)
+        th.clear_cmd()       
+        
+Test-Scenario-9:
+  Id: ts_09
+  Path: hydratk/extensions/yoda/01_methods_ut.jedi
+  Name: ts_check_test_results_db
+  Desc: Test method init_test_results_db
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from yodalib.hydratk.core.testhead import TestHead               
+    from os import path, remove    
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_check_db
+    Desc: Check database
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_not_created
+      Desc: Database not created
+      
+      Test: |
+        try:
+            th = TestHead()
+            ext = th._ext['Yoda']
+            file = '/var/local/hydratk/test.db3'
+            th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:'+file
+            th._config['Extensions']['Yoda']['db_results_autocreate'] = 0
+            ext.check_test_results_db(None)
+            ex = False
+        except Exception:
+            ex = True
+        
+      Validate: |
+        this.test_result = ex
+        assert (ex), 'check_test_results_db raises Exception'
+                 
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_created
+      Desc: Database created   
+      
+      Test: |
+        ext._test_engine.test_results_db = None
+        th._config['Extensions']['Yoda']['db_results_autocreate'] = 1
+        ext.check_test_results_db(None)
+        res = ext._test_engine.test_results_db
+      
+      Validate: |
+        this.test_result = str(res)
+        assert (res != None), 'database initialized'
+        this.test_result = res = (path.exists(file))
+        assert (res), 'file {0} created'.format(file)
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_init
+      Desc: Database just initialized   
+      
+      Test: |
+        ext._test_engine.test_results_db = None
+        ext.check_test_results_db(None)
+        res = ext._test_engine.test_results_db
+      
+      Validate: |
+        this.test_result = str(res)
+        assert (res != None), 'database initialized'      
+        remove(file)
+        th.clear_cmd() 
+        
+Test-Scenario-10:
+  Id: ts_10
+  Path: hydratk/extensions/yoda/01_methods_ut.jedi
+  Name: ts_init_helpers
+  Desc: Test method init_helpers
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.core.testhead import TestHead 
+    from yodahelpers.hydratk.core.events import events, reg_ev_hook            
+    from sys import path
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_init_helpers
+    Desc: Initialize helpers
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_init
+      Desc: Initialize
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']  
+        evs = 'yoda_before_append_helpers_dir'
+        reg_ev_hook(th, evs)
+        ext._helpers_repo = folder = '/var/local/hydratk/testenv' 
+        ext.init_helpers()
+        res = path
+        
+      Validate: |
+        this.test_result = str(res)
+        assert (folder in path), 'path contains {0}'.format(folder)
+        this.test_result = res = events[0]._id
+        assert (res == evs), 'init_helpers fires {0}'.format(evs)  
+        del th._event_hooks[evs] 
+        del events[0] 
+        del path[path.index(folder)]     
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_invalid_dir
+      Desc: Invalid directory
+      
+      Test: |
+        ext._helpers_repo = folder = '/xx' 
+        ext.init_helpers()
+        res = path
+        
+      Validate: |
+        this.test_result = str(res)
+        assert (folder not in path), 'path does not contain {0}'.format(folder)
+        th.clear_cmd()  
+        
+Test-Scenario-11:
+  Id: ts_11
+  Path: hydratk/extensions/yoda/01_methods_ut.jedi
+  Name: ts_init_libs
+  Desc: Test method init_libs
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.core.testhead import TestHead 
+    from yodahelpers.hydratk.core.events import events, reg_ev_hook            
+    from sys import path
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_init_libs
+    Desc: Initialize libraries
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_init
+      Desc: Initialize
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']  
+        evs = 'yoda_before_append_lib_dir'
+        reg_ev_hook(th, evs)
+        ext._libs_repo = folder = '/var/local/hydratk/testenv' 
+        ext.init_libs()
+        res = path
+        
+      Validate: |
+        this.test_result = str(res)
+        assert (folder in path), 'path contains {0}'.format(folder)
+        this.test_result = res = events[0]._id
+        assert (res == evs), 'init_libs fires {0}'.format(evs)  
+        del th._event_hooks[evs] 
+        del events[0] 
+        del path[path.index(folder)]     
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_invalid_dir
+      Desc: Invalid directory
+      
+      Test: |
+        ext._libs_repo = folder = '/xx' 
+        ext.init_libs()
+        res = path
+        
+      Validate: |
+        this.test_result = str(res)
+        assert (folder not in path), 'path does not contain {0}'.format(folder)
+        th.clear_cmd()                                              

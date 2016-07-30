@@ -16,9 +16,13 @@ import time
 import hashlib
 import random
 import os
-import cPickle as pickle
 from hydratk.lib.debugging.simpledebug import dmsg
 #from hydratk.extensions.yoda.testengine import This
+
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
 class TestObject(object):  
     """Class TestObject
@@ -76,7 +80,7 @@ class TestObject(object):
             if type(value).__name__ not in ['int','float','str']:
                 value = pickle.dumps(value)
                 pickled = 1
-            custom_data_id = hashlib.md5("{}{}{}".format(test_run_id, self._id,key)).hexdigest()
+            custom_data_id = hashlib.md5("{0}{1}{2}".format(test_run_id, self._id,key).encode('utf-8')).hexdigest()
             test_results_db.db_action(
                                           'write_custom_data',
                                          [
@@ -93,7 +97,7 @@ class TestObject(object):
             #Write custom data options
             if key in self._attr_opt:                
                 for opt_name, opt_value in self._attr_opt[key].items():
-                    custom_data_opt_id = hashlib.md5("{}{}".format(custom_data_id, opt_name)).hexdigest()                
+                    custom_data_opt_id = hashlib.md5("{0}{1}".format(custom_data_id, opt_name).encode('utf-8')).hexdigest()                
                     test_results_db.db_action(
                                                   'write_custom_data_opt',
                                                  [
@@ -130,7 +134,7 @@ class TestObject(object):
                         self._attr_opt[attr_key][opt_name] = opt_value
                     return True
                 else: raise ValueError('Attribute option name cannot be NoneType or an empty string')
-            else: raise KeyError("Attribute key {} doesn't exists".format(attr_key))
+            else: raise KeyError("Attribute key {0} doesn't exists".format(attr_key))
         else: raise ValueError('Attribute key have to be a nonempty string')
 
     def getattr_opt(self, attr_key, opt):
@@ -153,9 +157,9 @@ class TestObject(object):
             raise ValueError('Attribute key cannot be NoneType or an empty string')
         
         if attr_key not in self._attr_opt:
-            raise KeyError("Undefined attribute key {}".format(attr_key))
+            raise KeyError("Undefined attribute key {0}".format(attr_key))
         if opt not in self._attr_opt[attr_key]:
-            raise KeyError("Undefined Attribute option {}".format(opt))
+            raise KeyError("Undefined Attribute option {1}".format(opt))
       
         result = self._attr_opt[attr_key][opt]
         return result
@@ -197,7 +201,7 @@ class TestObject(object):
             if options is not None:
                 self.setattr_opt(key, options)
         else:
-            raise ValueError('Attribute key type must be a non empty string, got {}'.format(type(key).__name__))
+            raise ValueError('Attribute key type must be a non empty string, got {0}'.format(type(key).__name__))
             
                    
     def __getattr__(self, name):  
@@ -275,10 +279,10 @@ Exception: {exc_name}
     
             if len(tb) > 5:
                 for l in tb[6:]:
-                    result += "\n      from:      {}".format(l.strip())                
+                    result += "\n      from:      {0}".format(l.strip())                
         else: 
             for l in tb[1:]:
-                result += "\n      from:      {}".format(l.strip()) 
+                result += "\n      from:      {0}".format(l.strip()) 
         return result
         
     @property
@@ -429,7 +433,7 @@ class TestRun(TestObject):
                 
         """ 
                 
-        self._id                     = hashlib.md5('{0}{1}{2}'.format(random.randint(100000000,999999999), time.time(), os.getpid())).hexdigest()        
+        self._id                     = hashlib.md5('{0}{1}{2}'.format(random.randint(100000000,999999999), time.time(), os.getpid()).encode('utf-8')).hexdigest()        
         self._total_test_sets        = 0
         self._total_tests            = 0
         self._failed_tests           = 0
@@ -936,9 +940,9 @@ class TestSet(TestObject):
         if test_set_file != '<str>':        
             self._current_test_base_path  = os.path.dirname(test_set_file)
        
-        id_salt = '{}{}{}'.format(test_set_file,random.randint(100000000, 999999999),current.te.exec_level)
+        id_salt = '{0}{1}{2}'.format(test_set_file,random.randint(100000000, 999999999),current.te.exec_level)
         self._current_test_set_file   = test_set_file
-        self._id                      = hashlib.md5('{0}{1}{2}'.format(current.te.test_run.id, self._current_test_set_file, id_salt)).hexdigest()    
+        self._id                      = hashlib.md5('{0}{1}{2}'.format(current.te.test_run.id, self._current_test_set_file, id_salt).encode('utf-8')).hexdigest()    
         self._total_tests             = 0
         self._failed_tests            = 0
         self._passed_tests            = 0
@@ -1211,8 +1215,8 @@ class TestScenario(TestObject):
         """ 
                 
         self._num            = ts_num   
-        id_salt              = '{}{}'.format(random.randint(100000000, 999999999),current.te.exec_level)     
-        self._id             = hashlib.md5('{0}{1}{2}{3}'.format(current.te.test_run.id, parent_tset.id, ts_num, id_salt)).hexdigest()
+        id_salt              = '{0}{1}'.format(random.randint(100000000, 999999999),current.te.exec_level)     
+        self._id             = hashlib.md5('{0}{1}{2}{3}'.format(current.te.test_run.id, parent_tset.id, ts_num, id_salt).encode('utf-8')).hexdigest()
         self._attr           = {}
         self._tca            = []
         self._resolution     = None 
@@ -1345,7 +1349,7 @@ class TestScenario(TestObject):
         mh                = MasterHead.get_head()
         test_hierarchy    = {
                                'test_set_file'       : this.parent.current_test_set_file,
-                               'test_scenario'       : "Test-Scenario-{}".format(self._num),
+                               'test_scenario'       : "Test-Scenario-{0}".format(self._num),
                                'test_scenario_node'  : None, 
                                'test_case'           : None,
                                'test_case_node'      : None,
@@ -1394,7 +1398,7 @@ class TestScenario(TestObject):
                               'break_test_run' : self.break_test_run
                               }
                 if auto_break in break_meth:
-                    break_meth[auto_break]("{}: {}".format(sys.exc_info()[0],sys.exc_info()[1]))
+                    break_meth[auto_break]("{0}: {1}".format(sys.exc_info()[0],sys.exc_info()[1]))
                 self.status = 'break'
                 return True                
                                                                             
@@ -1437,7 +1441,7 @@ class TestScenario(TestObject):
                               'break_test_run' : self.break_test_run
                               }
                 if auto_break in break_meth:
-                    break_meth[auto_break]("{}: {}".format(sys.exc_info()[0],sys.exc_info()[1]))
+                    break_meth[auto_break]("{0}: {1}".format(sys.exc_info()[0],sys.exc_info()[1]))
                 self.status = 'break'
                 return True                
                                  
@@ -1531,7 +1535,7 @@ class TestScenario(TestObject):
                               'break_test_run' : self.break_test_run
                               }
                 if auto_break in break_meth:
-                    break_meth[auto_break]("{}: {}".format(sys.exc_info()[0],sys.exc_info()[1]))
+                    break_meth[auto_break]("{0}: {1}".format(sys.exc_info()[0],sys.exc_info()[1]))
                 self.status = 'break'
                 return True
         
@@ -1575,7 +1579,7 @@ class TestScenario(TestObject):
                               'break_test_run' : self.break_test_run
                               }
                 if auto_break in break_meth:
-                    break_meth[auto_break]("{}: {}".format(sys.exc_info()[0],sys.exc_info()[1]))
+                    break_meth[auto_break]("{0}: {1}".format(sys.exc_info()[0],sys.exc_info()[1]))
                 self.status = 'break'
                 return True                 
         
@@ -1817,8 +1821,8 @@ class TestCase(TestObject):
         """   
                 
         self._num        = tca_num 
-        id_salt          = '{}{}'.format(random.randint(100000000, 999999999),current.te.exec_level)      
-        self._id         = hashlib.md5('{0}{1}{2}{3}{4}'.format(current.te.test_run.id, parent_ts.parent.id, parent_ts.id, tca_num, id_salt)).hexdigest()
+        id_salt          = '{0}{1}'.format(random.randint(100000000, 999999999),current.te.exec_level)      
+        self._id         = hashlib.md5('{0}{1}{2}{3}{4}'.format(current.te.test_run.id, parent_ts.parent.id, parent_ts.id, tca_num, id_salt).encode('utf-8')).hexdigest()
         self._attr       = {} 
         self._resolution = None
         self._status     = None
@@ -1940,9 +1944,9 @@ class TestCase(TestObject):
         mh                = MasterHead.get_head()                    
         test_hierarchy    = {
                        'test_set_file'       : this.parent.parent.current_test_set_file,
-                       'test_scenario'       : "Test-Scenario-{}".format(parent.num),
+                       'test_scenario'       : "Test-Scenario-{0}".format(parent.num),
                        'test_scenario_node'  : None, 
-                       'test_case'           : "Test-Case-{}".format(self._num),
+                       'test_case'           : "Test-Case-{0}".format(self._num),
                        'test_case_node'      : None,
                        'test_condition'      : None,
                        'test_condition_node' : None     
@@ -1984,7 +1988,7 @@ class TestCase(TestObject):
                               'break_test_run' : self.break_test_run
                               }
                 if auto_break in break_meth:
-                    break_meth[auto_break]("{}: {}".format(sys.exc_info()[0],sys.exc_info()[1]))
+                    break_meth[auto_break]("{0}: {1}".format(sys.exc_info()[0],sys.exc_info()[1]))
                 self.status = 'break'
                 return True                          
         
@@ -2003,7 +2007,7 @@ class TestCase(TestObject):
                     except:                        
                         ext, msg, trb = sys.exc_info()
                         print(msg)
-                        print repr(traceback.format_tb(trb))
+                        print(repr(traceback.format_tb(trb)))
                         raise Exception('Failed to create test_condition database record')
                                                                  
                 tco.status     = 'started'                        
@@ -2076,7 +2080,7 @@ class TestCase(TestObject):
                               'break_test_run' : self.break_test_run
                               }
                 if auto_break in break_meth:
-                    break_meth[auto_break]("{}: {}".format(sys.exc_info()[0],sys.exc_info()[1]))
+                    break_meth[auto_break]("{0}: {1}".format(sys.exc_info()[0],sys.exc_info()[1]))
                 self.status = 'break'
                 return True                  
 
@@ -2333,8 +2337,8 @@ class TestCondition(TestObject):
         """  
                 
         self._num             = tco_num
-        id_salt               = '{}{}'.format(random.randint(100000000, 999999999),current.te.exec_level)                    
-        self._id              = hashlib.md5('{0}{1}{2}{3}{4}{5}'.format(current.te.test_run.id, parent_tca.parent.parent.id, parent_tca.parent.id, parent_tca.id, tco_num, id_salt)).hexdigest()      
+        id_salt               = '{0}{1}'.format(random.randint(100000000, 999999999),current.te.exec_level)                    
+        self._id              = hashlib.md5('{0}{1}{2}{3}{4}{5}'.format(current.te.test_run.id, parent_tca.parent.parent.id, parent_tca.parent.id, parent_tca.id, tco_num, id_salt).encode('utf-8')).hexdigest()      
         self._attr            = {} 
         self._resolution      = None
         self._status          = None
@@ -2450,11 +2454,11 @@ class TestCondition(TestObject):
         mh                = MasterHead.get_head()           
         test_hierarchy    = {
                'test_set_file'       : current.tset.current_test_set_file,
-               'test_scenario'       : "Test-Scenario-{}".format(parent.parent.num),
+               'test_scenario'       : "Test-Scenario-{0}".format(parent.parent.num),
                'test_scenario_node'  : None, 
-               'test_case'           : "Test-Case-{}".format(parent.num),
+               'test_case'           : "Test-Case-{0}".format(parent.num),
                'test_case_node'      : None,
-               'test_condition'      : "Test-Condition-{}".format(self._num),
+               'test_condition'      : "Test-Condition-{0}".format(self._num),
                'test_condition_node' : None     
         }                      
                         
@@ -2495,7 +2499,7 @@ class TestCondition(TestObject):
                               'break_test_run' : self.break_test_run
                               }
                 if auto_break in break_meth:
-                    break_meth[auto_break]("{}: {}".format(sys.exc_info()[0],sys.exc_info()[1]))
+                    break_meth[auto_break]("{0}: {1}".format(sys.exc_info()[0],sys.exc_info()[1]))
                 self.status = 'break'
                 return True       
         
@@ -2543,7 +2547,7 @@ class TestCondition(TestObject):
                          'break_test_run' : self.break_test_run
                          }
             if auto_break in break_meth:
-                break_meth[auto_break]("{}: {}".format(sys.exc_info()[0],sys.exc_info()[1]))
+                break_meth[auto_break]("{0}: {1}".format(sys.exc_info()[0],sys.exc_info()[1]))
             self.status = 'break'
             self.action = 'break'         
                                        
@@ -2611,7 +2615,7 @@ class TestCondition(TestObject):
                              'break_test_run' : self.break_test_run
                              }
                 if auto_break in break_meth:
-                    break_meth[auto_break]("{}: {}".format(sys.exc_info()[0],sys.exc_info()[1]))                      
+                    break_meth[auto_break]("{0}: {1}".format(sys.exc_info()[0],sys.exc_info()[1]))                      
          
         if self.test_resolution == 'Failed':
             tco_note = "*** {ts}/{tca}/{tco}: ".format(ts=current.ts.name,tca=current.tca.name,tco=self.name)
@@ -2667,7 +2671,7 @@ class TestCondition(TestObject):
                               'break_test_run' : self.break_test_run
                               }
                 if auto_break in break_meth:
-                    break_meth[auto_break]("{}: {}".format(sys.exc_info()[0],sys.exc_info()[1]))
+                    break_meth[auto_break]("{0}: {1}".format(sys.exc_info()[0],sys.exc_info()[1]))
                 self.status = 'break'
                 return True                   
         

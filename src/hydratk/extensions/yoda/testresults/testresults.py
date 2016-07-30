@@ -250,6 +250,8 @@ class TestResultsDB(object):
     
     @property
     def trdb(self):
+        """ trdb property getter """
+        
         return self._trdb
     
     @property
@@ -310,11 +312,12 @@ class TestResultsDB(object):
         if self._trdb.database_exists() == True:
             if force == True:
                 self._trdb.remove_database()
+                self._trdb.connect()
             else:
                 raise Exception("Database already exists dsn:{0}".format(self._dsn)) 
-        else:
-            self._trdb.cursor.executescript(db_struct[self._trdb.driver_name])
-            cprint("Database created successfully")
+            
+        self._trdb.cursor.executescript(db_struct[self._trdb.driver_name])
+        cprint("Database created successfully")
            
     def db_action(self, action, columns):
         """Method executes write query

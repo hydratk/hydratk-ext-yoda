@@ -1,0 +1,499 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/yoda/testresults/testresults/01_methods_ut.jedi
+  Name: ts_trdb_init
+  Desc: Test class TestResultsDB method __init__
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testresults.testresults import TestResultsDB  
+    from os import path, remove
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_init
+    Desc: Initialize TestResultsDB
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_init
+      Desc: Initialize
+      
+      Test: |
+        file = '/var/local/hydratk/test.db3'
+        dsn = 'sqlite:'+file
+        trdb = TestResultsDB(dsn)
+        res = trdb.__class__.__name__
+      
+      Validate: | 
+        this.test_result = res
+        assert (res == 'TestResultsDB'), '__init__ = TestResultsDB'
+        this.test_result = res = trdb._dsn
+        assert (res == dsn), '_dsn = {0}'.format(res)
+        this.test_result = res = trdb._trdb.__class__.__name__
+        assert (res == 'DBO'), '_trdb = DBO'
+        this.test_result = res = (path.exists(file))
+        assert (res), 'file {0} created'.format(file)
+        remove(file)
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/yoda/testresults/testresults/01_methods_ut.jedi
+  Name: ts_trdb_props
+  Desc: Test class TestResultsDB properties
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testresults.testresults import TestResultsDB  
+    from os import remove
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getters
+    Desc: Getter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_trdb
+      Desc: Getter trdb
+      
+      Test: |
+        file = '/var/local/hydratk/test.db3'
+        trdb = TestResultsDB('sqlite:'+file)
+        res = trdb.trdb.__class__.__name__
+      
+      Validate: |        
+        this.test_result = res
+        exp = trdb._trdb.__class__.__name__
+        assert (res == exp), 'trdb = {0}'.format(exp)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_custom_data_filter
+      Desc: Getter custom_data_filter
+      
+      Test: |
+        res = trdb.custom_data_filter
+      
+      Validate: |        
+        this.test_result = str(res)
+        exp = trdb._custom_data_filter
+        assert (res == exp), 'custom_data_filter = {0}'.format(exp)   
+        remove(file)     
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/yoda/testresults/testresults/01_methods_ut.jedi
+  Name: ts_trdb_create_database
+  Desc: Test class TestResultsDB method create_database
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testresults.testresults import TestResultsDB  
+    from hydratk.lib.network.dbi.client import DBClient
+    from os import remove
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_create_database
+    Desc: Create database
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create
+      Desc: Create
+      
+      Test: |
+        file = '/var/local/hydratk/test.db3'
+        trdb = TestResultsDB('sqlite:'+file)
+        trdb.create_database()
+        c = DBClient('SQLITE')
+        c.connect(file)
+        res, recs = c.exec_query('SELECT * FROM test_run')
+      
+      Validate: |        
+        this.test_result = res
+        assert (res), 'query executed'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_no_rewrite
+      Desc: Rewrite not enabled
+      
+      Test: |
+        try:
+            trdb.create_database(force=False)
+            ex = False
+        except Exception:
+            ex = True
+      
+      Validate: |
+        this.test_result = ex
+        assert (ex), 'create_database raises Exception'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_rewrite
+      Desc: Rewrite enabled
+      
+      Test: |        
+        trdb.create_database(force=True)
+        c.connect(file)
+        res, recs = c.exec_query('SELECT * FROM test_run')      
+      
+      Validate: |   
+        this.test_result = res
+        assert (res), 'query executed'      
+        remove(file)   
+        
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/yoda/testresults/testresults/01_methods_ut.jedi
+  Name: ts_trdb_db_check_ok
+  Desc: Test class TestResultsDB method db_check_ok
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testresults.testresults import TestResultsDB  
+    from os import remove
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_check_db
+    Desc: Check database
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_created
+      Desc: Database created
+      
+      Test: |
+        file = '/var/local/hydratk/test.db3'
+        trdb = TestResultsDB('sqlite:'+file)
+        trdb.create_database()
+        res = trdb.db_check_ok()      
+      
+      Validate: |          
+        this.test_result = res
+        assert (res), 'db_check_ok = True'
+        remove(file)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_not_created
+      Desc: Database not created
+      
+      Test: |
+        trdb = TestResultsDB('sqlite:'+file)
+        res = trdb.db_check_ok()
+      
+      Validate: |  
+        this.test_result = res
+        assert (not res), 'db_check_ok = False'
+        remove(file)     
+        
+Test-Scenario-5:
+  Id: ts_05
+  Path: hydratk/extensions/yoda/testresults/testresults/01_methods_ut.jedi
+  Name: ts_trdb_db_action
+  Desc: Test class TestResultsDB method db_action
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testresults.testresults import TestResultsDB
+    from hydratk.lib.network.dbi.client import DBClient  
+    from os import remove
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_db_action
+    Desc: Write to database
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_write
+      Desc: Write
+      
+      Test: |
+        file = '/var/local/hydratk/test.db3'
+        trdb = TestResultsDB('sqlite:'+file)
+        trdb.create_database()  
+        c = DBClient('SQLITE')
+        c.connect(file)
+        trdb.db_action('create_test_run_record', [1, None, 1, 1, None, None, None, None, None])  
+        res, recs = c.exec_query('SELECT count(*) FROM test_run')           
+        
+      Validate: |
+        this.test_result = str(recs)
+        assert (len(recs) == 1), 'table contains 1 record'
+        remove(file)
+        
+Test-Scenario-6:
+  Id: ts_06
+  Path: hydratk/extensions/yoda/testresults/testresults/01_methods_ut.jedi
+  Name: ts_trdb_db_data
+  Desc: Test class TestResultsDB method db_data
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testresults.testresults import TestResultsDB
+    from os import remove
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_db_data
+    Desc: Read from database
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_read
+      Desc: Read
+      
+      Test: |
+        file = '/var/local/hydratk/test.db3'
+        trdb = TestResultsDB('sqlite:'+file)
+        trdb.create_database()  
+        trdb.db_action('create_test_run_record', [1, None, 1, 1, None, None, None, None, None])  
+        recs = trdb.db_data('get_total_test_sets', [1])           
+        
+      Validate: |
+        this.test_result = str(recs)
+        assert (recs[0]['total_test_sets'] == 0), 'total_test_sets = 0'
+        remove(file)  
+        
+Test-Scenario-7:
+  Id: ts_07
+  Path: hydratk/extensions/yoda/testresults/testresults/01_methods_ut.jedi
+  Name: ts_trof_init
+  Desc: Test class TestResultsOutputFactory method __init__
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testresults.testresults import TestResultsOutputFactory  
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_init
+    Desc: Initialize TestResultsOutputFactory
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_init
+      Desc: Initialize
+      
+      Test: |
+        file = '/var/local/hydratk/test.db3'
+        trof = TestResultsOutputFactory('sqlite:'+file)  
+        res = trof.__class__.__name__           
+        
+      Validate: |
+        this.test_result = res
+        assert (res == 'TestResultsOutputFactory'), '__init__ = TestResultsOutputFactory'
+        this.test_result = res = trof._handler.__class__.__name__
+        assert (res == 'TestResultsOutputHandler'), '_handler = TestResultsOutputHandler'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_invalid_handler
+      Desc: Invalid handler
+      
+      Test: |
+        try:        
+            TestResultsOutputFactory('sqlite:'+file, 'xx')
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |
+        this.test_result = ex
+        assert (ex), '__init__ raises ValueError'
+        
+Test-Scenario-8:
+  Id: ts_08
+  Path: hydratk/extensions/yoda/testresults/testresults/01_methods_ut.jedi
+  Name: ts_trof_dispatch_handler_def
+  Desc: Test class TestResultsOutputFactory method _dispatch_handler_def
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testresults.testresults import TestResultsOutputFactory  
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_dispatch_handler_def
+    Desc: Dispatch handler
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_simple
+      Desc: Simple handler
+      
+      Test: |        
+        file, handler = '/var/local/hydratk/test.db3', 'test'
+        trof = TestResultsOutputFactory('sqlite:'+file)  
+        trof._dispatch_handler_def(handler)    
+        res = trof._handler_name    
+        
+      Validate: |
+        this.test_result = res
+        assert (res == handler), '_handler_name = {0}'.format(handler)    
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_opt
+      Desc: Handler with options
+      
+      Test: |
+        handler = 'test:a=1;b=2'
+        trof._dispatch_handler_def(handler)
+        res = trof._handler_name    
+        
+      Validate: |
+        this.test_result = res
+        exp = 'test'
+        assert (res == exp), '_handler_name = {0}'.format(exp)  
+        res = trof._handler_opt
+        this.test_result = str(res)
+        exp = {'a': '1', 'b': '2'}
+        assert (res == exp), '_handler_opt = {0}'.format(exp)   
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_invalid
+      Desc: Invalid handler
+      
+      Test: |
+        try:
+            trof._dispatch_handler_def('')
+            ex = False
+        except TypeError:
+            ex = True
+      
+      Validate: |    
+        this.test_result = ex
+        assert (ex), '_dispatch_handler raises TypeError'  
+        
+Test-Scenario-9:
+  Id: ts_09
+  Path: hydratk/extensions/yoda/testresults/testresults/01_methods_ut.jedi
+  Name: ts_trof_getattr
+  Desc: Test class TestResultsOutputFactory method __getattr__
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testresults.testresults import TestResultsOutputFactory  
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getattr
+    Desc: Get attribute
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_get
+      Desc: Get
+      
+      Test: |        
+        dsn = 'sqlite:/var/local/hydratk/test.db3'
+        trof = TestResultsOutputFactory(dsn)
+        res = trof.__getattr__('_db_dsn')                  
+        
+      Validate: |
+        this.test_result = res
+        assert (res == dsn), '__getattr__ = {0}'.format(handler)
+        
+Test-Scenario-10:
+  Id: ts_10
+  Path: hydratk/extensions/yoda/testresults/testresults/01_methods_ut.jedi
+  Name: ts_trof_getitem
+  Desc: Test class TestResultsOutputFactory method __getitem__
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testresults.testresults import TestResultsOutputFactory  
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getitem
+    Desc: Get item
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_get
+      Desc: Get
+      
+      Test: |        
+        dsn = 'sqlite:/var/local/hydratk/test.db3'
+        trof = TestResultsOutputFactory(dsn)
+        res = trof.__getitem__('_db_dsn')                  
+        
+      Validate: |
+        this.test_result = res
+        assert (res == dsn), '__getitem__ = {0}'.format(handler)  
+        
+Test-Scenario-11:
+  Id: ts_11
+  Path: hydratk/extensions/yoda/testresults/testresults/01_methods_ut.jedi
+  Name: ts_trof_import_tro_handler
+  Desc: Test class TestResultsOutputFactory method _import_tro_handler
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testresults.testresults import TestResultsOutputFactory  
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_import_tro_handler
+    Desc: Import handler
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_console
+      Desc: Handler console
+      
+      Test: |
+        dsn = 'sqlite:/var/local/hydratk/test.db3'
+        trof = TestResultsOutputFactory(dsn)
+        res = trof._import_tro_handler('console').__name__    
+      
+      Validate: |      
+        this.test_result = res
+        exp = 'hydratk.extensions.yoda.testresults.handlers.console'
+        assert (res == exp), '_import_tro_handler = {0}'.format(exp)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_html
+      Desc: Handler html
+      
+      Test: |
+        res = trof._import_tro_handler('html').__name__    
+      
+      Validate: |      
+        this.test_result = res
+        exp = 'hydratk.extensions.yoda.testresults.handlers.html'
+        assert (res == exp), '_import_tro_handler = {0}'.format(exp)     
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_text
+      Desc: Handler text
+      
+      Test: |
+        res = trof._import_tro_handler('text').__name__     
+      
+      Validate: |      
+        this.test_result = res
+        exp = 'hydratk.extensions.yoda.testresults.handlers.text'
+        assert (res == exp), '_import_tro_handler = {0}'.format(exp)              

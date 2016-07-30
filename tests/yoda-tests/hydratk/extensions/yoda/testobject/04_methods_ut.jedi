@@ -1,0 +1,336 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/yoda/testobject/04_methods_ut.jedi
+  Name: ts_tr_db_record
+  Desc: Test TestRun db_record methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testobject import TestRun
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from hydratk.lib.network.dbi.client import DBClient
+    from yodalib.hydratk.core.testhead import TestHead
+    from os import remove
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_db_record
+    Desc: DB record
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create
+      Desc: Create record  
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']
+        file, name, query = '/var/local/hydratk/test.db3', 'test', 'SELECT * FROM test_run'
+        th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        te = ext._test_engine = TestEngine()
+        te._test_results_db = ext.create_test_results_db()      
+        tr = te._test_run = TestRun()  
+        tr._te = te     
+        tr._name = name
+        tr.create_db_record()      
+        c = DBClient('SQLITE')
+        c.connect(file)
+        res, recs = c.exec_query(query)
+      
+      Validate: |                                                      
+        this.test_result = str(recs)
+        assert (len(recs) == 1), 'table contains 1 record'
+        res = recs[0]['name']
+        assert (res == name), 'name = {0}'.format(name)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_update
+      Desc: Update record
+      
+      Test: |
+        name = 'test 2'
+        tr._name = name
+        tr.update_db_record()
+        res, recs = c.exec_query(query)
+      
+      Validate: |   
+        this.test_result = str(recs)
+        res = recs[0]['name']
+        assert (res == name), 'name = {0}'.format(name) 
+        c.disconnect()
+        th.clear_cmd()
+        remove(file)        
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/yoda/testobject/04_methods_ut.jedi
+  Name: ts_ts_db_record
+  Desc: Test TestSet db_record methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testobject import TestRun, TestSet
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from hydratk.lib.network.dbi.client import DBClient
+    from yodalib.hydratk.core.testhead import TestHead
+    from os import remove
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_db_record
+    Desc: DB record
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create
+      Desc: Create record  
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']
+        file, name, query = '/var/local/hydratk/test.db3', 'test', 'SELECT * FROM test_set'
+        th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        te = ext._test_engine = TestEngine()
+        te._test_results_db = ext.create_test_results_db()      
+        tr = te._test_run = TestRun()  
+        tr._te = te     
+        ts = TestSet(tr, name)
+        ts.create_db_record()      
+        c = DBClient('SQLITE')
+        c.connect(file)
+        res, recs = c.exec_query(query)
+      
+      Validate: |                                                      
+        this.test_result = str(recs)
+        assert (len(recs) == 1), 'table contains 1 record'
+        res = recs[0]['tset_id']
+        assert (res == name), 'name = {0}'.format(name)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_update
+      Desc: Update record
+      
+      Test: |
+        name = 'test 2'
+        ts._current_test_set_file = name
+        ts.update_db_record()
+        res, recs = c.exec_query(query)
+      
+      Validate: |   
+        this.test_result = str(recs)
+        res = recs[0]['tset_id']
+        assert (res == name), 'name = {0}'.format(name) 
+        c.disconnect()
+        th.clear_cmd()
+        remove(file)                
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/yoda/testobject/04_methods_ut.jedi
+  Name: ts_tsc_db_record
+  Desc: Test TestScenario db_record methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testobject import TestRun, TestSet, TestScenario
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from hydratk.lib.network.dbi.client import DBClient
+    from yodalib.hydratk.core.testhead import TestHead
+    from os import remove
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_db_record
+    Desc: DB record
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create
+      Desc: Create record  
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']
+        file, name, query = '/var/local/hydratk/test.db3', 'test', 'SELECT * FROM test_scenario'
+        th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        te = ext._test_engine = TestEngine()
+        te._test_results_db = ext.create_test_results_db()      
+        tr = te._test_run = TestRun()  
+        tr._te = te     
+        ts = TestSet(tr, name)
+        tsc = TestScenario(name, ts, tr)
+        tsc._attr['id'] = name
+        tsc.create_db_record()      
+        c = DBClient('SQLITE')
+        c.connect(file)
+        res, recs = c.exec_query(query)
+      
+      Validate: |                                                      
+        this.test_result = str(recs)
+        assert (len(recs) == 1), 'table contains 1 record'
+        res = recs[0]['ts_id']
+        assert (res == name), 'name = {0}'.format(name)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_update
+      Desc: Update record
+      
+      Test: |
+        name = 'test 2'
+        tsc._attr['id'] = name
+        tsc.update_db_record()
+        res, recs = c.exec_query(query)
+      
+      Validate: |   
+        this.test_result = str(recs)
+        res = recs[0]['ts_id']
+        assert (res == name), 'name = {0}'.format(name) 
+        c.disconnect()
+        th.clear_cmd()
+        remove(file)                
+        
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/yoda/testobject/04_methods_ut.jedi
+  Name: ts_tca_db_record
+  Desc: Test TestCase db_record methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testobject import TestRun, TestSet, TestScenario, TestCase
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from hydratk.lib.network.dbi.client import DBClient
+    from yodalib.hydratk.core.testhead import TestHead
+    from os import remove
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_db_record
+    Desc: DB record
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create
+      Desc: Create record  
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']
+        file, name, query = '/var/local/hydratk/test.db3', 'test', 'SELECT * FROM test_case'
+        th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        te = ext._test_engine = TestEngine()
+        te._test_results_db = ext.create_test_results_db()      
+        tr = te._test_run = TestRun()  
+        tr._te = te     
+        ts = TestSet(tr, name)
+        tsc = TestScenario(name, ts, tr)
+        tsc._attr['id'] = name
+        tca = TestCase(name, tsc, tr)
+        tca._attr['id'] = name
+        tca.create_db_record()      
+        c = DBClient('SQLITE')
+        c.connect(file)
+        res, recs = c.exec_query(query)
+      
+      Validate: |                                                      
+        this.test_result = str(recs)
+        assert (len(recs) == 1), 'table contains 1 record'
+        res = recs[0]['tca_id']
+        assert (res == name), 'name = {0}'.format(name)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_update
+      Desc: Update record
+      
+      Test: |
+        name = 'test 2'
+        tca._attr['id'] = name
+        tca.update_db_record()
+        res, recs = c.exec_query(query)
+      
+      Validate: |   
+        this.test_result = str(recs)
+        res = recs[0]['tca_id']
+        assert (res == name), 'name = {0}'.format(name) 
+        c.disconnect()
+        th.clear_cmd()
+        remove(file)                 
+        
+Test-Scenario-5:
+  Id: ts_05
+  Path: hydratk/extensions/yoda/testobject/04_methods_ut.jedi
+  Name: ts_tco_db_record
+  Desc: Test TestCondition db_record methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testobject import TestRun, TestSet, TestScenario, TestCase, TestCondition
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from hydratk.lib.network.dbi.client import DBClient
+    from yodalib.hydratk.core.testhead import TestHead
+    from os import remove
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_db_record
+    Desc: DB record
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create
+      Desc: Create record  
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']
+        file, name, query = '/var/local/hydratk/test.db3', 'test', 'SELECT * FROM test_condition'
+        th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        te = ext._test_engine = TestEngine()
+        te._test_results_db = ext.create_test_results_db()      
+        tr = te._test_run = TestRun()  
+        tr._te = te     
+        ts = TestSet(tr, name)
+        tsc = TestScenario(name, ts, tr)
+        tsc._attr['id'] = name
+        tca = TestCase(name, tsc, tr)
+        tca._attr['id'] = name
+        tco = TestCondition(name, tca, tr)
+        tco._attr['id'] = name
+        tco.create_db_record()      
+        c = DBClient('SQLITE')
+        c.connect(file)
+        res, recs = c.exec_query(query)
+      
+      Validate: |                                                      
+        this.test_result = str(recs)
+        assert (len(recs) == 1), 'table contains 1 record'
+        res = recs[0]['tco_id']
+        assert (res == name), 'name = {0}'.format(name)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_update
+      Desc: Update record
+      
+      Test: |
+        name = 'test 2'
+        tco._attr['id'] = name
+        tco.update_db_record()
+        res, recs = c.exec_query(query)
+      
+      Validate: |   
+        this.test_result = str(recs)
+        res = recs[0]['tco_id']
+        assert (res == name), 'name = {0}'.format(name) 
+        c.disconnect()
+        th.clear_cmd()
+        remove(file)                                            
