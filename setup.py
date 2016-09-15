@@ -46,7 +46,7 @@ entry_points = {
                 
 setup(
       name='hydratk-ext-yoda',
-      version='0.2.1',
+      version='0.2.2a.dev1',
       description='Test Automation Tool',
       long_description=readme,
       author='Petr Czaderna',
@@ -71,3 +71,4 @@ if ('install' in argv or 'bdist_egg' in argv or 'bdist_wheel' in argv):
         
     call('chmod -R a+r /etc/hydratk', shell=True)
     call('chmod -R a+rwx /var/local/hydratk', shell=True)
+    call('gzip -c doc/yoda.1 > /usr/local/share/man/man1/yoda.1', shell=True)

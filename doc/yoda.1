@@ -1,0 +1,66 @@
+.TH YODA 1
+.SH NAME
+yoda \- runs Yoda HydraTK extension
+.SH SYNOPSIS
+.B yoda
+[\fBoptions\fR]
+.B command
+.SH DESCRIPTION
+\fBYoda\fR extension provides automated test execution engine with own test script format.
+.SH COMMANDS
+\fBcreate-test-results-db\fR - creates database for storing test results base on specified dsn configuration
+  \fIOptions:\fR
+    \fB--db-results-dsn <dsn>\fR - test results database access definition
+    \fB-tr, --test-repo-root-dir <path>\fR - test repository root directory
+
+\fBhelp\fR - prints help
+
+\fBrun\fR - starts the Yoda tester
+  \fIOptions:\fR
+    \fB--db-results-dsn <dsn>\fR - test results database access definition
+    \fB-oc, --test-results-output-create <state>\fR - activates/deactivates native tests results output handler
+    \fB-oh, --test-results-output-handler <type>\fR - set the test results output handler type
+    \fB-tn, --test-run-name <name>\fR - test run identification
+    \fB-tp, --test-path <path>\fR - test scenario path
+    \fB-tr, --test-repo-root-dir <path>\fR - test repository root directory
+
+\fBsimul\fR - starts the Yoda tester in test simulation mode
+  \fIOptions:\fR
+    \fB--db-results-dsn <dsn>\fR - test results database access definition
+    \fB-oc, --test-results-output-create <state>\fR - activates/deactivates native test results output handler
+    \fB-oh, --test-results-output-handler <type>\fR - set the test results output handler type
+    \fB-tn, --test-run-name <name>\fR - test run identification
+    \fB-tp, --test-path <path>\fR - test scenario path
+    \fB-tr, --test-repo-root-dir <path>\fR - test repository root directory
+.SH GLOBAL OPTIONS
+\fB-c, --config <file>\fR - reads the alternate configuration file
+
+\fB-d, --debug <level>\fR - debug turned on with specified level > 0
+
+\fB-e, --debug-channel <channel number, ..>\fR - debug channel filter turned on
+
+\fB-f, --force\fR - enforces command
+
+\fB-i, --interactive\fR - turns on interactive mode
+
+\fB-l, --language <language>\fR - sets the text output language, the list of available languages is specified in the docs
+
+\fB-m, --run-mode <mode>\fR - sets the running mode, the list of available modes is specified in the docs
+.SH FILES AND DIRECTORIES
+Configuration file: /etc/hydratk/conf.d/hydratk-ext-yoda.conf
+
+Extension directories: 
+  /var/local/hydratk/yoda/yoda-tests - test scripts
+  /var/local/hydratk/yoda/helpers - test helpers
+  /var/local/hydratk/yoda/lib - test libraries
+
+.SH AUTHOR
+Petr Czaderna (pc@hydratk.org), HydraTK Team
+.SH INTERNET RESOURCES
+Main website: https://www.hydratk.org
+
+Documentation: https://www.hydratk.org/docs
+
+Downloads https://pypi.python.org/pypi/hydratk-ext-yoda, https://github.com/hydratk/hydratk-ext-yoda
+.SH LICENSING
+hydratk-ext-yoda is distributed under BSD license. See the file "LICENSE.txt" in the source distribution for information.
