@@ -1149,7 +1149,7 @@ class TestSet(TestObject):
                         raise Exception('Failed to update test_scenario database record')
             else:
                 ts.resolution = 'skipped'
-                dmsg("Filter: Skippind test scenario {0}".format(ts.id))
+                dmsg("Filter: Skipping test scenario {0}".format(ts.id))
         
     
     def break_test_set(self, reason, test_object=None):
@@ -1491,7 +1491,7 @@ class TestScenario(TestObject):
                         raise Exception('Failed to update test_case database record')
             else:
                 tca.resolution = 'skipped'
-                dmsg("Filter: Skippind test case {0}".format(tca.id))
+                dmsg("Filter: Skipping test case {0}".format(tca.id))
                                 
         if self.action == None:
             self.status = "finished"
@@ -2039,7 +2039,7 @@ class TestCase(TestObject):
                         raise Exception('Failed to update test_condition database record')
             else:
                 tco.resolution = 'skipped'
-                dmsg("Filter: Skippind test condition {0}".format(tco.id))    
+                dmsg("Filter: Skipping test condition {0}".format(tco.id))    
         if self.action == None:
             self.status = "finished" 
 
