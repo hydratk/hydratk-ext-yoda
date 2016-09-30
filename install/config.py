@@ -8,6 +8,7 @@ config = {
 
   'post_tasks' : [
                   'copy_files',
+                  'set_access_rights',
                   'install_manpage',
                   'install_db_testdata'
                  ],
