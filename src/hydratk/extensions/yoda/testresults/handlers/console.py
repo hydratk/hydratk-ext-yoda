@@ -54,7 +54,7 @@ class TestResultsOutputHandler(object):
         passed_tests     = self._db_con.db_data("get_passed_tests", {'test_run_id' : test_run.id })[0]["passed_tests"]
         test_run_summary = mh._trn.msg('yoda_test_run_summary', total_test_sets, total_tests, failed_tests, passed_tests)
         bar_len = len(strip_accents(test_run_summary))
-        dmsg("Creating console output")
+        dmsg(mh._trn.msg('yoda_create_output_console'))
         trs_tpl = """
 +{bar}+
 |{test_run_summary}|

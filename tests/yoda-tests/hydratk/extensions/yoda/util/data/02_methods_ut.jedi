@@ -1,0 +1,809 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/yoda/util/data/02_methods_ut.jedi
+  Name: gen_name
+  Desc: Test method gen_name
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.util.data import gen_name   
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_gen_name
+    Desc: Generate random name
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_male
+      Desc: Random male name
+              
+      Test: |
+        res = gen_name(sex='male')
+      
+      Validate: |
+        this.test_result = str(res)
+        assert (res[0] != None and res[1] != None), 'name contains firstname and surname'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_female
+      Desc: Random female name
+              
+      Test: |
+        res = gen_name(sex='female')
+      
+      Validate: |
+        this.test_result = str(res)
+        assert (res[0] != None and res[1] != None), 'name contains firstname and surname'    
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_both
+      Desc: Random name
+              
+      Test: |
+        res = gen_name(sex='both')
+        
+      Validate: |
+        this.test_result = str(res)
+        assert (res[0] != None and res[1] != None), 'name contains firstname and surname'   
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_str_output
+      Desc: String output
+              
+      Test: |
+        res = gen_name(tuple_out=False)
+        
+      Validate: |
+        this.test_result = res
+        assert (res != None and ' ' in res), 'name contains firstname and surname'                    
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_invalid_sex
+      Desc: Invalid sex, raises ValueError
+              
+      Test: |
+        try:
+            gen_name(sex='xxx')
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |
+        this.test_result = ex
+        assert (ex), 'gen_name raises ValueError'
+         
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_male_mult
+      Desc: Multiple random male names
+              
+      Test: |
+        cnt = 10
+        res = gen_name(sex='male', cnt=cnt)
+      
+      Validate: |
+        this.test_result = str(res)
+        assert (len(res) == cnt), 'res contains {0} records'.format(cnt)
+        assert (res[-1][0] != None and res[-1][1] != None), 'name contains firstname and surname'   
+        
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_both_mult
+      Desc: Multiple random names
+              
+      Test: |        
+        res = gen_name(sex='both', cnt=cnt)
+      
+      Validate: |
+        this.test_result = str(res)
+        assert (len(res) == cnt), 'res contains {0} records'.format(cnt)
+        assert (res[-1][0] != None and res[-1][1] != None), 'name contains firstname and surname'  
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/yoda/util/data/02_methods_ut.jedi
+  Name: gen_phone
+  Desc: Test method gen_phone
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.util.data import gen_phone
+    from hydratk.extensions.yoda.util.check import regex   
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_gen_phone
+    Desc: Generate random phone
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_int
+      Desc: Phone with international format
+      
+      Test: |
+        res = gen_phone(form='int')
+      
+      Validate: |                  
+        this.test_result = res
+        expr = '^(\+\d{12})$'    
+        assert (regex(res, expr) == res), 'phone in international format'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_nat
+      Desc: Phone with national format
+      
+      Test: |
+        res = gen_phone(form='nat')
+      
+      Validate: |                  
+        this.test_result = res
+        expr = '^(\d{9})$'    
+        assert (regex(res, expr) == res), 'phone in national format'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_cc
+      Desc: Phone with given country code
+      
+      Test: |
+        res = gen_phone(cc='421')
+      
+      Validate: |
+        this.test_result = res
+        expr = '^(\+421\d{9})$'
+        assert (regex(res, expr) == res), 'phone in correct format'
+      
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_random_cc
+      Desc: Phone with random country code
+      
+      Test: |
+        res = gen_phone(cc=None)
+      
+      Validate: |
+        this.test_result = res
+        expr = '^(\+\d{1,4}\d{9})$'
+        assert (regex(res, expr) == res), 'phone in correct format'
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_country
+      Desc: Phone with given country
+      
+      Test: |
+        res = gen_phone(country='Slovakia')
+      
+      Validate: |
+        this.test_result = res
+        expr = '^(\+421\d{9})$'
+        assert (regex(res, expr) == res), 'phone in correct format'               
+      
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_ndc
+      Desc: Phone with given NDC
+      
+      Test: |
+        res = gen_phone(ndc='602')
+      
+      Validate: |
+        this.test_result = res
+        expr = '^(\+\d{3}602\d{6})$'
+        assert (regex(res, expr) == res), 'phone in correct format'         
+      
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_sn_len
+      Desc: Phone with given SN length  
+      
+      Test: |
+        res = gen_phone(sn_len=5)
+      
+      Validate: |
+        this.test_result = res
+        expr = '^(\+\d{11})$'
+        assert (regex(res, expr) == res), 'phone in correct format'                                 
+        
+    Test-Condition-8: 
+      Id: tco_08
+      Name: tco_invalid_form
+      Desc: Invalid format, raises ValueError
+      
+      Test: |
+        try:
+            gen_phone(form='xxx')
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |    
+        this.test_result = ex
+        assert (ex), 'gen_phone raises ValueError'     
+        
+    Test-Condition-9: 
+      Id: tco_09
+      Name: tco_invalid_country
+      Desc: Invalid country, raises ValueError
+      
+      Test: |
+        try:
+            gen_phone(country='xxx')
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |    
+        this.test_result = ex
+        assert (ex), 'gen_phone raises ValueError' 
+        
+    Test-Condition-10: 
+      Id: tco_10
+      Name: tco_int_mult
+      Desc: Multiple phones with international format
+      
+      Test: |
+        cnt = 10
+        res = gen_phone(form='int', cc=None, ndc=None, cnt=cnt)
+      
+      Validate: |                  
+        this.test_result = str(res)
+        assert (len(res) == cnt), 'res contains {0} records'.format(cnt)
+        expr = '^(\+\d{1,4}\d{9})$'    
+        assert (regex(res[-1], expr) == res[-1]), 'phone in international format'  
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/yoda/util/data/02_methods_ut.jedi
+  Name: gen_address
+  Desc: Test method gen_address
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.util.data import gen_address
+    from hydratk.extensions.yoda.util.check import regex   
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_gen_address
+    Desc: Generate random address
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_full_street_no
+      Desc: Random address with full street number
+      
+      Test: |
+        res = gen_address(street_no_full=True)
+        
+      Validate: |                     
+        this.test_result = str(res)
+        assert (regex(res['street_no'], '^(\d{2,4}/\d{1,2})$') != None), 'street_number in correct format'
+        assert (res['region'] != None and res['district'] != None and res['area'] != None), 'address contains region, district, area'
+        assert (res['locality'] != None and res['part'] != None and res['street'] != None and res['zip'] != None), 'address contains locality, part, street, zip'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_short_street_no
+      Desc: Random address with short street number
+      
+      Test: |
+        res = gen_address(street_no_full=False)
+        
+      Validate: |                     
+        this.test_result = str(res)
+        assert (regex(res['street_no'], '^(\d{1,2})$') != None), 'street_number in correct format'
+        assert (res['region'] != None and res['district'] != None and res['area'] != None), 'address contains region, district, area'
+        assert (res['locality'] != None and res['part'] != None and res['street'] != None and res['zip'] != None), 'address contains locality, part, street, zip' 
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_str_out
+      Desc: Random address with string output
+      
+      Test: |
+        res = gen_address(dict_out=False)
+        
+      Validate: |                     
+        this.test_result = res
+        expr = '^(.*\s\d{2,4}/\d{1,2}\,\s.*\,\s\d{5})$'
+        assert (regex(res, expr) == res), 'address in correct format'    
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_invalid_param
+      Desc: Invalid address parameter, raises ValueError
+      
+      Test: |
+        try:
+            gen_address(param='xxx')
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |
+        this.test_result = ex
+        assert (ex), 'gen_address raises ValueError'
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_part
+      Desc: Random address with given part
+      
+      Test: |
+        value = 'Kunžak'
+        res = gen_address(param='part', value=value)
+        
+      Validate: |        
+        this.test_result = str(res)
+        assert (regex(res['street_no'], '^(\d{2,4}/\d{1,2})$') != None), 'street_number in correct format'
+        assert (res['region'] != None and res['district'] != None and res['area'] != None), 'address contains region, district, area'
+        assert (res['locality'] != None and res['part'] == value and res['street'] != None and res['zip'] != None), 'address contains locality, part, street, zip'
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_invalid_part
+      Desc: Invalid part, raises ValueError
+      
+      Test: |
+        try:
+            gen_address(param='part', value='xxx')
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |    
+        this.test_result = ex
+        assert (ex), 'gen_address raises ValueError' 
+        
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_part_mult
+      Desc: Multiple random addresses with given part
+      
+      Test: |
+        cnt = 10
+        res = gen_address(param='part', value=value, cnt=cnt)
+      
+      Validate: |        
+        this.test_result = str(res)
+        assert (len(res) == cnt), 'res contains {0} records'.format(cnt)
+        assert (regex(res[-1]['street_no'], '^(\d{2,4}/\d{1,2})$') != None), 'street_number in correct format'
+        assert (res[-1]['region'] != None and res[-1]['district'] != None and res[-1]['area'] != None), 'address contains region, district, area'
+        assert (res[-1]['locality'] != None and res[-1]['part'] == value and res[-1]['street'] != None and res[-1]['zip'] != None), 'address contains locality, part, street, zip'   
+        
+    Test-Condition-8: 
+      Id: tco_08
+      Name: tco_locality
+      Desc: Random address with given locality
+      
+      Test: |
+        value = 'Kunžak'
+        res = gen_address(param='locality', value=value)
+        
+      Validate: |        
+        this.test_result = str(res)
+        assert (regex(res['street_no'], '^(\d{2,4}/\d{1,2})$') != None), 'street_number in correct format'
+        assert (res['region'] != None and res['district'] != None and res['area'] != None), 'address contains region, district, area'
+        assert (res['locality'] == value and res['part'] != None and res['street'] != None and res['zip'] != None), 'address contains locality, part, street, zip'
+        
+    Test-Condition-9: 
+      Id: tco_09
+      Name: tco_invalid_locality
+      Desc: Invalid locality, raises ValueError
+      
+      Test: |
+        try:
+            gen_address(param='locality', value='xxx')
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |    
+        this.test_result = ex
+        assert (ex), 'gen_address raises ValueError' 
+        
+    Test-Condition-10: 
+      Id: tco_10
+      Name: tco_locality_mult
+      Desc: Multiple random addresses with given locality
+      
+      Test: |
+        res = gen_address(param='locality', value=value, cnt=cnt)
+      
+      Validate: |        
+        this.test_result = str(res)
+        assert (len(res) == cnt), 'res contains {0} records'.format(cnt)
+        assert (regex(res[-1]['street_no'], '^(\d{2,4}/\d{1,2})$') != None), 'street_number in correct format'
+        assert (res[-1]['region'] != None and res[-1]['district'] != None and res[-1]['area'] != None), 'address contains region, district, area'
+        assert (res[-1]['locality'] == value and res[-1]['part'] != None and res[-1]['street'] != None and res[-1]['zip'] != None), 'address contains locality, part, street, zip'         
+        
+    Test-Condition-11: 
+      Id: tco_11
+      Name: tco_area
+      Desc: Random address with given area
+      
+      Test: |
+        value = 'Jindřichův Hradec'
+        res = gen_address(param='area', value=value)
+        
+      Validate: |        
+        this.test_result = str(res)
+        assert (regex(res['street_no'], '^(\d{2,4}/\d{1,2})$') != None), 'street_number in correct format'
+        assert (res['region'] != None and res['district'] != None and res['area'] == value), 'address contains region, district, area'
+        assert (res['locality'] != None and res['part'] != None and res['street'] != None and res['zip'] != None), 'address contains locality, part, street, zip'
+        
+    Test-Condition-12: 
+      Id: tco_12
+      Name: tco_invalid_area
+      Desc: Invalid area, raises ValueError
+      
+      Test: |
+        try:
+            gen_address(param='area', value='xxx')
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |    
+        this.test_result = ex
+        assert (ex), 'gen_address raises ValueError' 
+        
+    Test-Condition-13: 
+      Id: tco_13
+      Name: tco_area_mult
+      Desc: Multiple random addresses with given area
+      
+      Test: |
+        res = gen_address(param='area', value=value, cnt=cnt)
+      
+      Validate: |        
+        this.test_result = str(res)
+        assert (len(res) == cnt), 'res contains {0} records'.format(cnt)
+        assert (regex(res[-1]['street_no'], '^(\d{2,4}/\d{1,2})$') != None), 'street_number in correct format'
+        assert (res[-1]['region'] != None and res[-1]['district'] != None and res[-1]['area'] == value), 'address contains region, district, area'
+        assert (res[-1]['locality'] != None and res[-1]['part'] != None and res[-1]['street'] != None and res[-1]['zip'] != None), 'address contains locality, part, street, zip' 
+        
+    Test-Condition-14: 
+      Id: tco_14
+      Name: tco_district
+      Desc: Random address with given district
+      
+      Test: |
+        value = 'Písek'
+        res = gen_address(param='district', value=value)
+        
+      Validate: |        
+        this.test_result = str(res)
+        assert (regex(res['street_no'], '^(\d{2,4}/\d{1,2})$') != None), 'street_number in correct format'
+        assert (res['region'] != None and res['district'] == value and res['area'] != None), 'address contains region, district, area'
+        assert (res['locality'] != None and res['part'] != None and res['street'] != None and res['zip'] != None), 'address contains locality, part, street, zip'
+        
+    Test-Condition-15: 
+      Id: tco_15
+      Name: tco_invalid_district
+      Desc: Invalid district, raises ValueError
+      
+      Test: |
+        try:
+            gen_address(param='district', value='xxx')
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |    
+        this.test_result = ex
+        assert (ex), 'gen_address raises ValueError' 
+        
+    Test-Condition-16: 
+      Id: tco_16
+      Name: tco_district_mult
+      Desc: Multiple random addresses with given district
+      
+      Test: |
+        res = gen_address(param='district', value=value, cnt=cnt)
+      
+      Validate: |        
+        this.test_result = str(res)
+        assert (len(res) == cnt), 'res contains {0} records'.format(cnt)
+        assert (regex(res[-1]['street_no'], '^(\d{2,4}/\d{1,2})$') != None), 'street_number in correct format'
+        assert (res[-1]['region'] != None and res[-1]['district'] == value and res[-1]['area'] != None), 'address contains region, district, area'
+        assert (res[-1]['locality'] != None and res[-1]['part'] != None and res[-1]['street'] != None and res[-1]['zip'] != None), 'address contains locality, part, street, zip'  
+        
+    Test-Condition-17: 
+      Id: tco_17
+      Name: tco_region
+      Desc: Random address with given region
+      
+      Test: |
+        value = 'Jihočeský'
+        res = gen_address(param='region', value=value)
+        
+      Validate: |        
+        this.test_result = str(res)
+        assert (regex(res['street_no'], '^(\d{2,4}/\d{1,2})$') != None), 'street_number in correct format'
+        assert (res['region'] == value and res['district'] != None and res['area'] != None), 'address contains region, district, area'
+        assert (res['locality'] != None and res['part'] != None and res['street'] != None and res['zip'] != None), 'address contains locality, part, street, zip'
+        
+    Test-Condition-18: 
+      Id: tco_18
+      Name: tco_invalid_region
+      Desc: Invalid region, raises ValueError
+      
+      Test: |
+        try:
+            gen_address(param='region', value='xxx')
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |    
+        this.test_result = ex
+        assert (ex), 'gen_address raises ValueError' 
+        
+    Test-Condition-19: 
+      Id: tco_19
+      Name: tco_region_mult
+      Desc: Multiple random addresses with given region
+      
+      Test: |
+        res = gen_address(param='region', value=value, cnt=cnt)
+      
+      Validate: |        
+        this.test_result = str(res)
+        assert (len(res) == cnt), 'res contains {0} records'.format(cnt)
+        assert (regex(res[-1]['street_no'], '^(\d{2,4}/\d{1,2})$') != None), 'street_number in correct format'
+        assert (res[-1]['region'] == value and res[-1]['district'] != None and res[-1]['area'] != None), 'address contains region, district, area'
+        assert (res[-1]['locality'] != None and res[-1]['part'] != None and res[-1]['street'] != None and res[-1]['zip'] != None), 'address contains locality, part, street, zip'
+        
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/yoda/util/data/02_methods_ut.jedi
+  Name: type
+  Desc: Test type methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.util.data import create_type, update_type, delete_type, create_data  
+    from hydratk.lib.database.dbo.dbo import DBO
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_type
+    Desc: Type methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create
+      Desc: Create data type
+      
+      Test: |
+        dsn = 'sqlite:/var/local/hydratk/yoda/db_testdata/testdata.db3'
+        title, desc, cols = 'test', 'test desc', ['t1', 't2', 't3', 't4', 't5', 't6', 't7', 't8', 't9', 't10']
+        res = create_type(title, desc, cols)
+      
+      Validate: | 
+        this.test_result = res
+        assert (res), 'create_type = True'
+        db = DBO(dsn)._dbo_driver  
+        res = db.execute('SELECT * FROM data_type WHERE title = ?', [title]).fetchone()   
+        this.test_result = str(res)  
+        exp = [title, desc, cols[9]]
+        assert ([str(res[1]), str(res[2]), str(res[12])] == exp), 'title, desc, col10 = {0}'.format(exp)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_invalid_create
+      Desc: Create invalid type
+      
+      Test: |
+        res = create_type(title)
+      
+      Validate: |        
+        this.test_result = res
+        assert (not res), 'create_type = False'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_update
+      Desc: Update data type
+      
+      Test: |
+        title_new, desc, cols = 'test 2', 'test desc 2', {1:'x1', 10:'x10'}
+        res = update_type(title, title_new, desc, cols)
+      
+      Validate: |        
+        this.test_result = res
+        assert (res), 'update_type = True'
+        res = db.execute('SELECT * FROM data_type WHERE title = ?', [title_new]).fetchone() 
+        this.test_result = str(res)
+        exp = [title_new, desc, cols[1], cols[10]]
+        assert ([str(res[1]), str(res[2]), str(res[3]), str(res[12])] == exp), 'title, desc, col1, col10 = {0}'.format(exp)  
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_invalid_update
+      Desc: Update invalid type
+      
+      Test: |
+        res = update_type(title)
+      
+      Validate: |        
+        this.test_result = res
+        assert (not res), 'update_type = False'               
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_delete
+      Desc: Delete data type
+      
+      Test: |
+        create_data(title_new)
+        res = delete_type(title_new)
+      
+      Validate: |        
+        this.test_result = res
+        assert (res), 'delete_type = True'
+        res = db.execute('SELECT count(*) FROM data_type WHERE title = ?', [title_new]).fetchone() 
+        this.test_result = str(res)
+        assert (res[0] == 0), 'type {0} deleted'.format(title_new)
+        res = db.execute('SELECT count(*) FROM data WHERE type = (SELECT id FROM data_type WHERE title = ?)', [title_new]).fetchone()
+        this.test_result = str(res)
+        assert (res[0] == 0), 'data deleted'  
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_invalid_delete
+      Desc: Delete invalid type
+      
+      Test: |
+        res = delete_type(title_new)
+      
+      Validate: |        
+        this.test_result = res
+        assert (not res), 'delete_type = False'     
+        
+Test-Scenario-5:
+  Id: ts_05
+  Path: hydratk/extensions/yoda/util/data/02_methods_ut.jedi
+  Name: data
+  Desc: Test data methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.util.data import create_type, delete_type, read_data, create_data, update_data, delete_data  
+    from hydratk.lib.database.dbo.dbo import DBO
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_data
+    Desc: Data methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create
+      Desc: Create data
+      
+      Test: |
+        dsn = 'sqlite:/var/local/hydratk/yoda/db_testdata/testdata.db3'   
+        title, desc, cols = 'test', 'test desc', ['t1', 't2', 't3', 't4', 't5', 't6', 't7', 't8', 't9', 't10']
+        create_type(title, desc, cols)
+        data_type, active, col_values = title, 1, {1:'x1', 2:'x2', 3:'x3', 4:'x4', 5:'x5', 6:'x6', 7:'x7', 8:'x8', 9:'x9',10:'x10'}
+        res = create_data(data_type, active, col_values)
+        
+      Validate: |    
+        this.test_result = res
+        assert (res), 'create_data = True'
+        db = DBO(dsn)._dbo_driver  
+        res = db.execute('SELECT * FROM data WHERE type = (SELECT id FROM data_type WHERE title = ?)', [title]).fetchone()   
+        this.test_result = str(res)  
+        exp = [active, col_values[1], col_values[10]]
+        assert ([res[2], str(res[3]), str(res[12])] == exp), 'active, col1, col10 = {0}'.format(exp)  
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_create_invalid
+      Desc: Create data with invalid type
+      
+      Test: |
+        res = create_data('xxx')
+      
+      Validate: |               
+        this.test_result = res
+        assert (not res), 'create_data = False'    
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_read
+      Desc: Read data
+      
+      Test: |
+        data_type, active, col_filter = title, 1, {1:'x1', 10:'x10'}
+        res = read_data(data_type, active, col_filter)
+        
+      Validate: |    
+        this.test_result = str(res)
+        assert (len(res) == 1), 'res contains 1 record'
+        exp = {'type':data_type, 'active':active, 't1':'x1', 't2':'x2', 't3':'x3', 't4':'x4', 't5':'x5',
+               't6':'x6', 't7':'x7', 't8':'x8', 't9':'x9', 't10':'x10'}
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_read_invalid
+      Desc: Read data with invalid type
+      
+      Test: |
+        res = read_data('xxx')
+      
+      Validate: |               
+        this.test_result = res
+        assert (not res), 'read_data = False'  
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_update
+      Desc: Update data
+      
+      Test: |
+        data_type, active, col_filter, col_values = title, 0, {1:'x1', 10:'x10'}, {1:'xx1', 10:'xx10'}
+        res = update_data(data_type, active, col_filter, col_values)
+        
+      Validate: |    
+        this.test_result = res
+        assert (res), 'update_data = True'
+        res = db.execute('SELECT * FROM data WHERE type = (SELECT id FROM data_type WHERE title = ?)', [title]).fetchone()     
+        this.test_result = str(res)
+        exp = [active, col_values[1], col_values[10]]
+        assert ([res[2], str(res[3]), str(res[12])] == exp), 'active, col1, col10 = {0}'.format(exp)             
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_update_invalid
+      Desc: Update data with invalid type
+      
+      Test: |
+        res = update_data('xxx')
+      
+      Validate: |               
+        this.test_result = res
+        assert (not res), 'update_data = False' 
+        
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_delete
+      Desc: Delete data
+      
+      Test: |
+        data_type, active, col_filter = title, 0, {1:'xx1', 10:'xx10'}
+        res = delete_data(data_type, active, col_filter)
+        
+      Validate: |    
+        this.test_result = res
+        assert (res), 'delete_data = True'
+        res = db.execute('SELECT count(*) FROM data WHERE type = (SELECT id FROM data_type WHERE title = ?)', [title]).fetchone()  
+        this.test_result = str(res)   
+        assert (res[0] == 0), 'data deleted' 
+        delete_type(data_type)        
+        
+    Test-Condition-8: 
+      Id: tco_08
+      Name: tco_delete_invalid
+      Desc: Delete data with invalid type
+      
+      Test: |
+        res = delete_data('xxx')
+      
+      Validate: |               
+        this.test_result = res
+        assert (not res), 'delete_data = False'                                       

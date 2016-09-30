@@ -9,6 +9,7 @@
 """
 
 import importlib
+from hydratk.core.masterhead import MasterHead
 from hydratk.lib.database.dbo import dbo
 from hydratk.lib.debugging.simpledebug import dmsg
 from hydratk.lib.system.io import cprint
@@ -240,6 +241,7 @@ class TestResultsDB(object):
     """Class TestResultsDB
     """
     
+    _mh = None
     _trdb = None
     _dsn  = None
     _custom_data_filter = {
@@ -270,6 +272,7 @@ class TestResultsDB(object):
             
         """    
                
+        self._mh = MasterHead.get_head()
         self._trdb = dbo.DBO(dsn)
         self._trdb.dbcon.text_factory = bytes        
         self._trdb.result_as_dict(True)
@@ -314,10 +317,10 @@ class TestResultsDB(object):
                 self._trdb.remove_database()
                 self._trdb.connect()
             else:
-                raise Exception("Database already exists dsn:{0}".format(self._dsn)) 
+                raise Exception(self._mh._trn.msg('yoda_db_exists',self._dsn)) 
             
         self._trdb.cursor.executescript(db_struct[self._trdb.driver_name])
-        cprint("Database created successfully")
+        cprint(self._mh._trn.msg('yoda_db_created'))
            
     def db_action(self, action, columns):
         """Method executes write query
@@ -331,7 +334,7 @@ class TestResultsDB(object):
             
         """   
                 
-        dmsg("Running action: {0} {1}".format(action, str(columns)), 3)
+        dmsg(self._mh._trn.msg('yoda_running_action',action, str(columns)), 3)
         self._trdb.cursor.execute(db_actions[self._trdb.driver_name][action], columns)
         self._trdb.commit()
     
@@ -347,7 +350,7 @@ class TestResultsDB(object):
             
         """   
                 
-        dmsg("Get data action: {0} {1}".format(action, str(columns)), 3)
+        dmsg(self._mh._trn.msg('yoda_getting_action_data',action, str(columns)), 3)
         self._trdb.cursor.execute(db_actions[self._trdb.driver_name][action], columns)
         return self._trdb.cursor.fetchall()
 
@@ -362,6 +365,7 @@ class TestResultsOutputFactory(object):
     """Class TestResultsOutputFactory
     """
     
+    _mh = None
     _handler_name = None
     _handler      = None
     _handler_opt  = {}
@@ -376,10 +380,11 @@ class TestResultsOutputFactory(object):
            handler_def (str): output handler, console|html|text
             
         """   
-                
+         
+        self._mh = MasterHead.get_head()        
         self._dispatch_handler_def(handler_def)
         if self._handler_name not in tro_handlers:
-            raise ValueError('Unknown handler: {0}'.format(self._handler_name))
+            raise ValueError(self._mh._trn.msg('yoda_unknown_handler',self._handler_name))
         
         handler_mod   = self._import_tro_handler(self._handler_name)
         self._handler = handler_mod.TestResultsOutputHandler(db_dsn, self._handler_opt)

@@ -48,7 +48,20 @@ Full PyPi URL contains MD5 hash, adapt sample code.
 Requirements
 ^^^^^^^^^^^^     
      
-The extension requires hydratk.      
+Several python modules are used.
+These modules will be installed automatically, if not installed yet.
+
+* hydratk
+* lxml
+* pytz
+* simplejson
+
+Module lxml requires several libraries which will be installed via Linux package managers, if not installed yet.
+
+lxml
+
+* apt-get: python-lxml, libxml2-dev, libxslt1-dev
+* yum: python-lxml, libxml2-devel, libxslt-devel   
      
 Installation
 ^^^^^^^^^^^^
@@ -110,7 +123,7 @@ Application installs following (paths depend on your OS configuration)
 * yoda command in /usr/local/bin/yoda
 * modules in /usr/local/lib/python2.7/dist-packages/hydratk-ext-yoda-0.2.0-py2.7egg
 * configuration file in /etc/hydratk/conf.d/hydratk-ext-yoda.conf 
-* application folder in /var/local/hydratk/yoda 
+* application folder in /var/local/hydratk/yoda
        
 Run
 ^^^
@@ -146,6 +159,10 @@ Type man yoda to display manual page.
          Options:
            --yoda-db-results-dsn <dsn> - test results database access definition
            --yoda-test-repo-root-dir <path> - test repository root directory
+           
+       yoda-create-testdata-db - creates database for test data
+         Options:
+           --yoda-db-testdata-dsn <dsn> - test data database access definition           
 
        yoda-run - starts the Yoda tester
          Options:
@@ -180,6 +197,10 @@ You can run Yoda also in standalone mode.
          Options:
            --db-results-dsn <dsn> - test results database access definition
            -tr, --test-repo-root-dir <path> - test repository root directory
+           
+       create-testdata-db - creates database for test data
+         Options:
+           --db-testdata-dsn <dsn> - test data database access definition           
 
        help - prints help
        run - starts the Yoda tester

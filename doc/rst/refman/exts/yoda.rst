@@ -54,4 +54,23 @@ testresults
 * console 
 
 .. automodule:: hydratk.extensions.yoda.testresults.handlers.console
+   :member-order: bysource  
+   
+.. _refman_ext_yoda_util:   
+   
+util
+^^^^ 
+
+.. _refman_ext_yoda_util_check:
+
+* check
+
+.. automodule:: hydratk.extensions.yoda.util.check
+   :member-order: bysource
+   
+.. _refman_ext_yoda_util_data:
+
+* data
+
+.. automodule:: hydratk.extensions.yoda.util.data
    :member-order: bysource   

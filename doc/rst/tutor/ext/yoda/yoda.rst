@@ -15,3 +15,4 @@ Yoda extension provides automated test execution engine with own test script for
    tut5_chain
    tut6_break
    tut7_parallel
+   tut8_util

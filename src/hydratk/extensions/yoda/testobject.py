@@ -1097,6 +1097,7 @@ class TestSet(TestObject):
         current.tset = self
         this         = self
         
+        mh = MasterHead.get_head()
         current.te.test_run.tset.append(self) 
                              
         for ts in self.ts:
@@ -1115,7 +1116,7 @@ class TestSet(TestObject):
                         print(sys.exc_info())
                         ex_type, ex, tb = sys.exc_info()
                         traceback.print_tb(tb)
-                        raise Exception('Failed to create test_scenario database record')
+                        raise Exception(mh._trn.msg('yoda_create_test_scenario_db_error'))
                 else:
                     raise Exception("No test results db")
                     
@@ -1146,10 +1147,10 @@ class TestSet(TestObject):
                         ts.write_custom_data()
                     except:
                         print(sys.exc_info())
-                        raise Exception('Failed to update test_scenario database record')
+                        raise Exception(mh._trn.msg('yoda_update_test_scenario_db_error'))
             else:
                 ts.resolution = 'skipped'
-                dmsg("Filter: Skipping test scenario {0}".format(ts.id))
+                dmsg(mh._trn.msg('yoda_skipping_test_scenario',ts.id))
         
     
     def break_test_set(self, reason, test_object=None):
@@ -1367,7 +1368,7 @@ class TestScenario(TestObject):
                     if current.te.test_simul_mode == False:
                         current.te.code_stack.execute(self.pre_req, locals())                                                                                   
                     else:
-                        dmsg("Simulation: Running Test scenario %s pre-req" % self.name)
+                        dmsg(mh._trn.msg('yoda_simulating_test_scenario', self.name))
                         compile(self.pre_req,'<string>','exec')
                 self.prereq_passed = True
                 
@@ -1376,10 +1377,10 @@ class TestScenario(TestObject):
                 raise exc
             
             except BreakTest as exc:
-                raise Exception("You can't use 'break_test' outside the Test-Condition section")
+                raise Exception(mh._trn.msg('yoda_simulating_test_scenario','break_test','Test-Condition'))
             
             except BreakTestCase as exc:
-                raise Exception("You can't use 'break_test_case' outside the Test-Case section") 
+                raise Exception(mh._trn.msg('yoda_simulating_test_scenario','break_test_case','Test-Case')) 
                  
             except Exception as exc:                
                 self.prereq_passed = False
@@ -1413,7 +1414,7 @@ class TestScenario(TestObject):
                     if current.te.test_simul_mode == False:                                                        
                         current.te.code_stack.execute(self.events['before_start'], locals())                              
                     else:
-                        dmsg("Simulation: Running Test scenario %s yoda_events_before_start_ts " % self.name)
+                        dmsg(mh._trn.msg('yoda_simulating_test_scenario_before',self.name))
                         compile(self.events['before_start'],'<string>','exec')
                 self._events_passed = True 
             except (BreakTestRun, BreakTestSet, BreakTestScenario) as exc:
@@ -1421,10 +1422,10 @@ class TestScenario(TestObject):
                 raise exc
             
             except BreakTest as exc:
-                raise Exception("You can't use 'break_test' outside the Test-Condition section")
+                raise Exception(mh._trn.msg('yoda_simulating_test_scenario','break_test','Test-Condition'))
             
             except BreakTestCase as exc:
-                raise Exception("You can't use 'break_test_case' outside the Test-Case section") 
+                raise Exception(mh._trn.msg('yoda_simulating_test_scenario','break_test_case','Test-Case')) 
                 
             except Exception as exc:                                              
                 self.log = self._explain(
@@ -1461,7 +1462,7 @@ class TestScenario(TestObject):
                         print(sys.exc_info())
                         ex_type, ex, tb = sys.exc_info()
                         traceback.print_tb(tb)
-                        raise Exception('Failed to create test_case database record')
+                        raise Exception(mh._trn.msg('yoda_create_test_case_db_error'))
                     
                 tca.status     = 'started'                           
                 while tca.status != 'finished':
@@ -1488,10 +1489,10 @@ class TestScenario(TestObject):
                         tca.write_custom_data()
                     except:
                         print(sys.exc_info())
-                        raise Exception('Failed to update test_case database record')
+                        raise Exception(mh._trn.msg('yoda_update_test_case_db_error'))
             else:
                 tca.resolution = 'skipped'
-                dmsg("Filter: Skipping test case {0}".format(tca.id))
+                dmsg(mh._trn.msg('yoda_skipping_test_case',tca.id))
                                 
         if self.action == None:
             self.status = "finished"
@@ -1507,7 +1508,7 @@ class TestScenario(TestObject):
                     if current.te.test_simul_mode == False:                                                        
                         current.te.code_stack.execute(self.events['after_finish'], locals())                              
                     else:
-                        dmsg("Simulation: Running Test scenario %s yoda_events_after_finish_ts " % self.name)
+                        dmsg(mh._trn.msg('yoda_simulating_test_scenario_after',self.name))
                         compile(self.events['after_finish'],'<string>','exec')
                 self._events_passed = True 
             except (BreakTestRun, BreakTestSet, BreakTestScenario) as exc:
@@ -1515,10 +1516,10 @@ class TestScenario(TestObject):
                 raise exc
             
             except BreakTest as exc:
-                raise Exception("You can't use 'break_test' outside the Test-Condition section")
+                raise Exception(mh._trn.msg('yoda_break_outside','break_test','Test-Condition'))
             
             except BreakTestCase as exc:
-                raise Exception("You can't use 'break_test_case' outside the Test-Case section") 
+                raise Exception(mh._trn.msg('yoda_break_outside','break_test_case','Test-Case')) 
                 
             except Exception as exc:                                              
                 self.log = self._explain(
@@ -1549,7 +1550,7 @@ class TestScenario(TestObject):
                     if current.te.test_simul_mode == False:
                         current.te.code_stack.execute(self.post_req, locals())                                                                                   
                     else:
-                        dmsg("Simulation: Running Test scenario %s post-req" % self.name)
+                        dmsg(mh._trn.msg('yoda_simulating_test_scenario_postreq',self.name))
                         compile(self.post_req,'<string>','exec')
                 self.prereq_passed = True
                 
@@ -1558,10 +1559,10 @@ class TestScenario(TestObject):
                 raise exc
             
             except BreakTest as exc:
-                raise Exception("You can't use 'break_test' outside the Test-Condition section")
+                raise Exception(mh._trn.msg('yoda_break_outside','break_test','Test-Condition'))
             
             except BreakTestCase as exc:
-                raise Exception("You can't use 'break_test_case' outside the Test-Case section") 
+                raise Exception(mh._trn.msg('yoda_break_outside','break_test_case','Test-Case')) 
                  
             except Exception as exc:
                 self.postreq_passed = False                    
@@ -1961,7 +1962,7 @@ class TestCase(TestObject):
                     if current.te.test_simul_mode == False:                                                                                                                                       
                         current.te.code_stack.execute(self.events['before_start'], locals())                                                                      
                     else:
-                        dmsg("Simulation: Running Test Case %s yoda_events_before_start_tca " % self.name)
+                        dmsg(mh._trn.msg('yoda_simulating_test_case_before',self.name))
                         compile(self.events['before_start'],'<string>','exec')
                         
             except (BreakTestRun, BreakTestSet, BreakTestScenario, BreakTestCase) as exc:
@@ -1969,7 +1970,7 @@ class TestCase(TestObject):
                 raise exc
             
             except BreakTest as exc:
-                raise Exception("You can't use 'break_test' outside the Test-Condition section") 
+                raise Exception(mh._trn.msg('yoda_break_outside','break_test','Test-Condition')) 
                
             except Exception as exc:                                              
                 self.log = self._explain(
@@ -2008,7 +2009,7 @@ class TestCase(TestObject):
                         ext, msg, trb = sys.exc_info()
                         print(msg)
                         print(repr(traceback.format_tb(trb)))
-                        raise Exception('Failed to create test_condition database record')
+                        raise Exception(mh._trn.msg('yoda_create_test_condition_db_error'))
                                                                  
                 tco.status     = 'started'                        
                 while tco.status != 'finished':
@@ -2036,10 +2037,10 @@ class TestCase(TestObject):
                         print(sys.exc_info())
                         ex_type, ex, tb = sys.exc_info()
                         traceback.print_tb(tb)
-                        raise Exception('Failed to update test_condition database record')
+                        raise Exception(mh._trn.msg('yoda_update_test_condition_db_error'))
             else:
                 tco.resolution = 'skipped'
-                dmsg("Filter: Skipping test condition {0}".format(tco.id))    
+                dmsg(mh._trn.msg('yoda_skipping_test_condition',tco.id))    
         if self.action == None:
             self.status = "finished" 
 
@@ -2053,7 +2054,7 @@ class TestCase(TestObject):
                     if current.te.test_simul_mode == False:                                                                                                                                       
                         current.te.code_stack.execute(self.events['after_finish'], locals())                                                                      
                     else:
-                        dmsg("Simulation: Running Test Case %s yoda_events_after_finish_tca " % self.name)
+                        dmsg(mh._trn.msg('yoda_simulating_test_case_after',self.name))
                         compile(self.events['after_finish'],'<string>','exec')
                         
             except (BreakTestRun, BreakTestSet, BreakTestScenario, BreakTestCase) as exc:
@@ -2061,7 +2062,7 @@ class TestCase(TestObject):
                 raise exc
             
             except BreakTest as exc:
-                raise Exception("You can't use 'break_test' outside the Test-Condition section") 
+                raise Exception(mh._trn.msg('yoda_break_outside','break_test','Test-Condition')) 
                
             except Exception as exc:                                              
                 self.log = self._explain(
@@ -2473,7 +2474,7 @@ class TestCondition(TestObject):
                     if current.te.test_simul_mode == False:                                                                                                  
                         current.te.code_stack.execute(self.events['before_start'], locals())     
                     else:
-                        dmsg("Simulation: Running Test Condition %s yoda_events_before_start_tco " % self.name)
+                        dmsg(mh._trn.msg('yoda_simulating_test_condition_before',self.name))
                         compile(self.events['before_start'],'<string>','exec')
             
             except (BreakTestRun, BreakTestSet, BreakTestScenario, BreakTestCase, BreakTest) as exc:
@@ -2518,7 +2519,7 @@ class TestCondition(TestObject):
                     current.te.test_run.norun_tests -= 1
                     current.te.test_run.run_tests += 1                        
                 else:                        
-                    dmsg("Simulation: Running Test case: %s, Test condition: %s" % (current.tca.name, self.name))
+                    dmsg(mh._trn.msg('yoda_simulating_test_case',current.tca.name,self.name))
                     compile(self.test,'<string>','exec')
                     
         except (BreakTestRun,BreakTestSet, BreakTestCase, BreakTest) as exc:
@@ -2561,7 +2562,7 @@ class TestCondition(TestObject):
                     if current.te.test_simul_mode == False:                                                                                 
                         current.te.code_stack.execute(self.validate, locals())     
                     else:
-                        dmsg("Simulation: Validating result, Test case: %s, Test condition: %s" % (current.tca.name, self.name))
+                        dmsg(mh._trn.msg('yoda_simulating_validation',current.tca.name,self.name))
                         compile(self.validate,'<string>','exec')                                
                 current.ts.passed_tests += 1
                 current.tset.passed_tests += 1
@@ -2644,7 +2645,7 @@ class TestCondition(TestObject):
                     if current.te.test_simul_mode == False:                                                                                                  
                         current.te.code_stack.execute(self.events['after_finish'], locals())     
                     else:
-                        dmsg("Simulation: Running Test Condition %s yoda_events_after_finish_tco " % self.name)
+                        dmsg(mh._trn.msg('yoda_simulating_test_condition_after',self.name))
                         compile(self.events['after_finish'],'<string>','exec')
             
             except (BreakTestRun, BreakTestSet, BreakTestScenario, BreakTestCase, BreakTest) as exc:

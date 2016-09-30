@@ -1,0 +1,1321 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/yoda/util/data/01_methods_ut.jedi
+  Name: gen_number
+  Desc: Test method gen_number
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.util.data import gen_number
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_gen_number
+    Desc: Generate random number
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_int
+      Desc: Integer number
+      
+      Test: |
+        res = gen_number()
+      
+      Validate: |
+        this.test_result = res
+        assert (res.__class__.__name__ == 'int'), 'gen_number = int'
+        assert (res >= 10**9 and res <= 10**10-1), 'number has 10 digits'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_float
+      Desc: Float number
+      
+      Test: |
+        res = gen_number(5,3)
+      
+      Validate: |        
+        this.test_result = res
+        assert (res.__class__.__name__ == 'float'), 'gen_number = float'        
+        assert (1000*res >= 10**7 and 1000*res <= 10**8-1), 'number has 8 digits in total'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_frac
+      Desc: Fractional number        
+        
+      Test: |
+        res = gen_number(0, 3)        
+      
+      Validate: |  
+        this.test_result = res
+        assert (res.__class__.__name__ == 'float'), 'gen_number = float'        
+        assert (1000*res >= 100 and 1000*res <= 1000), 'number has 3 fractional digits'
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_negative
+      Desc: Negative number
+      
+      Test: |
+        res = gen_number(positive=False)
+              
+      Validate: |
+        this.test_result = res
+        assert (res < 0), 'number is negative'
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_invalid
+      Desc: Invalid, raises ValueError 
+      
+      Test: |
+        try:
+            gen_number(-1)
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |    
+        this.test_result = res
+        assert (res), 'gen_number raises ValueError'  
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_float_mult
+      Desc: Multiple float numbers
+      
+      Test: |
+        cnt = 10
+        res = gen_number(5,3, cnt=cnt)
+      
+      Validate: |        
+        this.test_result = str(res)
+        assert (len(res) == cnt), 'res contains {0} records'.format(cnt)
+        assert (res[-1].__class__.__name__ == 'float'), 'gen_number = float'        
+        assert (1000*res[-1] >= 10**7 and 1000*res[-1] <= 10**8-1), 'number has 8 digits in total'          
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/yoda/util/data/01_methods_ut.jedi
+  Name: gen_nondec
+  Desc: Test method gen_nondec
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.util.data import gen_nondec
+    from string import octdigits, hexdigits
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_gen_nondec
+    Desc: Generate random non-decadical number
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_bin
+      Desc: Binary number
+      
+      Test: |
+        res = gen_nondec(10, 'bin')
+      
+      Validate: |        
+        this.test_result = res
+        assert (len(res) == 10), 'number has 3 digits'
+        
+        valid = True
+        for c in res:
+            if (c not in ['0', '1']):
+                valid = False
+        
+        assert (valid), 'number contains valid digits'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_oct
+      Desc: Octal number
+      
+      Test: |
+        res = gen_nondec(10, 'oct')
+      
+      Validate: |        
+        this.test_result = res
+        assert (len(res) == 10), 'number has 3 digits'
+        
+        valid = True
+        for c in res:
+            if (c not in octdigits):
+                valid = False
+        
+        assert (valid), 'number contains valid digits'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_hex
+      Desc: Hexadecimal number
+      
+      Test: |
+        res = gen_nondec(10, 'hex')
+      
+      Validate: |        
+        this.test_result = res
+        assert (len(res) == 10), 'number has 3 digits'
+        
+        valid = True
+        for c in res:
+            if (c not in hexdigits):
+                valid = False
+        
+        assert (valid), 'number contains valid digits'     
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_invalid_digits
+      Desc: Invalid number of digits, raises ValueError
+      
+      Test: |
+        try:
+            gen_nondec(-1)
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |    
+        this.test_result = ex
+        assert (ex), 'gen_nondec raises ValueError'          
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_invalid_base
+      Desc: Invalid numeric base, raises ValueError
+      
+      Test: |
+        try:
+            gen_nondec(base='xxx')
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |    
+        this.test_result = ex
+        assert (ex), 'gen_nondec raises ValueError'  
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_hex_mult
+      Desc: Multiple hexadecimal numbers
+      
+      Test: |
+        cnt = 10
+        res = gen_nondec(10, 'hex', cnt=cnt)
+      
+      Validate: |        
+        this.test_result = str(res)
+        assert (len(res) == cnt), 'res contains {0} records'.format(cnt)
+        assert (len(res[-1]) == 10), 'number has 3 digits'
+        
+        valid = True
+        for c in res[-1]:
+            if (c not in hexdigits):
+                valid = False
+        
+        assert (valid), 'number contains valid digits'         
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/yoda/util/data/01_methods_ut.jedi
+  Name: gen_string
+  Desc: Test method gen_string
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.util.data import gen_string
+    from string import digits, ascii_lowercase, ascii_uppercase, ascii_letters, printable
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_gen_string
+    Desc: Generate random string
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_alpha
+      Desc: String with alpha characters                       
+      
+      Test: |
+        res = gen_string(10, 'alpha')
+      
+      Validate: |
+        this.test_result = res
+        assert (len(res) == 10), 'string contains 10 characters'
+        
+        valid = True
+        for c in res:
+            if (c not in ascii_letters):
+                valid = False
+        
+        assert (valid), 'string contains valid characters'  
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_lower
+      Desc: String with lowercase characters                       
+      
+      Test: |
+        res = gen_string(10, 'lower')
+      
+      Validate: |
+        this.test_result = res
+        assert (len(res) == 10), 'string contains 10 characters'
+        
+        valid = True
+        for c in res:
+            if (c not in ascii_lowercase):
+                valid = False
+        
+        assert (valid), 'string contains valid characters'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_upper
+      Desc: String with uppercase characters                       
+      
+      Test: |
+        res = gen_string(10, 'upper')
+      
+      Validate: |
+        this.test_result = res
+        assert (len(res) == 10), 'string contains 10 characters'
+        
+        valid = True
+        for c in res:
+            if (c not in ascii_uppercase):
+                valid = False
+        
+        assert (valid), 'string contains valid characters'  
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_numeric
+      Desc: String with numeric characters                       
+      
+      Test: |
+        res = gen_string(10, 'numeric')
+      
+      Validate: |
+        this.test_result = res
+        assert (len(res) == 10), 'string contains 10 characters'
+        
+        valid = True
+        for c in res:
+            if (c not in digits):
+                valid = False
+        
+        assert (valid), 'string contains valid characters'     
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_alphanumeric
+      Desc: String with alphanumeric characters                       
+      
+      Test: |
+        res = gen_string(10, 'alphanumeric')
+      
+      Validate: |
+        this.test_result = res
+        assert (len(res) == 10), 'string contains 10 characters'
+        
+        valid = True
+        for c in res:
+            if (c not in ascii_letters + digits):
+                valid = False
+        
+        assert (valid), 'string contains valid characters' 
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_special
+      Desc: String with special characters                       
+      
+      Test: |
+        res = gen_string(10, 'special')
+      
+      Validate: |
+        this.test_result = res
+        assert (len(res) == 10), 'string contains 10 characters'
+        
+        valid = True
+        for c in res:
+            if (c not in printable):
+                valid = False
+        
+        assert (valid), 'string contains valid characters'  
+        
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_invalid_char
+      Desc: Invalid number of characters, raises ValueError
+      
+      Test: |
+        try:
+            gen_string(-1)
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |    
+        this.test_result = ex
+        assert (ex), 'gen_string raises ValueError'          
+        
+    Test-Condition-8: 
+      Id: tco_08
+      Name: tco_invalid_cat
+      Desc: Invalid category, raises ValueError
+      
+      Test: |
+        try:
+            gen_string(category='xxx')
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |    
+        this.test_result = ex
+        assert (ex), 'gen_string raises ValueError'   
+        
+    Test-Condition-9: 
+      Id: tco_09
+      Name: tco_alphanumeric_mult
+      Desc: Multiple strings with alphanumeric characters                       
+      
+      Test: |
+        cnt = 10
+        res = gen_string(10, 'alphanumeric', cnt=10)
+      
+      Validate: |
+        this.test_result = str(res)
+        assert (len(res) == cnt), 'res contains {0} records'.format(cnt)
+        assert (len(res[-1]) == 10), 'string contains 10 characters'
+        
+        valid = True
+        for c in res[-1]:
+            if (c not in ascii_letters + digits):
+                valid = False
+        
+        assert (valid), 'string contains valid characters'            
+        
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/yoda/util/data/01_methods_ut.jedi
+  Name: gen_date
+  Desc: Test method gen_date
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.util.data import gen_date
+    from hydratk.extensions.yoda.util.check import regex
+    from datetime import datetime
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_gen_date
+    Desc: Generate random date
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_iso
+      Desc: Date with ISO format
+      
+      Test: |
+        res = gen_date('iso')
+      
+      Validate: |            
+        this.test_result = res  
+        expr = '^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+)$'
+        assert (regex(res, expr) == res), 'date in ISO format'   
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_unix
+      Desc: Date with UNIX format
+                                                       
+      Test: |
+        res = gen_date('unix')
+      
+      Validate: |                                                      
+        this.test_result = res
+        assert (res.__class__.__name__ == 'int'), 'date in UNIX format'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_date
+      Desc: Date with custom date format
+      
+      Test: |
+        res = gen_date('%Y-%m-%d')
+      
+      Validate: |            
+        this.test_result = res  
+        expr = '^(\d{4}-\d{2}-\d{2})$'
+        assert (regex(res, expr) == res), 'date in YYYY-MM-DD format'          
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_datetime
+      Desc: Date with custom datetime format
+      
+      Test: |
+        res = gen_date('%Y-%m-%d %H:%M:%S')
+      
+      Validate: |            
+        this.test_result = res  
+        expr = '^(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2})$'
+        assert (regex(res, expr) == res), 'date in YYYY-MM-DD hh:mm:ss format'     
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_iso_zone
+      Desc: Date with ISO format with time zone
+      
+      Test: |
+        res = gen_date('iso', time_zone='UTC')
+      
+      Validate: |            
+        this.test_result = res  
+        expr = '^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+\+00:00)$'
+        assert (regex(res, expr) == res), 'date in ISO format'         
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_datetime_zone
+      Desc: Date with custom datetime format and time zone
+      
+      Test: |
+        res = gen_date('%Y-%m-%d %H:%M:%S %z', time_zone='UTC')
+      
+      Validate: |            
+        this.test_result = res  
+        expr = '^(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2} \+\d{4})$'
+        assert (regex(res, expr) == res), 'date in YYYY-MM-DD hh:mm:ss format'     
+        
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_current_year
+      Desc: Random date with current year
+      
+      Test: |
+        dform = '%Y%m%d%H%M%S'
+        res = gen_date(dform, current='year')
+      
+      Validate: |                 
+        this.test_result = res
+        exp = datetime.now().year
+        date = datetime.strptime(res, dform)
+        assert (date.year == exp), 'year = {0}'.format(exp)
+        
+    Test-Condition-8: 
+      Id: tco_08
+      Name: tco_current_month
+      Desc: Random date with current month
+      
+      Test: |
+        res = gen_date(dform, current='month')
+      
+      Validate: |                 
+        this.test_result = res
+        exp = datetime.now().month
+        date = datetime.strptime(res, dform)
+        assert (date.month == exp), 'month = {0}'.format(exp)
+        
+    Test-Condition-9: 
+      Id: tco_09
+      Name: tco_current_day
+      Desc: Random date with current day
+      
+      Test: |
+        res = gen_date(dform, current='day')
+      
+      Validate: |                 
+        this.test_result = res
+        exp = datetime.now().day
+        date = datetime.strptime(res, dform)
+        assert (date.day == exp), 'day = {0}'.format(exp)
+        
+    Test-Condition-10: 
+      Id: tco_10
+      Name: tco_current_hour
+      Desc: Random date with current hour
+      
+      Test: |
+        res = gen_date(dform, current='hour')
+      
+      Validate: |                 
+        this.test_result = res
+        exp = datetime.now().hour
+        date = datetime.strptime(res, dform)
+        assert (date.hour == exp), 'hour = {0}'.format(exp)
+        
+    Test-Condition-11: 
+      Id: tco_11
+      Name: tco_current_minute
+      Desc: Random date with current minute
+      
+      Test: |
+        res = gen_date(dform, current='minute')
+      
+      Validate: |                 
+        this.test_result = res
+        exp = datetime.now().minute
+        date = datetime.strptime(res, dform)
+        assert (date.minute == exp), 'minute = {0}'.format(exp) 
+        
+    Test-Condition-12: 
+      Id: tco_12
+      Name: tco_interval
+      Desc: Random date from interval                                       
+      
+      Test: |
+        start, end = '20160925124536', '20161015132800'
+        res = gen_date(dform, start=start, end=end)
+      
+      Validate: |
+        this.test_result = res
+        date = datetime.strptime(res, dform)
+        assert (date >= datetime.strptime(start, dform) and date <= datetime.strptime(end, dform)), 'date between <start,end>'
+        
+    Test-Condition-13: 
+      Id: tco_13
+      Name: tco_interval_start
+      Desc: Random date from interval with start                                       
+      
+      Test: |        
+        res = gen_date(dform, start=start)
+      
+      Validate: |
+        this.test_result = res
+        date = datetime.strptime(res, dform)
+        assert (date >= datetime.strptime(start, dform) and date <= datetime.now()), 'date between <start,now>'    
+        
+    Test-Condition-14: 
+      Id: tco_14
+      Name: tco_interval_end
+      Desc: Random date from interval with end                                       
+      
+      Test: |  
+        end = '21161015132800'      
+        res = gen_date(dform, end=end)
+      
+      Validate: |
+        this.test_result = res
+        date = datetime.strptime(res, dform)
+        assert (date >= datetime.now() and date <= datetime.strptime(end, dform)), 'date between <now,end>' 
+        
+    Test-Condition-15: 
+      Id: tco_15
+      Name: tco_invalid_interval
+      Desc: Invalid interval, ValueError is raised
+      
+      Test: |
+        try:
+            end, start = '20160925124536', '20161015132800'
+            gen_date(start=start, end=end)
+            ex = False
+        except ValueError:
+            ex = True        
+      
+      Validate: |    
+        this.test_result = ex
+        assert (ex), 'gen_date raises ValueError' 
+        
+    Test-Condition-16: 
+      Id: tco_16
+      Name: tco_invalid_current
+      Desc: Invalid current, ValueError is raised   
+      
+      Test: |
+        try:
+            gen_date(current='xxx')
+            ex = False
+        except ValueError:
+            ex = True        
+      
+      Validate: |    
+        this.test_result = ex
+        assert (ex), 'gen_date raises ValueError' 
+        
+    Test-Condition-17: 
+      Id: tco_17
+      Name: tco_invalid_format
+      Desc: Invalid date format, ValueError is raised   
+      
+      Test: |
+        try:
+            gen_date('xxx', start='20160925')
+            ex = False
+        except ValueError:
+            ex = True
+        
+      Validate: |
+        this.test_result = ex
+        assert (ex), 'gen_date raises ValueError'
+        
+    Test-Condition-18: 
+      Id: tco_18
+      Name: tco_invalid_zone
+      Desc: Invalid time zone, ValueError is raised   
+      
+      Test: |
+        try:
+            gen_date(time_zone='xxx')
+            ex = False
+        except ValueError:
+            ex = True
+        
+      Validate: |
+        this.test_result = ex
+        assert (ex), 'gen_date raises ValueError' 
+        
+    Test-Condition-19: 
+      Id: tco_19
+      Name: tco_date_mult
+      Desc: Multiple dates with custom date format
+      
+      Test: |
+        cnt = 10
+        res = gen_date('%Y-%m-%d', cnt=cnt)
+      
+      Validate: |            
+        this.test_result = str(res)
+        assert (len(res) == cnt), 'res contains {0} records'.format(cnt)  
+        expr = '^(\d{4}-\d{2}-\d{2})$'
+        assert (regex(res[-1], expr) == res[-1]), 'date in YYYY-MM-DD format'   
+        
+    Test-Condition-20: 
+      Id: tco_20
+      Name: tco_current_hour_mult
+      Desc: Multiple random dates with current hour
+      
+      Test: |
+        res = gen_date(dform, current='hour', cnt=cnt)
+      
+      Validate: |                 
+        this.test_result = str(res)
+        assert (len(res) == cnt), 'res contains {0} records'.format(cnt)
+        exp = datetime.now().hour
+        date = datetime.strptime(res[-1], dform)
+        assert (date.hour == exp), 'hour = {0}'.format(exp)    
+        
+    Test-Condition-21: 
+      Id: tco_21
+      Name: tco_interval_mult
+      Desc: Multiple random dates from interval                                       
+      
+      Test: |
+        start, end = '20160925124536', '20161015132800'
+        res = gen_date(dform, start=start, end=end, cnt=cnt)
+      
+      Validate: |
+        this.test_result = str(res)
+        assert (len(res) == cnt), 'res contains {0} records'.format(cnt)
+        date = datetime.strptime(res[-1], dform)
+        assert (date >= datetime.strptime(start, dform) and date <= datetime.strptime(end, dform)), 'date between <start,end>'                           
+        
+Test-Scenario-5:
+  Id: ts_05
+  Path: hydratk/extensions/yoda/util/data/01_methods_ut.jedi
+  Name: gen_ip
+  Desc: Test method gen_ip
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.util.data import gen_ip
+    from hydratk.extensions.yoda.util.check import regex
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_gen_ip
+    Desc: Generate random IP address
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_v4
+      Desc: IP version 4
+      
+      Test: |
+        res = gen_ip(4)
+      
+      Validate: |      
+        this.test_result = res
+        expr = '^(\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})$' 
+        assert (regex(res, expr) == res), 'ip in v4 format'
+    
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_v6
+      Desc: IP version 6
+      
+      Test: |
+        res = gen_ip(6)
+      
+      Validate: |      
+        this.test_result = res
+        expr = '^([0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4})$' 
+        assert (regex(res, expr) == res), 'ip in v6 format' 
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_invalid_version
+      Desc: Invalid version, raises ValueError
+      
+      Test: |
+        try:
+            gen_ip(5)
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |        
+        this.test_result = ex
+        assert (ex), 'gen_ip raises ValueError'
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_v4_mult
+      Desc: Multiple IP version 4
+      
+      Test: |
+        cnt = 10
+        res = gen_ip(4, cnt=cnt)
+      
+      Validate: |      
+        this.test_result = str(res)
+        assert (len(res) == cnt), 'res contains {0} records'.format(cnt)
+        expr = '^(\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})$' 
+        assert (regex(res[-1], expr) == res[-1]), 'ip in v4 format'   
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_v6_mult
+      Desc: Multiple IP version 6
+      
+      Test: |
+        res = gen_ip(6, cnt=cnt)
+      
+      Validate: |      
+        this.test_result = str(res)
+        assert (len(res) == cnt), 'res contains {0} records'.format(cnt)        
+        expr = '^([0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4})$' 
+        assert (regex(res[-1], expr) == res[-1]), 'ip in v6 format'    
+        
+Test-Scenario-6:
+  Id: ts_06
+  Path: hydratk/extensions/yoda/util/data/01_methods_ut.jedi
+  Name: gen_birth_no
+  Desc: Test method gen_birth_no
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.util.data import gen_birth_no
+    from hydratk.extensions.yoda.util.check import regex
+    from datetime import datetime
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_gen_birth_no
+    Desc: Generate random birth number
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_male
+      Desc: Male birth number
+      
+      Test: |
+        res = gen_birth_no(male=True)
+      
+      Validate: |                  
+        this.test_result = res
+        assert (len(res) == 10), 'res contains 10 digits'
+        valid = (int(res)%11 == 0) or res[-1] == '0'
+        assert (valid), 'birth number is valid' 
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_female
+      Desc: Female birth number
+      
+      Test: |
+        res = gen_birth_no(male=False)
+      
+      Validate: |                  
+        this.test_result = res
+        assert (len(res) == 10), 'res contains 10 digits'
+        valid = (int(res)%11 == 0) or res[-1] == '0'
+        assert (valid), 'birth number is valid'         
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_delimiter
+      Desc: Birth number with delimiter
+              
+      Test: |
+        res = gen_birth_no(delimiter=True)
+      
+      Validate: |
+        this.test_result = res
+        expr = '^(\d{6}/\d{4})$'
+        assert (regex(res, expr) == res), 'birth number with format YYMMDD/XXXX'
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_20_century
+      Desc: Birth number in 20th century
+              
+      Test: |
+        min_age, max_age= 30, 35
+        res = gen_birth_no(min_age=min_age, max_age=max_age)
+      
+      Validate: |
+        this.test_result = res
+        cur_year = datetime.now().year
+        year = int('19'+res[:2])
+        assert ((cur_year-year >= min_age) and (cur_year-year <= max_age))
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_21_century
+      Desc: Birth number in 21st century
+              
+      Test: |
+        min_age, max_age = 10, 15
+        res = gen_birth_no(min_age=min_age, max_age=max_age)
+      
+      Validate: |
+        this.test_result = res
+        cur_year = datetime.now().year
+        year = int('20'+res[:2])
+        assert ((cur_year-year >= min_age) and (cur_year-year <= max_age))        
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_invalid_interval
+      Desc: Invalid age interval, ValueError is raised
+      
+      Test: |
+        try:
+            gen_birth_no(15,10)
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |    
+        this.test_result = ex
+        assert (ex), 'gen_birth_no raises ValueError'    
+        
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_male_mult
+      Desc: Multiple male birth numbers
+      
+      Test: |
+        cnt = 10
+        res = gen_birth_no(male=True, cnt=cnt)
+      
+      Validate: |                  
+        this.test_result = str(res)
+        assert (len(res) == cnt), 'res contains {0} records'.format(cnt)
+        valid = (int(res[-1])%11 == 0) or res[-1][-1] == '0'
+        assert (valid), 'birth number is valid'        
+        
+Test-Scenario-7:
+  Id: ts_07
+  Path: hydratk/extensions/yoda/util/data/01_methods_ut.jedi
+  Name: gen_reg_no
+  Desc: Test method gen_reg_no
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.util.data import gen_reg_no
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_gen_reg_no
+    Desc: Generate random registration number
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_reg_no
+      Desc: Registration number
+      
+      Test: |
+        res = gen_reg_no()
+      
+      Validate: |        
+        this.test_result = res
+        rem = (int(res[0])*8 + int(res[1])*7 + int(res[2])*6 + int(res[3])*5 + int(res[4])*4 + int(res[5])*3 + int(res[6])*2) % 11
+        assert (int(res[7]) == ((11-rem) % 10)), 'control digit according to algorithm'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_reg_no_mult
+      Desc: Multiple registration numbers
+      
+      Test: |
+        cnt=10
+        res = gen_reg_no(cnt=cnt)
+      
+      Validate: |        
+        this.test_result = str(res)
+        assert (len(res) == cnt), 'res contains {0} records'.format(cnt)
+        rem = (int(res[-1][0])*8 + int(res[-1][1])*7 + int(res[-1][2])*6 + int(res[-1][3])*5 + int(res[-1][4])*4 + int(res[-1][5])*3 + int(res[-1][6])*2) % 11
+        assert (int(res[-1][7]) == ((11-rem) % 10)), 'control digit according to algorithm'
+        
+Test-Scenario-8:
+  Id: ts_08
+  Path: hydratk/extensions/yoda/util/data/01_methods_ut.jedi
+  Name: gen_tax_no
+  Desc: Test method gen_tax_no
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.util.data import gen_tax_no
+    from hydratk.extensions.yoda.util.check import regex
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_gen_tax_no
+    Desc: Generate random tax number
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_reg_no
+      Desc: Tax number from registration number
+      
+      Test: |
+        res = gen_tax_no(src='reg_no')
+      
+      Validate: |        
+        this.test_result = res
+        expr = '^(CZ\d{8})$'
+        assert  (regex(res, expr) == res), 'tax number with format CZXXXXXXXX'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_birth_no
+      Desc: Tax number from birth number
+      
+      Test: |
+        res = gen_tax_no(src='birth_no')
+      
+      Validate: |        
+        this.test_result = res
+        expr = '^(CZ\d{10})$'
+        assert  (regex(res, expr) == res), 'tax number with format CZXXXXXXXXXX'        
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_invalid_source
+      Desc: Invalid source, ValueError is raised
+      
+      Test: |
+        try:
+            gen_tax_no(src='xxx')
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |
+        this.test_result = ex
+        assert (ex), 'gen_tax_no raises ValueError'        
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_reg_no_mult
+      Desc: Multiple tax numbers from registration number
+      
+      Test: |
+        cnt = 10
+        res = gen_tax_no(src='reg_no', cnt=cnt)
+      
+      Validate: |        
+        this.test_result = str(res)
+        assert (len(res) == cnt), 'res contains {0} records'.format(cnt)
+        expr = '^(CZ\d{8})$'
+        assert  (regex(res[-1], expr) == res[-1]), 'tax number with format CZXXXXXXXX'  
+        
+Test-Scenario-9:
+  Id: ts_09
+  Path: hydratk/extensions/yoda/util/data/01_methods_ut.jedi
+  Name: gen_account_no
+  Desc: Test method gen_account_no
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.util.data import gen_account_no
+    from hydratk.extensions.yoda.util.check import regex
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_gen_account_no
+    Desc: Generate random account number
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_national
+      Desc: Account number with national format
+      
+      Test: |
+        res = gen_account_no(form='nat')
+      
+      Validate: |                     
+        this.test_result = res
+        expr = '^(\d{10}/\d{4})$'
+        assert (regex(res, expr) == res), 'account in national format'      
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_national_prefix
+      Desc: Account number with national format with prefix
+      
+      Test: |
+        res = gen_account_no(form='nat', prefix=True)
+      
+      Validate: |                     
+        this.test_result = res
+        expr = '^(\d{6}-\d{10}/\d{4})$'
+        assert (regex(res, expr) == res), 'account in national format'   
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_iban
+      Desc: Account number with IBAN format
+      
+      Test: |
+        res = gen_account_no(form='iban')
+      
+      Validate: |                     
+        this.test_result = res
+        expr = '^(CZ\d{20})$'
+        assert (regex(res, expr) == res), 'account in IBAN format'      
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_iban_prefix
+      Desc: Account number with IBAN format with prefix
+      
+      Test: |
+        res = gen_account_no(form='iban', prefix=True)
+      
+      Validate: |                     
+        this.test_result = res
+        assert (regex(res, expr) == res), 'account in IBAN format'   
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_length
+      Desc: Account number with given length
+      
+      Test: |
+        res = gen_account_no(prefix=True, base_len=6, prefix_len=3)
+        
+      Validate: |                               
+        this.test_result = res
+        expr = '^(\d{3}-\d{6}/\d{4})$'
+        assert (regex(res, expr) == res), 'account in national format' 
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_bank
+      Desc: Account number with given bank code
+      
+      Test: |
+        res = gen_account_no(bank='0100')
+      
+      Validate: |        
+        this.test_result = res
+        expr = '^(\d{10}/0100)$'
+        assert (regex(res, expr) == res), 'account in national format'          
+        
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_invalid_format
+      Desc: Invalid format, raises ValueError
+      
+      Test: |
+        try:
+            gen_account_no(form='xxx')
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |    
+        this.test_result = ex
+        assert (ex), 'gen_account_no raises ValueError'     
+        
+    Test-Condition-8: 
+      Id: tco_08
+      Name: tco_invalid_base_len
+      Desc: Invalid base length, raises ValueError
+      
+      Test: |
+        try:
+            gen_account_no(base_len=1)
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |    
+        this.test_result = ex
+        assert (ex), 'gen_account_no raises ValueError' 
+        
+    Test-Condition-9: 
+      Id: tco_09
+      Name: tco_invalid_prefix_len
+      Desc: Invalid prefix length, raises ValueError
+      
+      Test: |
+        try:
+            gen_account_no(prefix_len=1)
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |    
+        this.test_result = ex
+        assert (ex), 'gen_account_no raises ValueError'  
+        
+    Test-Condition-10: 
+      Id: tco_10
+      Name: tco_national_mult
+      Desc: Multiple account numbers with national format
+      
+      Test: |
+        cnt = 10
+        res = gen_account_no(cnt=cnt)
+        
+      Validate: |                     
+        this.test_result = str(res)
+        assert (len(res) == cnt), 'res contains {0}'.format(records)
+        expr = '^(\d{10}/\d{4})$'
+        assert (regex(res[-1], expr) == res[-1]), 'account in national format'  
+        
+Test-Scenario-10:
+  Id: ts_10
+  Path: hydratk/extensions/yoda/util/data/01_methods_ut.jedi
+  Name: gen_email
+  Desc: Test method gen_email
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.util.data import gen_email
+    from hydratk.extensions.yoda.util.check import regex
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_gen_email
+    Desc: Generate random email
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_original
+      Desc: Random email with original domain
+      
+      Test: |
+        res = gen_email(domain=None, domain_type='original')
+      
+      Validate: |                   
+        this.test_result = res
+        expr = '^(\w{8}@\w{6}\.\w{2,4})$'  
+        assert (regex(res, expr) == res), 'email in correct format'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_country
+      Desc: Random email with country domain
+      
+      Test: |
+        res = gen_email(domain=None, domain_type='country')
+      
+      Validate: |                   
+        this.test_result = res
+        expr = '^(\w{8}@\w{6}\.\w{2})$'  
+        assert (regex(res, expr) == res), 'email in correct format'  
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_domain
+      Desc: Random email with given domain
+      
+      Test: |
+        res = gen_email(domain='.com')
+      
+      Validate: |                   
+        this.test_result = res
+        expr = '^(\w{8}@\w{6}\.com)$'  
+        assert (regex(res, expr) == res), 'email in correct format'     
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_subdomain
+      Desc: Random email with given subdomain
+      
+      Test: |
+        res = gen_email(subdomain='test')
+      
+      Validate: |                   
+        this.test_result = res
+        expr = '^(\w{8}@test\.com)$'  
+        assert (regex(res, expr) == res), 'email in correct format'  
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_len
+      Desc: Random email with given lengths
+      
+      Test: |        
+        res = gen_email(name_len=5, subdomain_len=4)
+      
+      Validate: |                   
+        this.test_result = res
+        expr = '^(\w{5}@\w{4}\.com)$'  
+        assert (regex(res, expr) == res), 'email in correct format'                             
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_invalid_type
+      Desc: Invalid domain type, raises ValueError
+      
+      Test: |
+        try:
+            gen_email(domain_type='xxx')
+            ex = False
+        except ValueError:
+            ex = True
+      
+      Validate: |                          
+        this.test_result = ex
+        assert (ex), 'gen_email raises ValueError'
+        
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_original_mult
+      Desc: Multiple random emails with original domain
+      
+      Test: |
+        cnt = 10
+        res = gen_email(domain=None, cnt=cnt)
+        
+      Validate: |                   
+        this.test_result = str(res)
+        assert (len(res) == cnt), ' res contains {0} records'.format(cnt)
+        expr = '^(\w{8}@\w{6}\.\w{2,4})$'  
+        assert (regex(res[-1], expr) == res[-1]), 'email in correct format'                                                  

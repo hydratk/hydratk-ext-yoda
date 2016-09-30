@@ -24,6 +24,9 @@ sys.path.append('../src')
 
 autodoc_default_flags = ['members', 'private-members', 'special-members']
 autodoc_mock_imports = [
+                        'lxml.etree',
+                        'pytz', 'pytz.exceptions',
+                        'simplejson', 'simplejson.scanner'
                        ]
 
 # If your documentation needs a minimal Sphinx version, state it here.

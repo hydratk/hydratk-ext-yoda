@@ -1,0 +1,338 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/yoda/util/check/01_methods_ut.jedi
+  Name: load_json
+  Desc: Test method load_json
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.util.check import load_json
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_load_json
+    Desc: Load JSON
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_load
+      Desc: Load
+    
+      Test: |
+        doc = '{"store": {"bicycle": {"color": "red", "price": 19.95}}}'
+        res = load_json(doc)
+      
+      Validate: |
+        this.test_result = str(res)
+        assert (res != None), 'load_json is not empty'
+        exp = 'red'
+        assert (res['store']['bicycle']['color'] == exp), 'color = {0}'.format(exp) 
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_invalid
+      Desc: Invalid JSON
+       
+      Test: |
+        doc = '{"store": {"bicycle": {"color": "red", "price": 19.95}}'
+        res = load_json(doc)
+      
+      Validate: |
+        this.test_result = str(res)
+        assert (res == None), 'load_json is empty'      
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/yoda/util/check/01_methods_ut.jedi
+  Name: load_xml
+  Desc: Test method load_xml
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.util.check import load_xml
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_load_xml
+    Desc: Load XML
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_load
+      Desc: Load
+    
+      Test: |
+        doc = '<foo><bar>xxx</bar></foo>'
+        res = load_xml(doc)
+      
+      Validate: |
+        this.test_result = str(res)
+        assert (res != None), 'load_xml is not empty'
+        exp = 'xxx'
+        assert (res.xpath('/foo/bar/text()')[0] == exp), 'bar = {0}'.format(exp) 
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_invalid
+      Desc: Invalid XML
+       
+      Test: |
+        doc = '<foo><bar>xxx</bar></foo'
+        res = load_xml(doc)
+      
+      Validate: |
+        this.test_result = str(res)
+        assert (res == None), 'load_xml is empty'  
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/yoda/util/check/01_methods_ut.jedi
+  Name: xpath
+  Desc: Test method xpath
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.util.check import load_xml, xpath
+    
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_xpath
+    Desc: Perform XPATH query
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_elem_text
+      Desc: Get element text
+    
+      Test: |
+        doc = '<foo><bar at="yyy">xxx</bar></foo>'
+        xml = load_xml(doc)
+        expr = '/foo/bar'
+        res = xpath(xml, expr)                      
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = 'xxx'
+        assert (res == exp), 'xpath = {0}'.format(exp)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_elem_attr
+      Desc: Get element attribute
+      
+      Test: |
+        res = xpath(xml, expr, attribute='at')
+      
+      Validate: |
+        this.test_result = str(res)
+        exp = 'yyy'
+        assert (res == exp), 'xpath = {0}'.format(exp) 
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_xpath_text
+      Desc: XPATH with text
+      
+      Test: |
+        expr = '/foo/bar/text()'
+        res = xpath(xml, expr, get_text=False)
+      
+      Validate: |   
+        this.test_result = str(res)
+        exp = 'xxx'
+        assert (res == exp), 'xpath = {0}'.format(exp)         
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_xpath_attr
+      Desc: XPATH with attribute
+      
+      Test: |
+        expr = '/foo/bar/@at'
+        res = xpath(xml, expr, get_text=False)
+      
+      Validate: |   
+        this.test_result = str(res)
+        exp = 'yyy'
+        assert (res == exp), 'xpath = {0}'.format(exp) 
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_xpath_filter
+      Desc: XPATH with filter
+      
+      Test: |
+        expr = '/foo/bar[@at="yyy"]'
+        res = xpath(xml, expr)
+        
+      Validate: |   
+        this.test_result = str(res)
+        exp = 'xxx'
+        assert (res == exp), 'xpath = {0}'.format(exp)      
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_xpath_ns
+      Desc: XPATH with namespace
+      
+      Test: |
+        doc = '<a:foo xmlns:a="aaa" xmlns:b="bbb"><b:bar>xxx</b:bar></a:foo>'
+        expr = '/a:foo/b:bar'
+        res = xpath(doc, expr, ns={'a':'aaa', 'b':'bbb'})
+      
+      Validate: | 
+        this.test_result = str(res)
+        exp = 'xxx'
+        assert (res == exp), 'xpath = {0}'.format(exp)   
+        
+  Test-Case-2:
+    Id: tc_02
+    Name: tc_negative
+    Desc: Negative cases
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_invalid_xml
+      Desc: Invalid xml
+      
+      Test: |
+        doc = '<foo><bar>xxx</bar></foo'
+        res = xpath(doc, '') 
+      
+      Validate: |        
+        this.test_result = res
+        assert (res == None), 'xpath = None'  
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_invalid_xpath
+      Desc: Invalid xpath
+      
+      Test: |
+        doc = '<foo><bar>xxx</bar></foo>'
+        expr = '/foo/bar/tex()'
+        res = xpath(doc, expr)
+      
+      Validate: |     
+        this.test_result = res
+        assert (res == None), 'xpath = None' 
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_invalid_ns
+      Desc: Invalid namespace
+      
+      Test: |
+        doc = '<a:foo xmlns:a="aaa" xmlns:b="bbb"><b:bar>xxx</b:bar></a:foo>'
+        expr = '/a:foo/c:bar'
+        res = xpath(doc, expr, ns={'a':'aaa', 'b':'bbb'})      
+      
+      Validate: |   
+        this.test_result = res
+        assert (res == None), 'xpath = None'  
+        
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/yoda/util/check/01_methods_ut.jedi
+  Name: regex
+  Desc: Test method regex
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.util.check import regex
+    
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_regex
+    Desc: Perform regular expression search
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_single
+      Desc: Single match
+      
+      Test: |
+        data = 'ab c2e*f'
+        expr = '^.*(\d).*$'
+        res = regex(data, expr)
+      
+      Validate: |              
+        this.test_result = str(res)
+        exp = '2'
+        assert (res == exp), 'regex = {0}'.format(exp) 
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_mult
+      Desc: Multiple matches                                               
+      
+      Test: |
+        expr = '^.*([cd]).*(\w)$'
+        res = regex(data, expr)
+      
+      Validate: |
+        this.test_result = str(res)
+        exp = ('c', 'f')
+        assert (res == exp), 'regex = {0}'.format(exp) 
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_no_match
+      Desc: No match
+      
+      Test: |
+        expr = '^(\w{3}).*$'
+        res = regex(data, expr)
+      
+      Validate: |             
+        this.test_resuls = str(res)
+        assert (res == None), 'regex = None'
+        
+  Test-Case-2:
+    Id: tc_02
+    Name: tc_negative
+    Desc: Negative cases
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_invalid_regex
+      Desc: Invalid regular expression
+      
+      Test: |
+        data = 'ab c2e*f'
+        expr = '^(\w+$'
+        res = regex(data, expr)
+      
+      Validate: |  
+        this.test_result = res
+        assert (res == None), 'res = None'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_invalid_character
+      Desc: Invalid character
+      
+      Test: |
+        expr = r'^(\x)$'
+        res = regex(data, expr)
+      
+      Validate: |  
+        this.test_result = res
+        assert (res == None), 'res = None' 
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_invalid_repeat
+      Desc: Invalid repeating
+      
+      Test: |
+        expr = '^(\w{3,2})$'
+        res = regex(data, expr)
+      
+      Validate: |  
+        this.test_result = res
+        assert (res == None), 'res = None'                 

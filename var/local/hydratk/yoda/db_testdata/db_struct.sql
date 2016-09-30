@@ -1,0 +1,118 @@
+DROP TABLE IF EXISTS bank;
+CREATE TABLE bank (
+  code VARCHAR NOT NULL,
+  title VARCHAR,
+  swift VARCHAR,
+  PRIMARY KEY(code)
+);
+
+DROP TABLE IF EXISTS domain;
+CREATE TABLE domain (
+  code VARCHAR NOT NULL,
+  title VARCHAR,
+  type VARCHAR NOT NULL,
+  PRIMARY KEY(code)
+);
+
+DROP TABLE IF EXISTS first_name;
+CREATE TABLE first_name (
+  name VARCHAR NOT NULL,
+  sex VARCHAR,
+  PRIMARY KEY(name) 
+);
+
+DROP TABLE IF EXISTS surname;
+CREATE TABLE surname (
+  name VARCHAR NOT NULL,
+  sex VARCHAR,
+  PRIMARY KEY(name) 
+);
+
+DROP TABLE IF EXISTS cc;
+CREATE TABLE cc (
+  code INTEGER NOT NULL,
+  title VARCHAR,
+  PRIMARY KEY(code)
+);
+
+DROP TABLE IF EXISTS region;
+CREATE TABLE region (
+  code INTEGER NOT NULL,
+  title VARCHAR NOT NULL,
+  PRIMARY KEY(code)
+);
+
+DROP TABLE IF EXISTS district;
+CREATE TABLE district (
+  code INTEGER NOT NULL,
+  title VARCHAR NOT NULL,
+  region INTEGER NOT NULL,
+  PRIMARY KEY(code)
+);
+
+DROP TABLE IF EXISTS area;
+CREATE TABLE area (
+  code INTEGER NOT NULL,
+  title VARCHAR NOT NULL,
+  district INTEGER NOT NULL,
+  PRIMARY KEY(code) 
+);
+
+DROP TABLE IF EXISTS locality;
+CREATE TABLE locality (
+  code INTEGER NOT NULL,
+  title VARCHAR NOT NULL,
+  area INTEGER NOT NULL,
+  PRIMARY KEY (code)
+);
+
+DROP TABLE IF EXISTS part;
+CREATE TABLE part (
+  code INTEGER NOT NULL,
+  title VARCHAR NOT NULL,
+  zip INTEGER NOT NULL,
+  locality INTEGER NOT NULL,  
+  PRIMARY KEY (code)
+);
+
+DROP TABLE IF EXISTS street;
+CREATE TABLE street (
+  code INTEGER NOT NULL,
+  title VARCHAR NOT NULL,
+  part INTEGER NOT NULL,
+  PRIMARY KEY (code)
+);
+
+DROP TABLE IF EXISTS data;
+CREATE TABLE data (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  type INTEGER NOT NULL,
+  active INTEGER,
+  col1 VARCHAR,
+  col2 VARCHAR,
+  col3 VARCHAR,
+  col4 VARCHAR,
+  col5 VARCHAR,
+  col6 VARCHAR,
+  col7 VARCHAR,
+  col8 VARCHAR,
+  col9 VARCHAR,
+  col10 VARCHAR
+);
+
+DROP TABLE IF EXISTS data_type;
+CREATE TABLE data_type (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title VARCHAR NOT NULL UNIQUE,
+  description VARCHAR,
+  col1_title VARCHAR,
+  col2_title VARCHAR,
+  col3_title VARCHAR,
+  col4_title VARCHAR,
+  col5_title VARCHAR,
+  col6_title VARCHAR,
+  col7_title VARCHAR,
+  col8_title VARCHAR,
+  col9_title VARCHAR,
+  col10_title VARCHAR
+);
