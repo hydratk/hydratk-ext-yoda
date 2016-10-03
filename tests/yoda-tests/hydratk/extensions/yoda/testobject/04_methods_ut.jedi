@@ -9,7 +9,7 @@ Test-Scenario-1:
   Pre-Req: |
     from hydratk.extensions.yoda.testobject import TestRun
     from hydratk.extensions.yoda.testengine import TestEngine
-    from hydratk.lib.network.dbi.client import DBClient
+    from hydratk.lib.database.dbo.dbo import DBO
     from yodalib.hydratk.core.testhead import TestHead
     from os import remove
   
@@ -26,22 +26,21 @@ Test-Scenario-1:
       Test: |
         th = TestHead()
         ext = th._ext['Yoda']
-        file, name, query = '/var/local/hydratk/test.db3', 'test', 'SELECT * FROM test_run'
-        th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        file, name, query = '/var/local/hydratk/test.db3', 'test', 'SELECT name FROM test_run'
+        dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:'+file
         te = ext._test_engine = TestEngine()
         te._test_results_db = ext.create_test_results_db()      
         tr = te._test_run = TestRun()  
         tr._te = te     
         tr._name = name
         tr.create_db_record()      
-        c = DBClient('SQLITE')
-        c.connect(file)
-        res, recs = c.exec_query(query)
+        c = DBO(dsn)._dbo_driver        
+        recs = c.execute(query).fetchall()
       
       Validate: |                                                      
         this.test_result = str(recs)
         assert (len(recs) == 1), 'table contains 1 record'
-        res = recs[0]['name']
+        res = recs[0][0]
         assert (res == name), 'name = {0}'.format(name)
         
     Test-Condition-2: 
@@ -53,13 +52,12 @@ Test-Scenario-1:
         name = 'test 2'
         tr._name = name
         tr.update_db_record()
-        res, recs = c.exec_query(query)
+        recs = c.execute(query).fetchall()
       
       Validate: |   
         this.test_result = str(recs)
-        res = recs[0]['name']
+        res = recs[0][0]
         assert (res == name), 'name = {0}'.format(name) 
-        c.disconnect()
         th.clear_cmd()
         remove(file)        
         
@@ -74,7 +72,7 @@ Test-Scenario-2:
   Pre-Req: |
     from hydratk.extensions.yoda.testobject import TestRun, TestSet
     from hydratk.extensions.yoda.testengine import TestEngine
-    from hydratk.lib.network.dbi.client import DBClient
+    from hydratk.lib.database.dbo.dbo import DBO
     from yodalib.hydratk.core.testhead import TestHead
     from os import remove
   
@@ -91,22 +89,21 @@ Test-Scenario-2:
       Test: |
         th = TestHead()
         ext = th._ext['Yoda']
-        file, name, query = '/var/local/hydratk/test.db3', 'test', 'SELECT * FROM test_set'
-        th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        file, name, query = '/var/local/hydratk/test.db3', 'test', 'SELECT tset_id FROM test_set'
+        dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:'+file
         te = ext._test_engine = TestEngine()
         te._test_results_db = ext.create_test_results_db()      
         tr = te._test_run = TestRun()  
         tr._te = te     
         ts = TestSet(tr, name)
         ts.create_db_record()      
-        c = DBClient('SQLITE')
-        c.connect(file)
-        res, recs = c.exec_query(query)
+        c = DBO(dsn)._dbo_driver        
+        recs = c.execute(query).fetchall()
       
       Validate: |                                                      
         this.test_result = str(recs)
         assert (len(recs) == 1), 'table contains 1 record'
-        res = recs[0]['tset_id']
+        res = recs[0][0]
         assert (res == name), 'name = {0}'.format(name)
         
     Test-Condition-2: 
@@ -118,13 +115,12 @@ Test-Scenario-2:
         name = 'test 2'
         ts._current_test_set_file = name
         ts.update_db_record()
-        res, recs = c.exec_query(query)
+        recs = c.execute(query).fetchall()
       
       Validate: |   
         this.test_result = str(recs)
-        res = recs[0]['tset_id']
+        res = recs[0][0]
         assert (res == name), 'name = {0}'.format(name) 
-        c.disconnect()
         th.clear_cmd()
         remove(file)                
         
@@ -139,7 +135,7 @@ Test-Scenario-3:
   Pre-Req: |
     from hydratk.extensions.yoda.testobject import TestRun, TestSet, TestScenario
     from hydratk.extensions.yoda.testengine import TestEngine
-    from hydratk.lib.network.dbi.client import DBClient
+    from hydratk.lib.database.dbo.dbo import DBO
     from yodalib.hydratk.core.testhead import TestHead
     from os import remove
   
@@ -156,8 +152,8 @@ Test-Scenario-3:
       Test: |
         th = TestHead()
         ext = th._ext['Yoda']
-        file, name, query = '/var/local/hydratk/test.db3', 'test', 'SELECT * FROM test_scenario'
-        th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        file, name, query = '/var/local/hydratk/test.db3', 'test', 'SELECT ts_id FROM test_scenario'
+        dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:'+file
         te = ext._test_engine = TestEngine()
         te._test_results_db = ext.create_test_results_db()      
         tr = te._test_run = TestRun()  
@@ -166,14 +162,13 @@ Test-Scenario-3:
         tsc = TestScenario(name, ts, tr)
         tsc._attr['id'] = name
         tsc.create_db_record()      
-        c = DBClient('SQLITE')
-        c.connect(file)
-        res, recs = c.exec_query(query)
+        c = DBO(dsn)._dbo_driver        
+        recs = c.execute(query).fetchall()
       
       Validate: |                                                      
         this.test_result = str(recs)
         assert (len(recs) == 1), 'table contains 1 record'
-        res = recs[0]['ts_id']
+        res = recs[0][0]
         assert (res == name), 'name = {0}'.format(name)
         
     Test-Condition-2: 
@@ -185,13 +180,12 @@ Test-Scenario-3:
         name = 'test 2'
         tsc._attr['id'] = name
         tsc.update_db_record()
-        res, recs = c.exec_query(query)
+        recs = c.execute(query).fetchall()
       
       Validate: |   
         this.test_result = str(recs)
-        res = recs[0]['ts_id']
+        res = recs[0][0]
         assert (res == name), 'name = {0}'.format(name) 
-        c.disconnect()
         th.clear_cmd()
         remove(file)                
         
@@ -206,7 +200,7 @@ Test-Scenario-4:
   Pre-Req: |
     from hydratk.extensions.yoda.testobject import TestRun, TestSet, TestScenario, TestCase
     from hydratk.extensions.yoda.testengine import TestEngine
-    from hydratk.lib.network.dbi.client import DBClient
+    from hydratk.lib.database.dbo.dbo import DBO
     from yodalib.hydratk.core.testhead import TestHead
     from os import remove
   
@@ -223,8 +217,8 @@ Test-Scenario-4:
       Test: |
         th = TestHead()
         ext = th._ext['Yoda']
-        file, name, query = '/var/local/hydratk/test.db3', 'test', 'SELECT * FROM test_case'
-        th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        file, name, query = '/var/local/hydratk/test.db3', 'test', 'SELECT tca_id FROM test_case'
+        dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
         te = ext._test_engine = TestEngine()
         te._test_results_db = ext.create_test_results_db()      
         tr = te._test_run = TestRun()  
@@ -235,14 +229,13 @@ Test-Scenario-4:
         tca = TestCase(name, tsc, tr)
         tca._attr['id'] = name
         tca.create_db_record()      
-        c = DBClient('SQLITE')
-        c.connect(file)
-        res, recs = c.exec_query(query)
+        c = DBO(dsn)._dbo_driver        
+        recs = c.execute(query).fetchall()
       
       Validate: |                                                      
         this.test_result = str(recs)
         assert (len(recs) == 1), 'table contains 1 record'
-        res = recs[0]['tca_id']
+        res = recs[0][0]
         assert (res == name), 'name = {0}'.format(name)
         
     Test-Condition-2: 
@@ -254,13 +247,12 @@ Test-Scenario-4:
         name = 'test 2'
         tca._attr['id'] = name
         tca.update_db_record()
-        res, recs = c.exec_query(query)
+        recs = c.execute(query).fetchall()
       
       Validate: |   
         this.test_result = str(recs)
-        res = recs[0]['tca_id']
+        res = recs[0][0]
         assert (res == name), 'name = {0}'.format(name) 
-        c.disconnect()
         th.clear_cmd()
         remove(file)                 
         
@@ -275,7 +267,7 @@ Test-Scenario-5:
   Pre-Req: |
     from hydratk.extensions.yoda.testobject import TestRun, TestSet, TestScenario, TestCase, TestCondition
     from hydratk.extensions.yoda.testengine import TestEngine
-    from hydratk.lib.network.dbi.client import DBClient
+    from hydratk.lib.database.dbo.dbo import DBO
     from yodalib.hydratk.core.testhead import TestHead
     from os import remove
   
@@ -292,8 +284,8 @@ Test-Scenario-5:
       Test: |
         th = TestHead()
         ext = th._ext['Yoda']
-        file, name, query = '/var/local/hydratk/test.db3', 'test', 'SELECT * FROM test_condition'
-        th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        file, name, query = '/var/local/hydratk/test.db3', 'test', 'SELECT tco_id FROM test_condition'
+        dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
         te = ext._test_engine = TestEngine()
         te._test_results_db = ext.create_test_results_db()      
         tr = te._test_run = TestRun()  
@@ -306,14 +298,13 @@ Test-Scenario-5:
         tco = TestCondition(name, tca, tr)
         tco._attr['id'] = name
         tco.create_db_record()      
-        c = DBClient('SQLITE')
-        c.connect(file)
-        res, recs = c.exec_query(query)
+        c = DBO(dsn)._dbo_driver        
+        recs = c.execute(query).fetchall()
       
       Validate: |                                                      
         this.test_result = str(recs)
         assert (len(recs) == 1), 'table contains 1 record'
-        res = recs[0]['tco_id']
+        res = recs[0][0]
         assert (res == name), 'name = {0}'.format(name)
         
     Test-Condition-2: 
@@ -325,12 +316,11 @@ Test-Scenario-5:
         name = 'test 2'
         tco._attr['id'] = name
         tco.update_db_record()
-        res, recs = c.exec_query(query)
+        recs = c.execute(query).fetchall()
       
       Validate: |   
         this.test_result = str(recs)
-        res = recs[0]['tco_id']
+        res = recs[0][0]
         assert (res == name), 'name = {0}'.format(name) 
-        c.disconnect()
         th.clear_cmd()
         remove(file)                                            

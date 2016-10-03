@@ -14,7 +14,8 @@ config = {
                  ],
           
   'modules' : [    
-               'hydratk',       
+               'hydratk',     
+               'lxml>=3.3.3',  
                'pytz>=2016.6.1',                
                'simplejson>=3.8.2'                                                 
               ],

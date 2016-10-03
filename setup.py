@@ -22,12 +22,13 @@ classifiers = [
     "Programming Language :: Python :: 3.4",
     "Programming Language :: Python :: 3.5",
     "Programming Language :: Python :: Implementation",
-    "Programming Language :: Python :: Implementation :: CPython",  
+    "Programming Language :: Python :: Implementation :: CPython", 
+    "Programming Language :: Python :: Implementation :: PyPy", 
     "Topic :: Software Development :: Libraries :: Application Frameworks",
     "Topic :: Utilities"
 ]
 
-requires = run_pre_install(argv)
+run_pre_install(argv)
 
 entry_points = {
                 'console_scripts': [
@@ -45,7 +46,6 @@ setup(
       url='http://extensions.hydratk.org/yoda',
       license='BSD',
       packages=find_packages('src'),
-      install_requires=requires,
       package_dir={'' : 'src'},
       classifiers=classifiers,
       zip_safe=False, 

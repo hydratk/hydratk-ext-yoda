@@ -185,11 +185,11 @@ Test-Scenario-4:
         
       Validate: |         
         this.test_result = str(res)
-        exp = ['yoda-create-test-results-db', 'yoda-run', 'yoda-simul']
+        exp = ['yoda-create-test-results-db', 'yoda-create-testdata-db', 'yoda-run', 'yoda-simul']
         assert (sorted(res.keys()) == exp), '_cmd_hooks = {0}'.format(exp)
         res = commandopt.long_opt['htk']
         this.test_result = str(res)
-        exp = ['yoda-db-results-dsn', 'yoda-test-path', 'yoda-test-repo-root-dir', 'yoda-test-results-output-create', 'yoda-test-results-output-handler', 'yoda-test-run-name']
+        exp = ['yoda-db-results-dsn', 'yoda-db-testdata-dsn', 'yoda-test-path', 'yoda-test-repo-root-dir', 'yoda-test-results-output-create', 'yoda-test-results-output-handler', 'yoda-test-run-name']
         assert (sorted(res) == exp), 'long_opt = {0}'.format(exp)
         th.clear_cmd()
         
@@ -224,11 +224,11 @@ Test-Scenario-5:
       
       Validate: |   
         this.test_result = str(res)
-        exp = ['create-test-results-db', 'run', 'simul']
+        exp = ['create-test-results-db', 'create-testdata-db', 'run', 'simul']
         assert (sorted(res.keys()) == exp), '_cmd_hooks = {0}'.format(exp)  
         res = commandopt.long_opt['yoda']
         this.test_result = str(res)
-        exp = ['config', 'db-results-dsn', 'debug', 'debug-channel', 'force', 'interactive', 'language', 'run-mode',
+        exp = ['config', 'db-results-dsn', 'db-testdata-dsn', 'debug', 'debug-channel', 'force', 'interactive', 'language', 'run-mode',
                'test-path', 'test-repo-root-dir', 'test-results-output-create', 'test-results-output-handler', 'test-run-name']
         assert (sorted(res) == exp), 'long_opt = {0}'.format(exp)        
         th.clear_cmd()     
@@ -265,11 +265,11 @@ Test-Scenario-6:
       
       Validate: |  
         this.test_result = str(res)
-        exp = ['yoda-create-test-results-db', 'yoda-run', 'yoda-simul']
+        exp = ['yoda-create-test-results-db', 'yoda-create-testdata-db', 'yoda-run', 'yoda-simul']
         assert (sorted(res.keys()) == exp), '_cmd_hooks = {0}'.format(exp)
         res = commandopt.long_opt['htk']
         this.test_result = str(res)
-        exp = ['yoda-db-results-dsn', 'yoda-test-path', 'yoda-test-repo-root-dir', 'yoda-test-results-output-create', 'yoda-test-results-output-handler', 'yoda-test-run-name']
+        exp = ['yoda-db-results-dsn', 'yoda-db-testdata-dsn', 'yoda-test-path', 'yoda-test-repo-root-dir', 'yoda-test-results-output-create', 'yoda-test-results-output-handler', 'yoda-test-run-name']
         assert (sorted(res) == exp), 'long_opt = {0}'.format(exp)        
         th.clear_cmd()    
         
@@ -288,11 +288,11 @@ Test-Scenario-6:
       
       Validate: |  
         this.test_result = str(res)
-        exp = ['create-test-results-db', 'run', 'simul']
+        exp = ['create-test-results-db', 'create-testdata-db', 'run', 'simul']
         assert (sorted(res.keys()) == exp), '_cmd_hooks = {0}'.format(exp)
         res = commandopt.long_opt['yoda']
         this.test_result = str(res)
-        exp = ['config', 'db-results-dsn', 'debug', 'debug-channel', 'force', 'interactive', 'language', 'run-mode',
+        exp = ['config', 'db-results-dsn', 'db-testdata-dsn', 'debug', 'debug-channel', 'force', 'interactive', 'language', 'run-mode',
                'test-path', 'test-repo-root-dir', 'test-results-output-create', 'test-results-output-handler', 'test-run-name']
         assert (sorted(res) == exp), 'long_opt = {0}'.format(exp)           
         th.clear_cmd()    

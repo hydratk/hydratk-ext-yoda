@@ -93,7 +93,7 @@ Test-Scenario-3:
   
   Pre-Req: |
     from hydratk.extensions.yoda.testresults.testresults import TestResultsDB  
-    from hydratk.lib.network.dbi.client import DBClient
+    from hydratk.lib.database.dbo.dbo import DBO
     from os import remove
   
   Test-Case-1:
@@ -108,15 +108,15 @@ Test-Scenario-3:
       
       Test: |
         file = '/var/local/hydratk/test.db3'
-        trdb = TestResultsDB('sqlite:'+file)
+        dsn = 'sqlite:'+file
+        trdb = TestResultsDB(dsn)
         trdb.create_database()
-        c = DBClient('SQLITE')
-        c.connect(file)
-        res, recs = c.exec_query('SELECT * FROM test_run')
+        c = DBO(dsn)._dbo_driver 
+        res = c.execute('SELECT * FROM test_run').fetchall()
       
       Validate: |        
-        this.test_result = res
-        assert (res), 'query executed'
+        this.test_result = str(res)
+        assert (res != None), 'query executed'
         
     Test-Condition-2: 
       Id: tco_02
@@ -140,13 +140,12 @@ Test-Scenario-3:
       Desc: Rewrite enabled
       
       Test: |        
-        trdb.create_database(force=True)
-        c.connect(file)
-        res, recs = c.exec_query('SELECT * FROM test_run')      
+        trdb.create_database(force=True)        
+        res = c.execute('SELECT * FROM test_run').fetchall()      
       
       Validate: |   
-        this.test_result = res
-        assert (res), 'query executed'      
+        this.test_result = str(res)
+        assert (res != None), 'query executed'      
         remove(file)   
         
 Test-Scenario-4:
@@ -206,7 +205,7 @@ Test-Scenario-5:
   
   Pre-Req: |
     from hydratk.extensions.yoda.testresults.testresults import TestResultsDB
-    from hydratk.lib.network.dbi.client import DBClient  
+    from hydratk.lib.database.dbo.dbo import DBO 
     from os import remove
   
   Test-Case-1:
@@ -221,16 +220,16 @@ Test-Scenario-5:
       
       Test: |
         file = '/var/local/hydratk/test.db3'
-        trdb = TestResultsDB('sqlite:'+file)
+        dsn = 'sqlite:'+file
+        trdb = TestResultsDB(dsn)
         trdb.create_database()  
-        c = DBClient('SQLITE')
-        c.connect(file)
+        c = DBO(dsn)._dbo_driver 
         trdb.db_action('create_test_run_record', [1, None, 1, 1, None, None, None, None, None])  
-        res, recs = c.exec_query('SELECT count(*) FROM test_run')           
+        recs = c.execute('SELECT count(*) FROM test_run').fetchall()           
         
       Validate: |
         this.test_result = str(recs)
-        assert (len(recs) == 1), 'table contains 1 record'
+        assert (recs[0][0] == 1), 'table contains 1 record'
         remove(file)
         
 Test-Scenario-6:

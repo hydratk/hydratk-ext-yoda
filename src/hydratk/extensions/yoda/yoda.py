@@ -85,7 +85,7 @@ class Extension(extension.Extension):
            
         self._ext_id      = 'yoda'        
         self._ext_name    = 'Yoda'
-        self._ext_version = '0.2.1'
+        self._ext_version = '0.2.2'
         self._ext_author  = 'Petr Czaderna <pc@hydratk.org>'
         self._ext_year    = '2014 - 2016'
         

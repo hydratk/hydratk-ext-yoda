@@ -2,6 +2,7 @@
 
 from subprocess import call, Popen, PIPE
 from os import path
+from sys import exit
 
 def is_install_cmd(argv):
 
@@ -41,7 +42,8 @@ def install_pck(pckm, pck):
         cmd = 'yum -y install {0}'.format(pck)
         
     if (call(cmd, shell=True) != 0):
-        print('Failed to install package {0}'.format(pck)) 
+        print('Failed to install package {0}, hydratk-ext-yoda installation failed'.format(pck)) 
+        exit(-1)
         
 def create_dir(dst):
     
@@ -73,4 +75,13 @@ def set_rights(path, rights, recursive=True):
         cmd = 'chmod {0} {1}'.format(rights, path)
         
     if (call(cmd, shell=True) != 0):
-        print('Failed to set rights for {0}'.format(path))     
+        print('Failed to set rights for {0}'.format(path))  
+        
+def install_pip(module):
+    
+    print ('Installing module {0}'.format(module))
+    
+    cmd = 'pip install {0}'.format(module) 
+    if (call(cmd, shell=True) != 0):
+        print('Failed to install {0}, hydratk-ext-yoda installation failed'.format(module))
+        exit(-1)              

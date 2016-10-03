@@ -2,11 +2,8 @@
 
 from install.config import config as cfg
 import install.command as cmd
-from os import system
 
 def run_pre_install(argv):  
-    
-    requires = cfg['modules']
     
     if (cmd.is_install_cmd(argv)):      
      
@@ -16,17 +13,15 @@ def run_pre_install(argv):
     
         for task in cfg['pre_tasks']:
             print('\n*** Running task: {0} ***\n'.format(task))
-            requires = globals()[task](requires)          
-    
-    return requires 
+            globals()[task]()          
 
-def install_libs_from_repo(requires):       
+def install_libs_from_repo():       
     
     pckm = cmd.get_pck_manager()[0]  
          
-    libs = cfg['libs']    
+    libs, modules = cfg['libs'], cfg['modules']    
     for key in libs.keys():
-        if (key in requires):
+        if (key in modules):
             lib_inst = []
             if ('repo' in libs[key]):
                 lib_inst += libs[key]['repo']
@@ -35,10 +30,7 @@ def install_libs_from_repo(requires):
             for lib in lib_inst:
                 cmd.install_pck(pckm, lib)   
                 
-    return requires
-                
-def install_pip(requires):   
+def install_pip():   
     
-    system('pip install lxml>=3.3.3')
-    requires.append('lxml>=3.3.3')
-    return requires                           
+    for module in cfg['modules']:
+        cmd.install_pip(module)                     
