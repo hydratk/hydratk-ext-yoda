@@ -337,8 +337,7 @@ class Extension(extension.Extension):
             self._mh.fire_event(ev)                           
             if ev.will_run_default(): 
                 self._check_results()
-            self._mh.stop_pp_app()
-            
+            self._mh.stop_pp_app()            
               
     def create_test_results_db(self):
         """Method creates results database
@@ -806,9 +805,7 @@ class Extension(extension.Extension):
                         tset_obj.write_custom_data()
                     except:
                         print(sys.exc_info())
-                        raise Exception(self._mh._trn.msg('yoda_update_test_set_db_error'))
-                    
- 
+                        raise Exception(self._mh._trn.msg('yoda_update_test_set_db_error'))                     
     
     def _check_results(self):  
         """Method prepares results in requested format

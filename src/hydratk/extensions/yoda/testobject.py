@@ -51,7 +51,7 @@ class TestObject(object):
 
         
     def write_custom_data(self):
-        """Method writes test scenarion custom data to results database
+        """Method writes test scenario custom data to results database
         
         Data can be filtered
         
@@ -119,8 +119,8 @@ class TestObject(object):
            bool: True on success
         
         Raises:
-           ValuError
-           KeyError         
+           error: ValuError
+           error: KeyError         
         """ 
                 
         if type(attr_key).__name__ == 'str' and attr_key != '':
@@ -141,25 +141,26 @@ class TestObject(object):
         """Method gets attribute
         
         Args:         
-           name (str): attribute name   
+           attr_key (str): attribute key name 
+           opt (str): option name
            
         Returns:
            obj: attribute value
             
         Raises:
-           ValuError
-           KeyError                
+           error: ValuError
+           error: KeyError                
         """  
 
         if attr_key in (None,''):
             raise ValueError('Attribute option name cannot be NoneType or an empty string') 
-        if opt not in (None,''):
+        if opt in (None,''):
             raise ValueError('Attribute key cannot be NoneType or an empty string')
         
         if attr_key not in self._attr_opt:
             raise KeyError("Undefined attribute key {0}".format(attr_key))
         if opt not in self._attr_opt[attr_key]:
-            raise KeyError("Undefined Attribute option {1}".format(opt))
+            raise KeyError("Undefined Attribute option {0}".format(opt))
       
         result = self._attr_opt[attr_key][opt]
         return result
@@ -1109,7 +1110,7 @@ class TestSet(TestObject):
             if run_ts:
                 if self._current.te.have_test_results_db:
                     try:
-                        ts.start_time = time.time()                    
+                        ts.start_time = time.time()                                            
                         ts.create_db_record()
                         ts.write_custom_data()
                     except:

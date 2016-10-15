@@ -52,7 +52,7 @@ class This(object):
            void
                 
         """   
-                
+              
         if hasattr(self, name):
             setattr(self, name, value)
         else:

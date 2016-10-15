@@ -359,3 +359,322 @@ Test-Scenario-8:
       Validate: |                     
         this.test_result = str(res)
         assert (res[0] > 0 and res[1] > 0 and res[2] > 0), 'total_ts, total_tca, total_tco != [0, 0, 0]'
+        
+Test-Scenario-9:
+  Id: ts_09
+  Path: hydratk/extensions/yoda/testengine/03_methods_ut.jedi
+  Name: ts_te_get_all_tests_from_path
+  Desc: Test TestEngine method get_all_tests_from_path
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from yodalib.hydratk.core.testhead import TestHead  
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_get_all_tests_from_path
+    Desc: Get all test files from path
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_file
+      Desc: File path
+      
+      Test: |
+        th = TestHead() 
+        ext = th._ext['Yoda'] 
+        te = ext._test_engine = TestEngine()              
+        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi'
+        res = te.get_all_tests_from_path(path)
+      
+      Validate: |  
+        this.test_result = str(res)
+        exp = [path]
+        assert (res == exp), 'get_all_tests_from_path = {0}'.format(exp)
+
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_dir
+      Desc: Directory path
+      
+      Test: |            
+        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda'
+        res = te.get_all_tests_from_path(path)
+      
+      Validate: |  
+        this.test_result = str(res)
+        exp = [path+'/tset_01.jedi', path+'/tset_02.jedi']
+        assert (sorted(res) == exp), 'get_all_tests_from_path = {0}'.format(exp)  
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_filter
+      Desc: Path with filter
+      
+      Test: |           
+        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi'
+        res = te.get_all_tests_from_path(path+':ts_01:tc_01:tco_01')
+      
+      Validate: |  
+        this.test_result = str(res)
+        exp = [path]
+        assert (res == exp), 'get_all_tests_from_path = {0}'.format(exp)     
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_invalid
+      Desc: Invalid path
+      
+      Test: |           
+        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda2/tset_01.jedi'
+        res = te.get_all_tests_from_path(path)
+      
+      Validate: |  
+        this.test_result = str(res)
+        exp = []
+        assert (res == exp), 'get_all_tests_from_path = {0}'.format(exp)     
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_tree
+      Desc: Directory tree
+      
+      Test: |           
+        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions'
+        res = te.get_all_tests_from_path(path)
+      
+      Validate: |  
+        this.test_result = str(res)
+        exp = [path+'/yoda/tset_01.jedi', path+'/yoda/tset_02.jedi']
+        assert (sorted(res) == exp), 'get_all_tests_from_path = {0}'.format(exp) 
+        th.clear_cmd()
+        
+Test-Scenario-10:
+  Id: ts_10
+  Path: hydratk/extensions/yoda/testengine/03_methods_ut.jedi
+  Name: ts_te_get_all_tests_from_container
+  Desc: Test TestEngine method get_all_tests_from_container
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from yodalib.hydratk.core.testhead import TestHead  
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_get_all_tests_from_container
+    Desc: Get all test files from container
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_abs_path
+      Desc: Tests with absolute path
+      
+      Test: |
+        th = TestHead() 
+        ext = th._ext['Yoda'] 
+        te = ext._test_engine = TestEngine()                                          
+        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda'
+        res = te.get_all_tests_from_container(path+'/tset.cont')
+        
+      Validate: |  
+        this.test_result = str(res)
+        exp = [path+'/tset_01.jedi', path+'/tset_02.jedi']
+        assert (sorted(res) == exp), 'get_all_tests_from_container = {0}'.format(exp)    
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_rel_path
+      Desc: Tests with relative path
+      
+      Test: |
+        te._templates_repo = '/var/local/hydratk/yoda/helpers/'                                        
+        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda'
+        res = te.get_all_tests_from_container(path+'/tset2.cont')
+        
+      Validate: |  
+        this.test_result = str(res)
+        exp = [path+'/tset_01.jedi', path+'/tset_02.jedi']
+        assert (sorted(res) == exp), 'get_all_tests_from_container = {0}'.format(exp) 
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_invalid
+      Desc: Invalid path
+      
+      Test: |           
+        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset3.cont'
+        res = te.get_all_tests_from_container(path)
+      
+      Validate: |  
+        this.test_result = str(res)
+        exp = []
+        assert (res == exp), 'get_all_tests_from_container = {0}'.format(exp)    
+        th.clear_cmd()
+        
+Test-Scenario-11:
+  Id: ts_11
+  Path: hydratk/extensions/yoda/testengine/03_methods_ut.jedi
+  Name: ts_te_exec_test
+  Desc: Test TestEngine method exec_test
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from hydratk.extensions.yoda.testobject import TestRun
+    from yodalib.hydratk.core.testhead import TestHead 
+    from hydratk.lib.database.dbo.dbo import DBO
+    from os import remove     
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_exec_test
+    Desc: Execute test
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_abs_path
+      Desc: Test with absolute path
+      
+      Test: |
+        th = TestHead() 
+        ext = th._ext['Yoda']
+        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
+        file, query = '/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
+        dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        te = ext._test_engine = TestEngine()   
+        te._test_results_db = ext.create_test_results_db()  
+        te._tset_file = 'file.jedi'                
+        tr = te._test_run = TestRun()  
+        tr._te = te  
+        te.exec_test(path)   
+        c = DBO(dsn)._dbo_driver    
+        recs = c.execute(query).fetchall()              
+        
+      Validate: |
+        this.test_result = str(recs)
+        assert (recs[0][0] == 1), 'records = 1'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_rel_path
+      Desc: Test with relative path
+      
+      Test: |
+        te._templates_repo = '/var/local/hydratk/yoda/helpers/' 
+        te.exec_test('yodahelpers/hydratk/extensions/yoda/tset_01.jedi')   
+        recs = c.execute(query).fetchall()              
+        
+      Validate: |
+        this.test_result = str(recs)
+        assert (recs[0][0] == 2), 'records = 2'    
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_invalid
+      Desc: Invalid path
+      
+      Test: |
+        te.exec_test('yodahelpers/hydratk/extensions/yoda/tset_03.jedi')     
+        recs = c.execute(query).fetchall()              
+        
+      Validate: |
+        this.test_result = str(recs)
+        assert (recs[0][0] == 2), 'records = 2'             
+        remove(file)
+        th.clear_cmd()     
+        
+Test-Scenario-12:
+  Id: ts_12
+  Path: hydratk/extensions/yoda/testengine/03_methods_ut.jedi
+  Name: ts_codestack_init
+  Desc: Test CodeStack method __init__
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import CodeStack  
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_init
+    Desc: Initialize CodeStack
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_init
+      Desc: Initialize
+      
+      Test: |
+        c = CodeStack()                                                
+        res = c.__class__.__name__
+        
+      Validate: |
+        this.test_result = res
+        assert (res == 'CodeStack'), '__init__ = CodeStack'
+        res = c._locals
+        this.test_result = str(res)
+        assert (res == {}), '_locals = {}'
+        
+Test-Scenario-13:
+  Id: ts_13
+  Path: hydratk/extensions/yoda/testengine/03_methods_ut.jedi
+  Name: ts_codestack_execute
+  Desc: Test CodeStack method execute
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import CodeStack  
+    import sys
+    
+    try:
+        from StringIO import StringIO
+    except ImportError:
+        from io import StringIO     
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_execute
+    Desc: Execute code
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_locals
+      Desc: Variable in locals
+      
+      Test: |
+        old = sys.stdout
+        sys.stdout = res = StringIO()      
+        c = CodeStack()  
+        val = '1'
+        c.execute('print(xxx)', {'xxx': val})
+        res = res.getvalue()
+        sys.stdout = old        
+        
+      Validate: |
+        this.test_result = res
+        assert (res[0] == val), 'execute prints {0}'.format(val)    
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_globals
+      Desc: Variable in globals
+      
+      Test: |   
+        old = sys.stdout
+        sys.stdout = res = StringIO()      
+        val = '2' 
+        globals()['xxx'] = val    
+        c._locals = {} 
+        c.execute('print xxx', {})
+        res = res.getvalue()
+        sys.stdout = old         
+        
+      Validate: |
+        this.test_result = res
+        assert (res[0] == val), 'execute prints {0}'.format(val)                                                             

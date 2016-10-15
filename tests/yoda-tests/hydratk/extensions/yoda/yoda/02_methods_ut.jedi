@@ -1,0 +1,495 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/yoda/yoda/02_methods_ut.jedi
+  Name: ts_init_check
+  Desc: Method init_check
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.core.testhead import TestHead 
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from hydratk.extensions.yoda.testobject import TestRun    
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_init_check
+    Desc: Initial check
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_test_repo
+      Desc: Option test repository
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']
+        th.pre_replace()
+        val = '/var/local/hydratk'
+        TestHead.options = {'yoda-test-repo-root-dir': val}
+        ext.init_check(None)
+        res = ext._test_repo_root
+      
+      Validate: |
+        this.test_result = res
+        assert (res == val), '_test_repo_root = {0}'.format(val)    
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_out_create
+      Desc: Option test results output create
+      
+      Test: |
+        val = 1
+        TestHead.options = {'yoda-test-results-output-create': val}
+        ext.init_check(None)
+        res = ext._test_results_output_create
+      
+      Validate: |
+        this.test_result = res        
+        assert (res), '_test_results_output_create = True'      
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_out_handler
+      Desc: Option test results output handler
+      
+      Test: |
+        val = 1
+        TestHead.options = {'yoda-test-results-output-handler': val}
+        ext.init_check(None)
+        res = ext._test_results_output_handler
+      
+      Validate: |
+        this.test_result = res        
+        assert (res), '_test_results_output_handler = True'  
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_db_dsn
+      Desc: Option database dsn
+      
+      Test: |
+        val = '/var/local/hydratk/test.db3'
+        TestHead.options = {'yoda-db-results-dsn': val}
+        ext.init_check(None)
+        res = ext._mh.ext_cfg['Yoda']['db_results_dsn']
+      
+      Validate: |
+        this.test_result = res
+        assert (res == val), 'db_result_dsn = {0}'.format(val)
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_run_name
+      Desc: Option test run name
+      
+      Test: |
+        te = ext._test_engine = TestEngine()
+        tr = te._test_run = TestRun()  
+        tr._te = te          
+        val = 'test'
+        TestHead.options = {'yoda-test-run-name': val}
+        ext.init_check(None)        
+        res = ext._test_engine.test_run.name
+        
+      Validate: |
+        this.test_result = res
+        assert (res == val), 'test_run = {0}'.format(val)
+        th.clear_cmd()                        
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/yoda/yoda/02_methods_ut.jedi
+  Name: ts_init_tests
+  Desc: Method init_tests
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from hydratk.extensions.yoda.testobject import TestRun
+    from yodalib.hydratk.core.testhead import TestHead 
+    from hydratk.lib.database.dbo.dbo import DBO
+    from os import remove    
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_init_tests
+    Desc: Initialize test processing
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_abs
+      Desc: Absolute path
+      
+      Test: |
+        th = TestHead() 
+        ext = th._ext['Yoda']
+        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
+        file, query = '/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
+        dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        te = ext._test_engine = TestEngine()   
+        te._test_results_db = ext.create_test_results_db()  
+        te._tset_file = 'file.jedi'                
+        tr = te._test_run = TestRun()  
+        tr._te = te          
+      
+        th.pre_replace()
+        TestHead.options = {'yoda-test-path': path}
+        ext.init_tests()
+        c = DBO(dsn)._dbo_driver    
+        recs = c.execute(query).fetchall()         
+      
+      Validate: |  
+        this.test_result = str(recs)
+        assert (recs[0][0] == 1), 'records = 1'  
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_rel
+      Desc: Relative path
+      
+      Test: |
+        tr = te._test_run = TestRun()  
+        tr._te = te       
+        ext._templates_repo = '/var/local/hydratk/yoda/helpers/'
+        path = 'yodahelpers/hydratk/extensions/yoda/tset_01.jedi'
+        TestHead.options = {'yoda-test-path': path}
+        ext.init_tests()
+        c = DBO(dsn)._dbo_driver    
+        recs = c.execute(query).fetchall()       
+      
+      Validate: |         
+        this.test_result = str(recs)
+        assert (recs[0][0] == 2), 'records = 2'           
+        remove(file)
+        th.clear_cmd()                    
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/yoda/yoda/02_methods_ut.jedi
+  Name: ts_init_test_simul
+  Desc: Method init_test_simul
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from hydratk.extensions.yoda.testobject import TestRun
+    from yodalib.hydratk.core.testhead import TestHead 
+    from hydratk.lib.database.dbo.dbo import DBO
+    from os import remove    
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_init_test_simul
+    Desc: Initialize test simulation
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_abs
+      Desc: Absolute path
+      
+      Test: |
+        th = TestHead() 
+        ext = th._ext['Yoda']
+        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
+        file, query = '/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
+        dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        te = ext._test_engine = TestEngine()   
+        te._test_results_db = ext.create_test_results_db()  
+        te._tset_file = 'file.jedi'                
+        tr = te._test_run = TestRun()  
+        tr._te = te          
+      
+        th.pre_replace()
+        TestHead.options = {'yoda-test-path': path}
+        ext.init_test_simul()
+        c = DBO(dsn)._dbo_driver    
+        recs = c.execute(query).fetchall()         
+      
+      Validate: |  
+        this.test_result = str(recs)
+        assert (recs[0][0] == 1), 'records = 1'  
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_rel
+      Desc: Relative path
+      
+      Test: |
+        tr = te._test_run = TestRun()  
+        tr._te = te       
+        ext._templates_repo = '/var/local/hydratk/yoda/helpers/'
+        path = 'yodahelpers/hydratk/extensions/yoda/tset_01.jedi'
+        TestHead.options = {'yoda-test-path': path}
+        ext.init_test_simul()
+        c = DBO(dsn)._dbo_driver    
+        recs = c.execute(query).fetchall()       
+      
+      Validate: |         
+        this.test_result = str(recs)
+        assert (recs[0][0] == 2), 'records = 2'           
+        remove(file)
+        th.clear_cmd()  
+        
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/yoda/yoda/02_methods_ut.jedi
+  Name: ts_process_tests
+  Desc: Method process_tests
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from hydratk.extensions.yoda.testobject import TestRun
+    from yodalib.hydratk.core.testhead import TestHead 
+    from hydratk.lib.database.dbo.dbo import DBO
+    from os import remove    
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_process_tests
+    Desc: Process tests
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_process
+      Desc: Process
+      
+      Test: |
+        th = TestHead() 
+        ext = th._ext['Yoda']
+        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
+        file, query = '/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
+        dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        te = ext._test_engine = TestEngine()   
+        te._test_results_db = ext.create_test_results_db()  
+        te._tset_file = 'file.jedi'                
+        tr = te._test_run = TestRun()  
+        tr._te = te          
+        ext.process_tests([path])
+        c = DBO(dsn)._dbo_driver    
+        recs = c.execute(query).fetchall()  
+        
+      Validate: |         
+        this.test_result = str(recs)
+        assert (recs[0][0] == 1), 'records = 1'           
+        remove(file)
+        th.clear_cmd()              
+        
+Test-Scenario-5:
+  Id: ts_05
+  Path: hydratk/extensions/yoda/yoda/02_methods_ut.jedi
+  Name: ts_process_test_set
+  Desc: Method process_test_set
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from hydratk.extensions.yoda.testobject import TestRun
+    from yodalib.hydratk.core.testhead import TestHead 
+    from hydratk.lib.database.dbo.dbo import DBO
+    from os import remove    
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_process_test_set
+    Desc: Process test set
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_process
+      Desc: Process
+      
+      Test: |
+        th = TestHead() 
+        ext = th._ext['Yoda']
+        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
+        file, query = '/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
+        dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        te = ext._test_engine = TestEngine()   
+        te._test_results_db = ext.create_test_results_db()  
+        te._tset_file = 'file.jedi'                
+        tr = te._test_run = TestRun()  
+        tr._te = te          
+        ext.process_test_set(path)
+        c = DBO(dsn)._dbo_driver    
+        recs = c.execute(query).fetchall()  
+        
+      Validate: |         
+        this.test_result = str(recs)
+        assert (recs[0][0] == 1), 'records = 1'           
+        remove(file)
+        th.clear_cmd()        
+        
+Test-Scenario-6:
+  Id: ts_06
+  Path: hydratk/extensions/yoda/yoda/02_methods_ut.jedi
+  Name: ts_check_pp_mode
+  Desc: Method check_pp_mode
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.core.testhead import TestHead  
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_check_pp_mode
+    Desc: Check parallel mode
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_check
+      Desc: Check
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']
+        ext._mh.run_mode = 2
+        ext.check_pp_mode(None)
+        res = ext._mh._event_hooks
+      
+      Validate: |
+        this.test_result = str(res)
+        exp = 'htk_on_cobserver_ctx_switch'
+        assert (exp in res), '_event_hooks contain {0}'.format(exp)
+        del ext._mh._event_hooks[exp]
+        th.clear_cmd()    
+        
+Test-Scenario-7:
+  Id: ts_07
+  Path: hydratk/extensions/yoda/yoda/02_methods_ut.jedi
+  Name: ts_pp_app_check
+  Desc: Method pp_app_check
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from hydratk.extensions.yoda.testobject import TestRun
+    from yodalib.hydratk.core.testhead import TestHead 
+    from hydratk.lib.database.dbo.dbo import DBO
+    from os import remove    
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_pp_app_check
+    Desc: Parallel processing check
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_check
+      Desc: Check
+      
+      Test: |
+        th = TestHead() 
+        ext = th._ext['Yoda']
+        file, query = '/var/local/hydratk/test.db3', 'SELECT start_time, end_time FROM test_run'
+        dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        te = ext._test_engine = TestEngine()   
+        te._test_results_db = ext.create_test_results_db()  
+        te._tset_file = 'file.jedi'                
+        tr = te._test_run = TestRun()  
+        tr._te = te 
+        tr.create_db_record()         
+        ext.pp_app_check(None)
+        c = DBO(dsn)._dbo_driver    
+        recs = c.execute(query).fetchall()[0]
+        
+      Validate: |         
+        this.test_result = str(recs)
+        assert (recs[0] < recs[1]), 'start_time < end_time'           
+        remove(file)
+        th.clear_cmd()          
+        
+Test-Scenario-8:
+  Id: ts_08
+  Path: hydratk/extensions/yoda/yoda/02_methods_ut.jedi
+  Name: ts_pp_process_test_set
+  Desc: Method pp_process_test_set
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.core.testhead import TestHead    
+    from yodahelpers.hydratk.core.parallel import init_process, kill_process, init_sender  
+    from time import sleep  
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_pp_process_test_set
+    Desc: Parallel processing of test set
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_process
+      Desc: Process
+      
+      Test: |
+        th = TestHead() 
+        proc = init_process('receive_mq')
+        sleep(3)         
+        init_sender(th)
+        sleep(3)               
+        ext = th._ext['Yoda']
+        ext.pp_process_test_set('test')
+        res = ext._active_tickets      
+      
+      Validate: |                
+        this.test_result = str(res)
+        assert (len(res) == 1), '_active_tickets contain 1 record'                                                    
+        sleep(3)
+        del ext._active_tickets[0]
+        proc.terminate()        
+        th.clear_cmd()
+        
+Test-Scenario-9:
+  Id: ts_09
+  Path: hydratk/extensions/yoda/yoda/02_methods_ut.jedi
+  Name: ts_pp_run_test_set
+  Desc: Method pp_run_test_set
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from hydratk.extensions.yoda.testobject import TestRun
+    from yodalib.hydratk.core.testhead import TestHead 
+    from hydratk.lib.database.dbo.dbo import DBO
+    from os import remove    
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_pp_run_test_set
+    Desc: Parallel run of test set
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_run
+      Desc: Run
+      
+      Test: |
+        th = TestHead() 
+        ext = th._ext['Yoda']
+        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
+        file, query = '/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
+        dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        te = ext._test_engine = TestEngine()   
+        te._test_results_db = ext.create_test_results_db()  
+        te._tset_file = 'file.jedi'                
+        tr = te._test_run = TestRun()  
+        tr._te = te          
+        ext.pp_run_test_set(path)
+        c = DBO(dsn)._dbo_driver    
+        recs = c.execute(query).fetchall()  
+        
+      Validate: |         
+        this.test_result = str(recs)
+        assert (recs[0][0] == 1), 'records = 1'           
+        remove(file)
+        th.clear_cmd()          

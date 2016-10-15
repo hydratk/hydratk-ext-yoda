@@ -323,4 +323,719 @@ Test-Scenario-5:
         res = recs[0][0]
         assert (res == name), 'name = {0}'.format(name) 
         th.clear_cmd()
-        remove(file)                                            
+        remove(file)                                       
+        
+Test-Scenario-6:
+  Id: ts_06
+  Path: hydratk/extensions/yoda/testobject/04_methods_ut.jedi
+  Name: ts_ts_append_ts
+  Desc: Test TestSet method append_ts
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testobject import TestRun, TestSet
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from yodalib.hydratk.core.testhead import TestHead
+    from hydratk.lib.database.dbo.dbo import DBO
+    from os import remove
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_append_ts
+    Desc: Append test scenario
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_append
+      Desc: Append  
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']
+        name = 'test'
+        te = ext._test_engine = TestEngine()             
+        tr = te._test_run = TestRun()  
+        tr._te = te     
+        ts = TestSet(tr, name)
+        tsc = TestScenario(name, ts, tr)
+        tsc._attr['id'] = name
+        ts.append_ts(tsc)
+        res = ts._ts
+      
+      Validate: |                                                      
+        this.test_result = str(res)
+        assert (len(res) == 1), '_ts contains 1 record'
+        th.clear_cmd()     
+        
+Test-Scenario-7:
+  Id: ts_07
+  Path: hydratk/extensions/yoda/testobject/04_methods_ut.jedi
+  Name: ts_ts_run
+  Desc: Test TestSet method run
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testobject import TestRun
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from hydratk.lib.database.dbo.dbo import DBO
+    from yodalib.hydratk.core.testhead import TestHead
+    from yodahelpers.hydratk.extensions.yoda.tscript import tset2
+    from os import remove
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_run
+    Desc: Run test set
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_run
+      Desc: Run        
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']
+        file, name = '/var/local/hydratk/test.db3', 'test'
+        query = 'SELECT ts_id, total_tests, passed_tests, failed_tests, failures FROM test_scenario ORDER BY ts_id'
+        dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        te = ext._test_engine = TestEngine()
+        te._test_results_db = ext.create_test_results_db()  
+        te._tset_file = 'file.jedi'    
+        tr = te._test_run = TestRun()  
+        tr._te = te
+        obj = te.parse_tset_struct(tset2)   
+        obj.run()
+        c = DBO(dsn)._dbo_driver        
+        recs = c.execute(query).fetchall()        
+        
+      Validate: |    
+        this.test_result = str(recs)
+        exp = [('ts-01', 1, 1, 0, 0), ('ts-02', 3, 3, 0, 0)]
+        assert (recs == exp), 'records = {0}'.format(recs)     
+        remove(file)  
+        th.clear_cmd()        
+        
+Test-Scenario-8:
+  Id: ts_08
+  Path: hydratk/extensions/yoda/testobject/04_methods_ut.jedi
+  Name: ts_tsc_run
+  Desc: Test TestScenario method run
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testobject import TestRun
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from hydratk.lib.database.dbo.dbo import DBO
+    from yodalib.hydratk.core.testhead import TestHead
+    from yodahelpers.hydratk.extensions.yoda.tscript import tset2
+    from os import remove
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_run
+    Desc: Run test scenario
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_run
+      Desc: Run        
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']
+        file, name = '/var/local/hydratk/test.db3', 'test'
+        query = 'SELECT tca_id, total_tests, passed_tests, failed_tests, failures FROM test_case ORDER BY tca_id'
+        dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        te = ext._test_engine = TestEngine()
+        te._test_results_db = ext.create_test_results_db()  
+        te._tset_file = 'file.jedi'    
+        tr = te._test_run = TestRun()  
+        tr._te = te
+        obj = te.parse_tset_struct(tset2)
+        obj.run()     
+        c = DBO(dsn)._dbo_driver    
+        recs = c.execute(query).fetchall()        
+        
+      Validate: |    
+        this.test_result = str(recs)
+        exp = [('tc-01', 1, 1, 0, 0), ('tc-01', 1, 1, 0, 0), ('tc-02', 2, 2, 0, 0)]
+        assert (recs == exp), 'records = {0}'.format(recs)            
+        remove(file)  
+        th.clear_cmd()                
+        
+Test-Scenario-9:
+  Id: ts_09
+  Path: hydratk/extensions/yoda/testobject/04_methods_ut.jedi
+  Name: ts_tca_run
+  Desc: Test TestCase method run
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testobject import TestRun
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from hydratk.lib.database.dbo.dbo import DBO
+    from yodalib.hydratk.core.testhead import TestHead
+    from yodahelpers.hydratk.extensions.yoda.tscript import tset2
+    from os import remove
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_run
+    Desc: Run test scenario
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_run
+      Desc: Run        
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']
+        file, name = '/var/local/hydratk/test.db3', 'test'
+        query = 'SELECT tco_id, test_resolution FROM test_condition ORDER BY tco_id'
+        dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        te = ext._test_engine = TestEngine()
+        te._test_results_db = ext.create_test_results_db()  
+        te._tset_file = 'file.jedi'    
+        tr = te._test_run = TestRun()  
+        tr._te = te
+        obj = te.parse_tset_struct(tset2)
+        obj.run()     
+        c = DBO(dsn)._dbo_driver    
+        recs = c.execute(query).fetchall()        
+        
+      Validate: |    
+        this.test_result = str(recs)
+        exp = [('tco-01', 'passed'), ('tco-01', 'passed'), ('tco-01', 'passed'), ('tco-02', 'passed')]
+        assert (recs == exp), 'records = {0}'.format(recs)         
+        remove(file) 
+        th.clear_cmd()       
+        
+Test-Scenario-10:
+  Id: ts_10
+  Path: hydratk/extensions/yoda/testobject/04_methods_ut.jedi
+  Name: ts_testobj_props
+  Desc: Test TestObject properties
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testobject import TestRun
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from yodalib.hydratk.core.testhead import TestHead
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getters
+    Desc: Getter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_parent
+      Desc: Getter parent 
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']    
+        te = ext._test_engine = TestEngine()     
+        tr = te._test_run = TestRun()  
+        tr._te = te
+        obj = tr
+        res = obj.parent
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = obj._parent
+        assert (res == exp), 'parent = {0}'.format(exp)                   
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_attr
+      Desc: Getter attr 
+      
+      Test: |
+        res = obj.attr
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = obj._attr
+        assert (res == exp), 'attr = {0}'.format(exp) 
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_attr_opt
+      Desc: Getter attr_opt
+      
+      Test: |
+        res = obj.attr_opt
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = obj._attr_opt
+        assert (res == exp), 'attr_opt = {0}'.format(exp) 
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_log
+      Desc: Getter log 
+      
+      Test: |
+        res = obj.log
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = obj._log
+        assert (res == exp), 'log = {0}'.format(exp)   
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_struct_log
+      Desc: Getter struct_log
+      
+      Test: |
+        res = obj.struct_log
+        
+      Validate: |
+        this.test_result = str(res)
+        exp = obj._struct_log
+        assert (res == exp), 'struct_log = {0}'.format(exp)
+        th.clear_cmd()     
+        
+  Test-Case-2:
+    Id: tc_02
+    Name: tc_setters
+    Desc: Setter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_log
+      Desc: Setter log 
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']    
+        te = ext._test_engine = TestEngine()     
+        tr = te._test_run = TestRun()  
+        tr._te = te
+        obj, s = tr, 'test'
+        obj.log = s
+        res = obj.log
+        
+      Validate: |
+        this.test_result = str(res)
+        assert (res == s), 'log = {0}'.format(s)  
+        th.clear_cmd()     
+        
+Test-Scenario-11:
+  Id: ts_11
+  Path: hydratk/extensions/yoda/testobject/04_methods_ut.jedi
+  Name: ts_testobj_getattr
+  Desc: Test TestObject method __getattr__
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testobject import TestRun
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from yodalib.hydratk.core.testhead import TestHead
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getattr
+    Desc: Get attribute
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_get
+      Desc: Get
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']    
+        te = ext._test_engine = TestEngine()     
+        tr = te._test_run = TestRun()  
+        tr._te = te
+        obj = tr 
+        key = 'test'
+        obj._attr = {key: key}                                                      
+        res = obj.__getattr__(key)
+        
+      Validate: |
+        this.test_result = res
+        assert (res == key), '__getattr__ = {0}'.format(key)
+        th.clear_cmd()
+        
+Test-Scenario-12:
+  Id: ts_12
+  Path: hydratk/extensions/yoda/testobject/04_methods_ut.jedi
+  Name: ts_testobj_getattr
+  Desc: Test TestObject method getattr
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testobject import TestRun
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from yodalib.hydratk.core.testhead import TestHead
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getattr
+    Desc: Get attribute
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_get
+      Desc: Get
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']    
+        te = ext._test_engine = TestEngine()     
+        tr = te._test_run = TestRun()  
+        tr._te = te
+        obj = tr 
+        key = 'test'
+        obj._attr = {key: key}                                                      
+        res = obj.getattr(key)
+        
+      Validate: |
+        this.test_result = res
+        assert (res == key), 'getattr = {0}'.format(key)  
+        th.clear_cmd()      
+        
+Test-Scenario-13:
+  Id: ts_13
+  Path: hydratk/extensions/yoda/testobject/04_methods_ut.jedi
+  Name: ts_testobj_setattr
+  Desc: Test TestObject method setattr
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testobject import TestRun
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from yodalib.hydratk.core.testhead import TestHead
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_setattr
+    Desc: Set attribute
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_set
+      Desc: Set
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']    
+        te = ext._test_engine = TestEngine()     
+        tr = te._test_run = TestRun()  
+        tr._te = te
+        obj = tr 
+        key = 'test'
+        obj.setattr(key, key)                                                      
+        res = obj.getattr(key)
+        
+      Validate: |
+        this.test_result = res
+        assert (res == key), 'getattr = {0}'.format(key)  
+        th.clear_cmd()       
+        
+Test-Scenario-14:
+  Id: ts_14
+  Path: hydratk/extensions/yoda/testobject/04_methods_ut.jedi
+  Name: ts_testobj_getattr_opt
+  Desc: Test TestObject method getattr_opt
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testobject import TestRun
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from yodalib.hydratk.core.testhead import TestHead
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getattr_opt
+    Desc: Get attribute option
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_get
+      Desc: Get
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']    
+        te = ext._test_engine = TestEngine()     
+        tr = te._test_run = TestRun()  
+        tr._te = te
+        obj = tr 
+        key = 'test'
+        obj._attr_opt = {key: {key: key}}                                                      
+        res = obj.getattr_opt(key, key)
+        
+      Validate: |
+        this.test_result = res
+        assert (res == key), 'getattr_opt = {0}'.format(key) 
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_invalid_key
+      Desc: Invalid key, raises KeyError
+      
+      Test: |
+        try:
+            obj.getattr_opt('xxx', key)
+            ex = False
+        except KeyError:
+            ex = True
+      
+      Validate: |
+        this.test_result = ex
+        assert (ex), 'getattr_opt raises KeyError'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_invalid_opt
+      Desc: Invalid option, raises KeyError
+      
+      Test: |
+        try:
+            obj.getattr_opt(key, 'xxx')
+            ex = False
+        except KeyError:
+            ex = True
+      
+      Validate: |
+        this.test_result = ex
+        assert (ex), 'getattr_opt raises KeyError'        
+        th.clear_cmd()        
+        
+Test-Scenario-15:
+  Id: ts_15
+  Path: hydratk/extensions/yoda/testobject/04_methods_ut.jedi
+  Name: ts_testobj_setattr_opt
+  Desc: Test TestObject method setattr_opt
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testobject import TestRun
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from yodalib.hydratk.core.testhead import TestHead
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_setattr_opt
+    Desc: Set attribute option
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_set
+      Desc: Set
+      
+      Test: |
+        th = TestHead()
+        ext = th._ext['Yoda']    
+        te = ext._test_engine = TestEngine()     
+        tr = te._test_run = TestRun()  
+        tr._te = te
+        obj = tr 
+        key = 'test'
+        obj.setattr(key, key)
+        obj.setattr_opt(key, key, key)                                                      
+        res = obj.getattr_opt(key, key)
+        
+      Validate: |
+        this.test_result = res
+        assert (res == key), 'getattr_opt = {0}'.format(key) 
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_invalid_key
+      Desc: Invalid key, raises KeyError
+      
+      Test: |
+        try:
+            obj._attr = {}
+            obj.setattr_opt(key, key, key)
+            ex = False
+        except KeyError:
+            ex = True
+      
+      Validate: |
+        this.test_result = ex
+        assert (ex), 'setattr_opt raises KeyError'        
+        th.clear_cmd()           
+        
+Test-Scenario-16:
+  Id: ts_16
+  Path: hydratk/extensions/yoda/testobject/04_methods_ut.jedi
+  Name: ts_testobj_get_auto_break
+  Desc: Test TestObject method get_auto_break
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testobject import TestRun
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from yodalib.hydratk.core.testhead import TestHead
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_get_auto_break
+    Desc: Get autobreak config
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_get
+      Desc: Get
+      
+      Test: |
+        th = TestHead() 
+        ext = th._ext['Yoda']    
+        te = ext._test_engine = TestEngine()     
+        tr = te._test_run = TestRun()  
+        tr._te = te
+        obj = tr 
+        res = obj.get_auto_break()          
+        
+      Validate: |
+        this.test_result = res
+        exp = 'break_test_set'
+        assert (res == exp), 'get_auto_break = {0}'.format(exp)
+        th.clear_cmd()           
+        
+Test-Scenario-17:
+  Id: ts_17
+  Path: hydratk/extensions/yoda/testobject/04_methods_ut.jedi
+  Name: ts_testobj_write_custom_data
+  Desc: Test TestObject method write_custom_data
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testobject import TestRun
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from yodalib.hydratk.core.testhead import TestHead
+    from hydratk.lib.database.dbo.dbo import DBO
+    from os import remove
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_write_custom_data
+    Desc: Write custom data
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_write
+      Desc: Write
+      
+      Test: |
+        th = TestHead() 
+        ext = th._ext['Yoda'] 
+        file, name = '/var/local/hydratk/test.db3', 'test'
+        query = 'SELECT a.key, a.value, b.opt_name, b.opt_value FROM custom_data a, custom_data_opt b'
+        dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        te = ext._test_engine = TestEngine()
+        te._test_results_db = ext.create_test_results_db()  
+        te._tset_file = 'file.jedi'                
+        tr = te._test_run = TestRun()  
+        tr._te = te
+        obj = tr
+        key, val, opt = 'test1', 'test2', 'test3'
+        obj.setattr(key, val)
+        obj.setattr_opt(key, val, opt)  
+        obj.write_custom_data()  
+        c = DBO(dsn)._dbo_driver    
+        recs = c.execute(query).fetchall()                       
+        
+      Validate: |
+        this.test_result = str(recs)
+        exp = (key, val, val, opt)
+        assert (exp in recs), 'records contain {0}'.format(exp)
+        remove(file)
+        th.clear_cmd()   
+        
+Test-Scenario-18:
+  Id: ts_18
+  Path: hydratk/extensions/yoda/testobject/04_methods_ut.jedi
+  Name: ts_testobj_exec_test
+  Desc: Test TestObject method exec_test
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.yoda.testengine import TestEngine
+    from hydratk.extensions.yoda.testobject import TestRun
+    from yodalib.hydratk.core.testhead import TestHead 
+    from hydratk.lib.database.dbo.dbo import DBO
+    from os import remove     
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_exec_test
+    Desc: Execute test
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_abs_path
+      Desc: Test with absolute path
+      
+      Test: |
+        th = TestHead() 
+        ext = th._ext['Yoda']
+        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
+        file, query = '/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
+        dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
+        te = ext._test_engine = TestEngine()   
+        te._test_results_db = ext.create_test_results_db()  
+        te._tset_file = 'file.jedi'                
+        tr = te._test_run = TestRun()  
+        tr._te = te 
+        obj = tr 
+        obj._current = tr
+        obj._current.te = te
+        obj.exec_test(path)   
+        c = DBO(dsn)._dbo_driver    
+        recs = c.execute(query).fetchall()              
+        
+      Validate: |
+        this.test_result = str(recs)
+        assert (recs[0][0] == 1), 'records = 1'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_rel_path
+      Desc: Test with relative path
+      
+      Test: |
+        te._templates_repo = '/var/local/hydratk/yoda/helpers/' 
+        obj.exec_test('yodahelpers/hydratk/extensions/yoda/tset_01.jedi')   
+        recs = c.execute(query).fetchall()              
+        
+      Validate: |
+        this.test_result = str(recs)
+        assert (recs[0][0] == 2), 'records = 2'    
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_invalid
+      Desc: Invalid path
+      
+      Test: |
+        obj.exec_test('yodahelpers/hydratk/extensions/yoda/tset_03.jedi')     
+        recs = c.execute(query).fetchall()              
+        
+      Validate: |
+        this.test_result = str(recs)
+        assert (recs[0][0] == 2), 'records = 2'             
+        remove(file)
+        th.clear_cmd()           
