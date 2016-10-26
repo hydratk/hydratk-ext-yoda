@@ -108,7 +108,7 @@ class TestObject(object):
                                                  ])     
                         
     def setattr_opt(self, attr_key, opt_name, opt_value = None):
-        """Method sets attribute
+        """Method sets attribute option
         
         Args:         
            attr_key (str): attribute key name
@@ -138,7 +138,7 @@ class TestObject(object):
         else: raise ValueError('Attribute key have to be a nonempty string')
 
     def getattr_opt(self, attr_key, opt):
-        """Method gets attribute
+        """Method gets attribute option
         
         Args:         
            attr_key (str): attribute key name 
@@ -1035,8 +1035,7 @@ class TestSet(TestObject):
                 result += "{var} = {val}\n".format(var=var,val=val)
            
         return result;
-           
-        
+                   
     def append_ts(self, ts):
         """Method adds new scenario to test set
         
@@ -1050,8 +1049,7 @@ class TestSet(TestObject):
                 
         if isinstance(ts, TestScenario):
             self._ts.append(ts)
-           
-        
+                   
     def reset_data(self):
         """Method resets test set attributes
         
@@ -1152,8 +1150,7 @@ class TestSet(TestObject):
             else:
                 ts.resolution = 'skipped'
                 dmsg(mh._trn.msg('yoda_skipping_test_scenario',ts.id))
-        
-    
+            
     def break_test_set(self, reason, test_object=None):
         """Method breaks test set
         
@@ -1202,7 +1199,6 @@ class TestScenario(TestObject):
     _current        = None
     _log            = ''
     _struct_log     = {}
-
     
     def __init__(self, ts_num, parent_tset, current):
         """Class constructor

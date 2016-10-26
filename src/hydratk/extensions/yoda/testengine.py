@@ -855,7 +855,7 @@ class TestEngine(MacroParser):
         return tset_obj
     
     def exec_test(self, test_path):
-        """Method executes inline test
+        """Method executes tests on path
         
         Args:  
            test_path (str): test path
@@ -962,6 +962,9 @@ class TestEngine(MacroParser):
         
         Returns:            
            list: test_files
+           
+        Raises:
+           event: yoda_before_append_test_file
                   
         """  
                

@@ -512,7 +512,6 @@ class Extension(extension.Extension):
         else:
             dmsg(self._mh._trn.msg('yoda_test_results_db_check_ok',dsn))
             self._test_engine.test_results_db = trdb
-
              
     def init_tests(self):
         """Method is initializing tests 
@@ -565,8 +564,7 @@ class Extension(extension.Extension):
                 self._mh.fire_event(ev)                           
                 if ev.will_run_default(): 
                     self._check_results()
-             
-    
+                 
     def init_global_tests(self,test_base_path):        
         pass
     
@@ -770,7 +768,7 @@ class Extension(extension.Extension):
         else:
             raise Exception("Failed to load tset_struct")
         
-    def process_test_set(self,test_set_file):
+    def process_test_set(self, test_set_file):
         """Method executes test set in single mode
         
         Args:

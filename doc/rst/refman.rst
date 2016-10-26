@@ -12,4 +12,4 @@ Extensions
 .. toctree::
    :maxdepth: 1
 
-   refman/exts/yoda 
+   refman/ext/yoda 

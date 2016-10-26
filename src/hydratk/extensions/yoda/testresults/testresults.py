@@ -388,9 +388,21 @@ class TestResultsOutputFactory(object):
         
         handler_mod   = self._import_tro_handler(self._handler_name)
         self._handler = handler_mod.TestResultsOutputHandler(db_dsn, self._handler_opt)
-        
-    
+            
     def _dispatch_handler_def(self, handler_def):
+        """Method parses handler definition
+        
+        Args:
+           handler_def (str): handler definition
+        
+        Returns:
+           void
+           
+        Raises:
+           error: TypeError
+            
+        """  
+                
         if type(handler_def).__name__ == 'str' and handler_def != '':            
             handltok = handler_def.split(':')
             self._handler_name = handltok[0]
