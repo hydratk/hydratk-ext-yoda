@@ -1,5 +1,6 @@
 recursive-include doc *
 recursive-include etc *
+recursive-include install *
 recursive-include tests *
 recursive-include var *
 include *.txt

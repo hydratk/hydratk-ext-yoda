@@ -28,7 +28,7 @@ def set_access_rights():
         
 def install_manpage():
     
-    call('gzip -c doc/yoda.1 > /usr/local/share/man/man1/yoda.1', shell=True)    
+    call('gzip -c doc/yoda.1 > /usr/share/man/man1/yoda.1', shell=True)    
     
 def install_db_testdata():
     

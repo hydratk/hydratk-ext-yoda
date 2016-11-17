@@ -38,11 +38,11 @@ entry_points = {
                 
 setup(
       name='hydratk-ext-yoda',
-      version='0.2.2a.dev2',
+      version='0.2.2',
       description='Test Automation Tool',
       long_description=readme,
-      author='Petr Czaderna',
-      author_email='pc@hydratk.org',
+      author='Petr Czaderna, HydraTK team',
+      author_email='pc@hydratk.org, team@hydratk.org',
       url='http://extensions.hydratk.org/yoda',
       license='BSD',
       packages=find_packages('src'),
