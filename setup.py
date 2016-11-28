@@ -38,7 +38,7 @@ entry_points = {
                 
 setup(
       name='hydratk-ext-yoda',
-      version='0.2.2',
+      version='0.2.3a.dev1',
       description='Test Automation Tool',
       long_description=readme,
       author='Petr Czaderna, HydraTK team',
@@ -49,7 +49,10 @@ setup(
       package_dir={'' : 'src'},
       classifiers=classifiers,
       zip_safe=False, 
-      entry_points=entry_points      
+      entry_points=entry_points,
+      keywords='hydratk,testing,test automation,engine',
+      requires_python='>=2.6,!=3.0.*,!=3.1.*,!=3.2.*',
+      platforms='Linux'      
      )
 
 run_post_install(argv)

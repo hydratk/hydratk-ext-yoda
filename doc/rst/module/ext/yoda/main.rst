@@ -78,6 +78,10 @@ Method sets extension metadata (id, name, version, author, year).
 Sets _test_results_output_create, _test_results_output_handler according to configuration.
 Initializes yoda repositories.
 
+* _check_dependencies
+
+Method checks if all required modules are installed.
+
 * _init_repos
 
 Method sets _test_repo_root, _libs_repo, _templates_repo, _helpers_repo according to configuration.

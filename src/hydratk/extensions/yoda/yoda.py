@@ -30,7 +30,7 @@ import yaml
 import traceback
 import sys
 import time
-from hydratk.core import extension
+from hydratk.core import extension, bootstrapper
 from hydratk.core import event
 from hydratk.core import const
 from hydratk.lib.console.commandlinetool import CommandlineTool
@@ -89,6 +89,9 @@ class Extension(extension.Extension):
         self._ext_author  = 'Petr Czaderna <pc@hydratk.org>, HydraTK team <team@hydratk.org>'
         self._ext_year    = '2014 - 2016'
         
+        if (not self._check_dependencies()):
+            exit(0)              
+        
         self._run_mode    = self._mh.run_mode #synchronizing run mode
         if int(self._mh.cfg['Extensions']['Yoda']['test_results_output_create']) in (0,1):
             self._test_results_output_create = bool(int(self._mh.cfg['Extensions']['Yoda']['test_results_output_create']))
@@ -98,7 +101,36 @@ class Extension(extension.Extension):
         self._init_repos()          
         
     def _check_dependencies(self):
-        return True
+        """Method checks dependent modules
+        
+        Args:            
+           none
+           
+        Returns:
+           bool    
+                
+        """         
+        
+        dep_modules = {
+          'hydratk'    : {
+                          'min-version' : '0.4.0', 
+                          'package'     : 'hydratk'
+                         },
+          'lxml'       : {
+                          'min-version' : '3.3.3',
+                          'package'     : 'lxml'
+                         },
+          'pytz'       : {
+                          'min-version' : '2016.6.1',
+                          'package'     : 'pytz'
+                         },
+          'simplejson' : {
+                          'min-version' : '3.8.2',
+                          'package'     : 'simplejson'
+                         }
+        }  
+        
+        return bootstrapper._check_dependencies(dep_modules, 'hydratk-ext-yoda')  
     
     def _init_repos(self):
         """Method initializes test repositories
