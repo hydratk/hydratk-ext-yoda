@@ -583,13 +583,14 @@ class Extension(extension.Extension):
                 test_path                       = self._templates_repo + test_path                
                 self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_running_tset_repo',test_path), self._mh.fromhere())                                                  
                                           
-            test_files = self._test_engine.get_all_tests_from_path(test_path)
+            test_files, test_file_id = self._test_engine.get_all_tests_from_path(test_path)
                             
-            ev = event.Event('yoda_before_process_tests', test_files)        
+            ev = event.Event('yoda_before_process_tests', test_files, test_file_id)        
             if (self._mh.fire_event(ev) > 0):
-                test_files = ev.argv(0)
+                test_files   = ev.argv(0)
+                test_file_id = ev.argv(1)
             if ev.will_run_default():
-                self.process_tests(test_files)
+                self.process_tests(test_files, test_file_id)
                 
             if self._mh.run_mode == const.CORE_RUN_MODE_SINGLE_APP:
                 ev = event.Event('yoda_before_check_results')        
@@ -666,7 +667,7 @@ class Extension(extension.Extension):
                     else:
                         self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_lib_dir_not_exists',lib_dir), self._mh.fromhere())
                              
-    def process_tests(self, test_files):
+    def process_tests(self, test_files, test_file_id):        
         """Method determines whether test sets will be executed in single or parallel mode
         
         Args:
@@ -693,18 +694,19 @@ class Extension(extension.Extension):
                     raise Exception(self._mh._trn.msg('yoda_create_test_run_db_error'))
                 
             self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_process_test_sets_total', total_ts), self._mh.fromhere())            
-            for tf in test_files:
+            for tf, tfid in zip(test_files,test_file_id):
                 if type(tf).__name__ == 'list':
-                    for ctf in tf:
-                        ev = event.Event('yoda_before_parse_test_file', ctf)        
+                    for ctf,ctfid in zip(tf,tfid):
+                        ev = event.Event('yoda_before_parse_test_file', ctf, ctfid)        
                         if (self._mh.fire_event(ev) > 0):
-                            ctf = ev.argv(0)
+                            ctf   = ev.argv(0)
+                            ctfid = ev.argv(1)
                         if ev.will_run_default():
                             try:
                                 if self._mh.run_mode == const.CORE_RUN_MODE_SINGLE_APP:                                                                         
-                                    self.process_test_set(ctf)
+                                    self.process_test_set(ctf, ctfid)
                                 else:                                   
-                                    self.pp_process_test_set(ctf)
+                                    self.pp_process_test_set(ctf, ctfid)
                             except BreakTestSet as exc:
                                 dmsg(self._mh._trn.msg('yoda_received_break','test set'))
                                 continue    
@@ -712,15 +714,16 @@ class Extension(extension.Extension):
                                 dmsg(self._mh._trn.msg('yoda_received_break','test run'))
                                 break 
                 else:
-                    ev = event.Event('yoda_before_parse_test_file', tf)        
+                    ev = event.Event('yoda_before_parse_test_file', tf, tfid)        
                     if (self._mh.fire_event(ev) > 0):
-                        tf = ev.argv(0)
+                        tf   = ev.argv(0)
+                        tfid = ev.argv(1)
                     if ev.will_run_default():                                           
                         try:                                         
                             if self._mh.run_mode == const.CORE_RUN_MODE_SINGLE_APP:                                                                            
-                                self.process_test_set(tf)
+                                self.process_test_set(tf, tfid)
                             else:                                
-                                self.pp_process_test_set(tf)
+                                self.pp_process_test_set(tf, tfid)
                         except BreakTestSet as exc:
                             dmsg(self._mh._trn.msg('yoda_received_break','test set'))
                             continue
@@ -741,7 +744,7 @@ class Extension(extension.Extension):
         else:
             self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_no_tests_found_in_path', self._current_test_base_path), self._mh.fromhere())
     
-    def pp_process_test_set(self, test_set_file):
+    def pp_process_test_set(self, test_set_file, test_set_file_id):
         """Method creates ticket to execute test set in parallel mode
         
         Args:
@@ -753,11 +756,11 @@ class Extension(extension.Extension):
         """ 
                 
         dmsg(self._mh._trn.msg('yoda_processing_tset_parallel',test_set_file))
-        ticket_id = self._mh.async_ext_fn((self,'pp_run_test_set'), None, test_set_file)
+        ticket_id = self._mh.async_ext_fn((self,'pp_run_test_set'), None, test_set_file, test_set_file_id)
         dmsg(self._mh._trn.msg('yoda_got_ticket',ticket_id,test_set_file))
         self._active_tickets.append(ticket_id)
     
-    def pp_run_test_set(self, test_set_file):
+    def pp_run_test_set(self, test_set_file, test_set_file_id):
         """Method executes test set in parallel mode
         
         Args:
@@ -775,7 +778,7 @@ class Extension(extension.Extension):
         dmsg(self._mh._trn.msg('yoda_processing_tset',test_set_file), 1)
         tset_struct = self._test_engine.load_tset_from_file(test_set_file)
         if tset_struct != False:                    
-            tset_obj = self._test_engine.parse_tset_struct(tset_struct);
+            tset_obj = self._test_engine.parse_tset_struct(tset_struct, test_set_file_id);
             self._test_engine.test_run.norun_tests += tset_obj.parsed_tests['total_tco']
             if tset_obj != False:
                 if self._test_engine.have_test_results_db:
@@ -800,7 +803,7 @@ class Extension(extension.Extension):
         else:
             raise Exception("Failed to load tset_struct")
         
-    def process_test_set(self, test_set_file):
+    def process_test_set(self, test_set_file, test_set_file_id):
         """Method executes test set in single mode
         
         Args:
@@ -816,7 +819,7 @@ class Extension(extension.Extension):
                 
         tset_struct = self._test_engine.load_tset_from_file(test_set_file)
         if tset_struct != False:                    
-            tset_obj = self._test_engine.parse_tset_struct(tset_struct);
+            tset_obj = self._test_engine.parse_tset_struct(tset_struct, test_set_file_id);
             self._test_engine.test_run.norun_tests += tset_obj.parsed_tests['total_tco']
             if tset_obj != False:
                 if self._test_engine.have_test_results_db:

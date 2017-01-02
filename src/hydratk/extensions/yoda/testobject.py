@@ -736,6 +736,7 @@ class TestSet(TestObject):
     """
     
     _id                      = None
+    _test_set_file_id        = None
     _obj_name                = 'TestSet'
     _test_obj_name           = 'Test-Set'
     _attr                    = {}
@@ -805,7 +806,20 @@ class TestSet(TestObject):
         """ current_test_set_file property setter """
         
         self._current_test_set_file = path 
-         
+    
+    @property
+    def current_test_set_file_id(self):
+        """ test_set_file_id property getter, setter """
+        
+        return self._test_set_file_id
+    
+    @current_test_set_file_id.setter
+    def current_test_set_file_id(self, fid):
+        """ test_set_file_id property setter """
+        
+        self._test_set_file_id = fid 
+    
+    #test_set_file_id     
     @property
     def parsed_tests(self):
         """ parsed_tests property getter, setter """
@@ -927,7 +941,7 @@ class TestSet(TestObject):
         
         self._end_time = time            
     
-    def __init__(self, current, test_set_file):
+    def __init__(self, current, test_set_file, test_set_file_id):
         """Class constructor
         
         Called when object is initialized
@@ -943,7 +957,8 @@ class TestSet(TestObject):
        
         id_salt = '{0}{1}{2}'.format(test_set_file,random.randint(100000000, 999999999),current.te.exec_level)
         self._current_test_set_file   = test_set_file
-        self._id                      = hashlib.md5('{0}{1}{2}'.format(current.te.test_run.id, self._current_test_set_file, id_salt).encode('utf-8')).hexdigest()    
+        self._id                      = hashlib.md5('{0}{1}{2}'.format(current.te.test_run.id, self._current_test_set_file, id_salt).encode('utf-8')).hexdigest()
+        self._test_set_file_id        = test_set_file_id    
         self._total_tests             = 0
         self._failed_tests            = 0
         self._passed_tests            = 0
@@ -1101,8 +1116,11 @@ class TestSet(TestObject):
                              
         for ts in self.ts:
             run_ts = True
-            if current.te.ts_filter is not None and type(current.te.ts_filter).__name__ == 'list' and len(current.te.ts_filter) > 0:                    
-                if ts.id is not None and ts.id != '' and ts.id not in current.te.ts_filter:                                        
+            
+            #Test Scenarion filter apply                        
+            ts_filter = current.te.get_ts_filter(self.current_test_set_file_id)    
+            if ts_filter is not None and type(ts_filter).__name__ == 'list' and len(ts_filter) > 0:                    
+                if ts.id is not None and ts.id != '' and ts.id not in ts_filter:                                        
                     run_ts = False
                 
             if run_ts:
@@ -1345,8 +1363,9 @@ class TestScenario(TestObject):
         current           = self._current       
         parent            = self._parent
         mh                = MasterHead.get_head()
-        test_hierarchy    = {
+        test_hierarchy    = {                             
                                'test_set_file'       : this.parent.current_test_set_file,
+                               'test_set_file_id'    : this.parent.current_test_set_file_id,
                                'test_scenario'       : "Test-Scenario-{0}".format(self._num),
                                'test_scenario_node'  : None, 
                                'test_case'           : None,
@@ -1354,7 +1373,7 @@ class TestScenario(TestObject):
                                'test_condition'      : None,
                                'test_condition_node' : None     
                             }
-        
+       
         if self.pre_req != None:
             try:
                 ev = Event('yoda_before_exec_ts_prereq', self.pre_req)        
@@ -1445,8 +1464,9 @@ class TestScenario(TestObject):
                                  
         for tca in self.tca:
             run_tca = True
-            if current.te.tca_filter is not None and type(current.te.tca_filter).__name__ == 'list' and len(current.te.tca_filter) > 0:
-                if tca.id is not None and tca.id != '' and tca.id not in current.te.tca_filter:
+            tca_filter = current.te.get_tca_filter(test_hierarchy['test_set_file_id'])
+            if tca_filter is not None and type(tca_filter).__name__ == 'list' and len(tca_filter) > 0:
+                if tca.id is not None and tca.id != '' and tca.id not in tca_filter:
                     run_tca = False
             
             if run_tca:
@@ -1942,6 +1962,7 @@ class TestCase(TestObject):
         mh                = MasterHead.get_head()                    
         test_hierarchy    = {
                        'test_set_file'       : this.parent.parent.current_test_set_file,
+                       'test_set_file_id'    : this.parent.parent.current_test_set_file_id,
                        'test_scenario'       : "Test-Scenario-{0}".format(parent.num),
                        'test_scenario_node'  : None, 
                        'test_case'           : "Test-Case-{0}".format(self._num),
@@ -1993,8 +2014,9 @@ class TestCase(TestObject):
                       
         for tco in self.tco:
             run_tco = True
-            if current.te.tco_filter is not None and type(current.te.tco_filter).__name__ == 'list' and len(current.te.tco_filter) > 0:
-                if tco.id is not None and tco.id != '' and tco.id not in current.te.tco_filter:
+            tco_filter = current.te.get_tco_filter(test_hierarchy['test_set_file_id'])
+            if tco_filter is not None and type(tco_filter).__name__ == 'list' and len(tco_filter) > 0:            
+                if tco.id is not None and tco.id != '' and tco.id not in tco_filter:
                     run_tco = False
             
             if run_tco:

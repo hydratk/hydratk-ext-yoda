@@ -10,6 +10,7 @@
 
 import os
 import sys
+import md5
 from hydratk.core.masterhead import MasterHead
 from hydratk.core.event import Event
 import yaml
@@ -452,6 +453,7 @@ class TestEngine(MacroParser):
     _tset_struct     = None
     _tset_obj        = None
     _tset_file       = None
+    _tset_counter    = 0
     _this            = None
     _parent          = None
     _current         = None
@@ -459,9 +461,9 @@ class TestEngine(MacroParser):
     _code_stack      = None 
     _run_mode_area   = 'inrepo' # available modes: inrepo, global  
     _run_mode_src    = 'folder' # available modes: folder, singlefile
-    _ts_filter       = []
-    _tca_filter      = []
-    _tco_filter      = [] 
+    _ts_filter       = {}
+    _tca_filter      = {}
+    _tco_filter      = {} 
     _config          = {
                          'cache.tset.active' : False,
                          'cache.tset.location' : 'inrepo' #possible: inrepo, customdir, memcache                        
@@ -549,41 +551,18 @@ class TestEngine(MacroParser):
         
         self._helpers_repo = path
 
-    @property
-    def ts_filter(self):
-        """ ts_filter property getter, setter """
-        
-        return self._ts_filter;
     
-    @ts_filter.setter
-    def ts_filter(self, fltr):
-        """ ts_filter property setter """
-        
-        self._ts_filter = fltr
+    def get_ts_filter(self, index_file):
+        return self._ts_filter[index_file] if index_file in self._ts_filter else None  
+   
+       
+    def get_tca_filter(self, index_file):
+        return self._tca_filter[index_file] if index_file in self._tca_filter else None          
     
-    @property
-    def tca_filter(self):
-        """ tca_filter property getter, setter """
         
-        return self._tca_filter;
+    def get_tco_filter(self, index_file):
+        return self._tco_filter[index_file] if index_file in self._tco_filter else None       
     
-    @tca_filter.setter
-    def tca_filter(self, fltr):
-        """ tca_filter property setter """
-        
-        self._tca_filter = fltr
-        
-    @property
-    def tco_filter(self):
-        """ tco_filter property getter, setter """
-        
-        return self._tco_filter;
-    
-    @tco_filter.setter
-    def tco_filter(self, fltr):
-        """ tco_filter property setter """
-        
-        self._tco_filter = fltr
     
     @property
     def run_mode_area(self):
@@ -656,6 +635,7 @@ class TestEngine(MacroParser):
         self._tset_struct     = None
         self._tset_obj        = None
         self._tset_file       = None
+        self._tset_counter    = 0
         self._this            = None
         self._parent          = Parent()
         self._current         = Current()
@@ -665,9 +645,9 @@ class TestEngine(MacroParser):
         self._code_stack      = CodeStack()
         self._run_mode_area   = 'inrepo'
         self._run_mode_src    = 'folder'
-        self._ts_filter       = []
-        self._tca_filter      = []
-        self._tco_filter      = [] 
+        self._ts_filter       = {}
+        self._tca_filter      = {}
+        self._tco_filter      = {} 
         self._exec_level      = 1
                 
         self.mp_add_hooks({
@@ -800,7 +780,7 @@ class TestEngine(MacroParser):
             self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_parsing_test_condition',tco_key,tco_val), self._mh.fromhere(), 5)    
             tco.setattr(tco_key.lower(), tco_val)            
                        
-    def parse_tset_struct(self, tset_struct):
+    def parse_tset_struct(self, tset_struct, tset_id):
         """Method parses test set
         
         Hierarchy test scenario, case, condition
@@ -815,7 +795,7 @@ class TestEngine(MacroParser):
                 
         tset_obj = False
         if (type(tset_struct).__name__ == 'dict'):
-            tset_obj = TestSet(self._current, self._tset_file)
+            tset_obj = TestSet(self._current, self._tset_file, tset_id)
                                     
             ts_num = 1
             ts_k = 'Test-Scenario-%d' % ts_num
@@ -939,18 +919,22 @@ class TestEngine(MacroParser):
         """ 
                 
         dmsg(self._mh._trn.msg('yoda_parsing_container',container_file))
-        test_files = []
+        test_files    = []
+        test_files_id = []
         if os.path.isfile(container_file):
             cdata = fs.file_get_contents(container_file)
             test_path_tok = cdata.split("\n")
             for test_path in test_path_tok:                
                 test_path = test_path.strip() #remove unwanted whitespace characters
+                if test_path[0] == '#': continue #comment detected
                 dmsg(self._mh._trn.msg('yoda_processing_container',test_path))
                 if test_path != '' and test_path[0] != '/': # in repository test set                                        
                     test_path                       = self._templates_repo + test_path                                    
-                test_files = test_files + self.get_all_tests_from_path(test_path)  
+                test_f, test_f_id = self.get_all_tests_from_path(test_path)
+                test_files = test_files + test_f
+                test_files_id = test_files_id + test_f_id  
                    
-        return test_files   
+        return (test_files, test_files_id)   
     
     def get_all_tests_from_path(self, test_path):
         """Method returns all found test in path
@@ -967,31 +951,49 @@ class TestEngine(MacroParser):
            event: yoda_before_append_test_file
                   
         """  
-               
-        test_files = []
+        self._tset_counter += 1 
+        test_path_id = md5.new("{0}{1}".format(self._tset_counter,test_path)).hexdigest()      
+        test_files   = []
+        test_file_id = []
         dmsg(self._mh._trn.msg('yoda_getting_tests',test_path))
-                
+        ts_filter  = None
+        tca_filter = None
+        tco_filter = None        
         if re.search(':', test_path):
+            
             tokens     = test_path.split(':')
             test_path  = tokens[0]
-            ts_filter  = None if tokens[1] == '' else tokens[1]
-            if ts_filter is not None and ts_filter not in self.ts_filter:            
-                self.ts_filter.append(ts_filter)
-            tca_filter = None
-            tco_filter = None
+            ts_filter  = None if tokens[1] == '' else tokens[1]                        
             if len(tokens) > 2:
-                tca_filter = None if tokens[2] == '' else tokens[2]
-                if tca_filter is not None and tca_filter not in self.tca_filter:
-                    self.tca_filter.append(tca_filter)
+                tca_filter = None if tokens[2] == '' else tokens[2]               
             if len(tokens) > 3:
                 tco_filter = None if tokens[3] == '' else tokens[3]
-                if tco_filter is not None and tco_filter not in self.tco_filter:
-                    self.tco_filter.append(tco_filter)
             self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_filter_parameters',test_path,ts_filter,tca_filter,tco_filter), self._mh.fromhere())                              
         
         if os.path.exists(test_path) == False:
             self._mh.dmsg('htk_on_warning', self._mh._trn.msg('yoda_unknown_test_path',test_path), self._mh.fromhere())
             #TODO throw exception here
+        else:
+            if ts_filter is not None and ts_filter not in self._ts_filter: 
+                #if the filter list is not initialized do it here                
+                if test_path not in self._ts_filter:                    
+                    self._ts_filter[test_path_id] = []
+                                  
+                self._ts_filter[test_path_id].append(ts_filter)
+                
+            if tca_filter is not None and tca_filter not in self._tca_filter:
+                #if the filter list is not initialized do it here
+                if test_path not in self._tca_filter:
+                    self._tca_filter[test_path_id] = []
+                    
+                self._tca_filter[test_path_id].append(tca_filter)
+                
+            if tco_filter is not None and tco_filter not in self._tco_filter:
+                #if the filter list is not initialized do it here
+                if test_path not in self._tco_filter:
+                    self._tco_filter[test_path_id] = []
+                    
+                self._tco_filter[test_path_id].append(tco_filter)                
                 
         if os.path.isfile(test_path):
             self.run_mode_src = 'singlefile'
@@ -1000,13 +1002,16 @@ class TestEngine(MacroParser):
             
             if file_ext in self._test_file_ext:
                 if file_ext == 'yoda': #parsing yoda container 
-                    container_files = self.get_all_tests_from_container(test_path)
+                    container_files, container_file_id = self.get_all_tests_from_container(test_path)
                     if len(container_files) > 1:
                         test_files.append(container_files)
+                        test_file_id.append(container_file_id)
                     elif len(container_files) == 1:                        
                         test_files = test_files + container_files 
+                        test_file_id = test_file_id + container_file_id
                 else:
                     test_files.append(test_path) 
+                    test_file_id.append(test_path_id)
             else:
                 self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_unknown_test_path',file_ext, test_path), self._mh.fromhere()) 
         else:
@@ -1016,20 +1021,26 @@ class TestEngine(MacroParser):
                 for fname in filelist:
                     file_extension = os.path.splitext(fname)[1][1:]
                     test_file = dirname + '/' + fname
+                    self._tset_counter += 1
+                    test_f_id = md5.new("{0}{1}".format(self._tset_counter,test_file)).hexdigest() 
                     if file_extension in self._test_file_ext:                        
                         if file_extension == 'yoda': #parsing yoda container
-                            container_files = self.get_all_tests_from_container(test_file)
+                            container_files, container_file_id = self.get_all_tests_from_container(test_file)
                             if len(container_files) > 1:
                                 test_files.append(container_files)
+                                test_file_id.append(container_file_id)
                             elif len(container_files) == 1:                        
-                                test_files = test_files + container_files                                                        
+                                test_files = test_files + container_files
+                                test_file_id = test_file_id + container_file_id                                                        
                         else:                              
-                            ev = Event('yoda_before_append_test_file', test_file)        
+                            ev = Event('yoda_before_append_test_file', test_file, test_file_id)        
                             if (self._mh.fire_event(ev) > 0):
                                 test_file = ev.argv(0)
                             if ev.will_run_default():
                                 test_files.append(test_file)
-        return test_files  
+                                test_file_id.append(test_f_id)
+                                
+        return (test_files, test_file_id)  
 
 class CodeStack():
     """Class CodeStack
