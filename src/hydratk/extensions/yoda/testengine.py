@@ -696,7 +696,8 @@ class TestEngine(MacroParser):
            tset_file (str): filename including path 
            
         Returns:
-           bool: result
+           dict: test set when loaded
+           bool: False otherwise
                 
         """ 
                  
@@ -715,7 +716,8 @@ class TestEngine(MacroParser):
            origin_file (bool): string loaded from file
            
         Returns:
-           dict: test set
+           dict: test set when loaded
+           bool: False otherwise
                 
         """ 
                 
@@ -787,6 +789,7 @@ class TestEngine(MacroParser):
         
         Args:  
            tset_struct (dict): test set structure
+           tset_id (str): test set id
            
         Returns:
            obj: test set
@@ -869,18 +872,20 @@ class TestEngine(MacroParser):
             else:                
                 self.run_mode_area = 'inrepo'                    
                 test_path                       = self._templates_repo + test_path                
-                self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_running_tset_repo',test_path), self._mh.fromhere())  
-            test_files = self.get_all_tests_from_path(test_path)
+                self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_running_tset_repo',test_path), self._mh.fromhere())
+            
+            test_files, test_file_id = self.get_all_tests_from_path(test_path)
             self.test_run.total_test_sets += len(test_files)
             
-            for tf in test_files:
+            for i in range(0, len(test_files)):
+                tf = test_files[i]
                 ev = Event('yoda_before_parse_test_file', tf)        
                 if (self._mh.fire_event(ev) > 0):
                     tf = ev.argv(0)
                 if ev.will_run_default():
                     tset_struct = self.load_tset_from_file(tf)
                     if tset_struct != False:                    
-                        tset_obj = self.parse_tset_struct(tset_struct);
+                        tset_obj = self.parse_tset_struct(tset_struct, test_file_id[i]);
                         if tset_obj != False:
                             try:
                                 dmsg(self._mh._trn.msg('yoda_create_tset_db',tf), 1)                    
@@ -900,6 +905,7 @@ class TestEngine(MacroParser):
                                 raise Exception(self._mh._trn.msg('yoda_update_tset_db_error'))
                             if test_path in self._test_run.inline_tests:
                                 self._test_run.inline_tests.remove(test_path)
+                i += 1
             
             self._current.tset = backup_tset 
             self._current.ts   = backup_ts
@@ -945,7 +951,7 @@ class TestEngine(MacroParser):
            test_path (str): test path
         
         Returns:            
-           list: test_files
+           tuple: test_files (list), test_id (list)
            
         Raises:
            event: yoda_before_append_test_file
