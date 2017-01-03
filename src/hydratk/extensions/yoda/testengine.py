@@ -926,7 +926,7 @@ class TestEngine(MacroParser):
             test_path_tok = cdata.split("\n")
             for test_path in test_path_tok:                
                 test_path = test_path.strip() #remove unwanted whitespace characters
-                if test_path[0] == '#': continue #comment detected
+                if test_path != '' and test_path[0] == '#': continue #comment detected
                 dmsg(self._mh._trn.msg('yoda_processing_container',test_path))
                 if test_path != '' and test_path[0] != '/': # in repository test set                                        
                     test_path                       = self._templates_repo + test_path                                    

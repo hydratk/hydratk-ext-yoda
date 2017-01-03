@@ -138,7 +138,7 @@ def gen_date(date_format='iso', start=None, end=None, current=None, time_zone=No
     Args:
        date_format (str): format iso|unix or any format supported by strftime
        start (str): start date with date_format supported by strftime                    
-       end (str): end date with date_format suported nu strftime
+       end (str): end date with date_format suported by strftime
        current (str): current year|month|day|hour|minute
        time_zone (str): time zone, see pytz documentation for info
        cnt (int): count of generated samples
