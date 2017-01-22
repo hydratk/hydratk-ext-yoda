@@ -82,6 +82,10 @@ Initializes yoda repositories.
 
 Method checks if all required modules are installed.
 
+* _uninstall
+
+Method returns additional uninstall data.
+
 * _init_repos
 
 Method sets _test_repo_root, _libs_repo, _templates_repo, _helpers_repo according to configuration.
