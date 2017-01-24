@@ -553,17 +553,44 @@ class TestEngine(MacroParser):
 
     
     def get_ts_filter(self, index_file):
+        """Method gets test scenario filter
+        
+        Args:  
+           index_file (str): file index 
+           
+        Returns:
+           dict
+                
+        """ 
+                
         return self._ts_filter[index_file] if index_file in self._ts_filter else None  
-   
        
     def get_tca_filter(self, index_file):
-        return self._tca_filter[index_file] if index_file in self._tca_filter else None          
-    
+        """Method gets test case filter
         
+        Args:  
+           index_file (str): file index 
+           
+        Returns:
+           dict
+                
+        """ 
+                
+        return self._tca_filter[index_file] if index_file in self._tca_filter else None          
+            
     def get_tco_filter(self, index_file):
+        """Method get test condition filter
+        
+        Args:  
+           index_file (str): file index 
+           
+        Returns:
+           dict
+                
+        """ 
+                
         return self._tco_filter[index_file] if index_file in self._tco_filter else None       
-    
-    
+        
     @property
     def run_mode_area(self):
         """ run_mode_area property getter, setter """

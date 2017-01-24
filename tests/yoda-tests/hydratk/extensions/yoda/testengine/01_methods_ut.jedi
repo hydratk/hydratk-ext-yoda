@@ -456,7 +456,7 @@ Test-Scenario-5:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        ts = TestSet(cur, '<str>') 
+        ts = TestSet(cur, '<str>', '<id>') 
         tsc = TestScenario('test1', ts, cur)
         tsc._attr['id'] = 'test1'
         tc = TestCase('case1', tsc, cur)
@@ -508,7 +508,7 @@ Test-Scenario-6:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        ts = TestSet(cur, '<str>') 
+        ts = TestSet(cur, '<str>', '<id>') 
         tsc = TestScenario('test1', ts, cur)
         tsc._attr['id'] = 'test1'
         tca = TestCase('case1', tsc, cur)
@@ -586,7 +586,7 @@ Test-Scenario-7:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        ts = TestSet(cur, '<str>') 
+        ts = TestSet(cur, '<str>', '<id>') 
         tsc = TestScenario('test1', ts, cur)
         tsc._attr['id'] = 'test1'    
         res = tsc.__class__.__name__
@@ -661,7 +661,7 @@ Test-Scenario-8:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        ts = TestSet(cur, '<str>')   
+        ts = TestSet(cur, '<str>', '<id>')   
         res = ts.__class__.__name__
                                                                    
       Validate: |

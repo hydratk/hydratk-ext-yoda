@@ -371,45 +371,6 @@ Test-Scenario-7:
         
     Test-Condition-8: 
       Id: tco_08
-      Name: tco_ts_filter
-      Desc: Getter ts_filter
-      
-      Test: |
-        res = te.ts_filter
-      
-      Validate: |          
-        this.test_result = str(res)
-        exp = te._ts_filter
-        assert (res == exp), 'ts_filter = {0}'.format(exp)       
-        
-    Test-Condition-9: 
-      Id: tco_09
-      Name: tco_tca_filter
-      Desc: Getter tca_filter
-      
-      Test: |
-        res = te.tca_filter
-      
-      Validate: |          
-        this.test_result = str(res)
-        exp = te._tca_filter
-        assert (res == exp), 'tca_filter = {0}'.format(exp)      
-        
-    Test-Condition-10: 
-      Id: tco_10
-      Name: tco_tco_filter
-      Desc: Getter tco_filter
-      
-      Test: |
-        res = te.tco_filter
-      
-      Validate: |          
-        this.test_result = str(res)
-        exp = te._tco_filter
-        assert (res == exp), 'tco_filter = {0}'.format(exp) 
-        
-    Test-Condition-11: 
-      Id: tco_11
       Name: tco_run_mode_area
       Desc: Getter run_mode_area
       
@@ -421,8 +382,8 @@ Test-Scenario-7:
         exp = te._run_mode_area
         assert (res == exp), 'run_mode_area = {0}'.format(exp)
         
-    Test-Condition-12: 
-      Id: tco_12
+    Test-Condition-9: 
+      Id: tco_09
       Name: tco_run_mode_src
       Desc: Getter run_mode_src
       
@@ -434,8 +395,8 @@ Test-Scenario-7:
         exp = te._run_mode_src
         assert (res == exp), 'run_mode_src = {0}'.format(exp)  
         
-    Test-Condition-13: 
-      Id: tco_13
+    Test-Condition-10: 
+      Id: tco_10
       Name: tco_exec_level
       Desc: Getter exec_level
       
@@ -447,8 +408,8 @@ Test-Scenario-7:
         exp = te._exec_level
         assert (res == exp), 'exec_level = {0}'.format(exp)   
         
-    Test-Condition-14: 
-      Id: tco_14
+    Test-Condition-11: 
+      Id: tco_11
       Name: tco_test_simul_mode
       Desc: Getter test_simul_mode
       
@@ -460,8 +421,8 @@ Test-Scenario-7:
         exp = te._test_simul_mode
         assert (res == exp), 'test_simul_mode = {0}'.format(exp) 
         
-    Test-Condition-15: 
-      Id: tco_15
+    Test-Condition-12: 
+      Id: tco_12
       Name: tco_test_run
       Desc: Getter test_run
       
@@ -549,45 +510,6 @@ Test-Scenario-7:
         
     Test-Condition-6: 
       Id: tco_06
-      Name: tco_ts_filter
-      Desc: Setter ts_filter
-      
-      Test: |
-        te.ts_filter = obj
-        res = te.ts_filter
-      
-      Validate: |          
-        this.test_result = str(res)
-        assert (res == obj), 'ts_filter = {0}'.format(obj)  
-        
-    Test-Condition-7: 
-      Id: tco_07
-      Name: tco_tca_filter
-      Desc: Setter tca_filter
-      
-      Test: |
-        te.tca_filter = obj
-        res = te.tca_filter
-      
-      Validate: |          
-        this.test_result = str(res)
-        assert (res == obj), 'tca_filter = {0}'.format(obj) 
-        
-    Test-Condition-8: 
-      Id: tco_08
-      Name: tco_tco_filter
-      Desc: Setter tco_filter
-      
-      Test: |
-        te.tco_filter = obj
-        res = te.tco_filter
-      
-      Validate: |          
-        this.test_result = str(res)
-        assert (res == obj), 'tco_filter = {0}'.format(obj) 
-        
-    Test-Condition-9: 
-      Id: tco_09
       Name: tco_run_mode_area
       Desc: Setter run_mode_area
       
@@ -599,8 +521,8 @@ Test-Scenario-7:
         this.test_result = str(res)
         assert (res == 'inrepo'), 'run_mode_area = inrepo'
         
-    Test-Condition-10: 
-      Id: tco_10
+    Test-Condition-7: 
+      Id: tco_07
       Name: tco_run_mode_src
       Desc: Setter run_mode_src
       
@@ -612,8 +534,8 @@ Test-Scenario-7:
         this.test_result = str(res)
         assert (res == 'singlefile'), 'run_mode_src = singlefile'   
         
-    Test-Condition-11: 
-      Id: tco_11
+    Test-Condition-8: 
+      Id: tco_08
       Name: tco_test_simul_mode
       Desc: Setter test_simul_mode
       
@@ -625,8 +547,8 @@ Test-Scenario-7:
         this.test_result = str(res)
         assert (res), 'test_simul_mode = True'   
         
-    Test-Condition-12: 
-      Id: tco_12
+    Test-Condition-9: 
+      Id: tco_09
       Name: tco_test_run
       Desc: Setter test_run
       
