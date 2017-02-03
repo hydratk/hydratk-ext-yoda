@@ -24,7 +24,7 @@ Test-Scenario-1:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        ts = TestSet(cur, '<str>')
+        ts = TestSet(cur, '<str>', '<id>')
         res = ts.__class__.__name__
       
       Validate: |
@@ -57,7 +57,7 @@ Test-Scenario-2:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        ts = TestSet(cur, '<str>')
+        ts = TestSet(cur, '<str>', '<id>')
         res = ts.id
       
       Validate: |        
@@ -234,6 +234,19 @@ Test-Scenario-2:
         exp = ts._end_time
         assert (res == exp), 'end_time = {0}'.format(exp)   
         
+    Test-Condition-15: 
+      Id: tco_15
+      Name: tco_current_test_set_file_id
+      Desc: Getter current_test_set_file_id
+      
+      Test: |
+        res = ts.current_test_set_file_id
+      
+      Validate: |        
+        this.test_result = str(res)
+        exp = ts._test_set_file_id
+        assert (res == exp), 'current_test_set_file_id = {0}'.format(exp)           
+        
   Test-Case-2:
     Id: tc_02
     Name: tc_setters
@@ -248,7 +261,7 @@ Test-Scenario-2:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        ts = TestSet(cur, '<str>')
+        ts = TestSet(cur, '<str>', '<id>')
         obj = 'test'
         ts.test_run = obj
         res = ts.test_run
@@ -413,6 +426,19 @@ Test-Scenario-2:
         this.test_result = str(res)
         assert (res == obj), 'end_time = {0}'.format(obj) 
         
+    Test-Condition-14: 
+      Id: tco_14
+      Name: tco_current_test_set_file_id
+      Desc: Setter current_test_set_file_id
+      
+      Test: |
+        ts.current_test_set_file_id = obj
+        res = ts.current_test_set_file_id
+        
+      Validate: |      
+        this.test_result = str(res)
+        assert (res == obj), 'current_test_set_file_id = {0}'.format(obj)         
+        
 Test-Scenario-3:
   Id: ts_03
   Path: hydratk/extensions/yoda/testobject/02_methods_ut.jedi
@@ -439,7 +465,7 @@ Test-Scenario-3:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        ts = TestSet(cur, '<str>')
+        ts = TestSet(cur, '<str>', '<id>')
         res = ts.__repr__()
         
       Validate: |      
@@ -473,7 +499,7 @@ Test-Scenario-4:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        ts = TestSet(cur, '<str>')  
+        ts = TestSet(cur, '<str>', '<id>')  
         ts.total_tests = ts.failed_tests = ts.passed_tests = None
         ts.reset_data()
         res = [ts.total_tests, ts.failed_tests, ts.passed_tests]                                                                                                                                           
@@ -510,7 +536,7 @@ Test-Scenario-5:
             mh = MasterHead.get_head()
             ext = mh._ext['Yoda']
             cur = ext._test_engine.test_run
-            ts = TestSet(cur, '<str>')   
+            ts = TestSet(cur, '<str>', '<id>')   
             ts.break_test_set('test')
             ex = False
         except BreakTestSet:
@@ -546,7 +572,7 @@ Test-Scenario-6:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        ts = TestSet(cur, '<str>') 
+        ts = TestSet(cur, '<str>', '<id>') 
         tsc = TestScenario('test1', ts, cur)
         res = tsc.__class__.__name__
         
@@ -580,7 +606,7 @@ Test-Scenario-7:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        ts = TestSet(cur, '<str>') 
+        ts = TestSet(cur, '<str>', '<id>') 
         tsc = TestScenario('test1', ts, cur) 
         res = tsc.obj_id             
         
@@ -799,7 +825,7 @@ Test-Scenario-7:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        ts = TestSet(cur, '<str>') 
+        ts = TestSet(cur, '<str>', '<id>') 
         tsc = TestScenario('test1', ts, cur)
         obj = 'test' 
         tsc.resolution = obj
@@ -979,7 +1005,7 @@ Test-Scenario-8:
             mh = MasterHead.get_head()
             ext = mh._ext['Yoda']
             cur = ext._test_engine.test_run
-            ts = TestSet(cur, '<str>') 
+            ts = TestSet(cur, '<str>', '<id>') 
             tsc = TestScenario('test1', ts, cur)
             tsc.break_test_scenario('test') 
             ex = False             
@@ -1017,7 +1043,7 @@ Test-Scenario-9:
             mh = MasterHead.get_head()
             ext = mh._ext['Yoda']
             cur = ext._test_engine.test_run
-            ts = TestSet(cur, '<str>') 
+            ts = TestSet(cur, '<str>', '<id>') 
             tsc = TestScenario('test1', ts, cur)
             tsc.break_test_set('test') 
             ex = False             
@@ -1055,7 +1081,7 @@ Test-Scenario-10:
             mh = MasterHead.get_head()
             ext = mh._ext['Yoda']
             cur = ext._test_engine.test_run
-            ts = TestSet(cur, '<str>') 
+            ts = TestSet(cur, '<str>', '<id>') 
             tsc = TestScenario('test1', ts, cur)
             tsc.break_test_run('test') 
             ex = False             

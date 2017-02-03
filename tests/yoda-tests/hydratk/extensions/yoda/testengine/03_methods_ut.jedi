@@ -228,7 +228,7 @@ Test-Scenario-5:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        tset = TestSet(cur, '<str>') 
+        tset = TestSet(cur, '<str>', '<id>') 
         tsc = TestScenario('test1', tset, cur)      
         te = TestEngine()
         te._parse_ts_node(ts, tsc)        
@@ -267,7 +267,7 @@ Test-Scenario-6:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        tset = TestSet(cur, '<str>') 
+        tset = TestSet(cur, '<str>', '<id>') 
         tsc = TestScenario('test1', tset, cur)      
         tsc._attr['id'] = 'test1'
         tca = TestCase('case1', tsc, cur)         
@@ -308,7 +308,7 @@ Test-Scenario-7:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        tset = TestSet(cur, '<str>') 
+        tset = TestSet(cur, '<str>', '<id>') 
         tsc = TestScenario('test1', tset, cur)      
         tsc._attr['id'] = 'test1'
         tca = TestCase('case1', tsc, cur) 
@@ -353,7 +353,7 @@ Test-Scenario-8:
         te._current = ext._test_engine.test_run
         cur = [8, 8, 13]
         te._tset_file = 'file.jedi'       
-        res = te.parse_tset_struct(tset).parsed_tests
+        res = te.parse_tset_struct(tset, '<id>').parsed_tests
         res = [res['total_ts'], res['total_tca'], res['total_tco']]
       
       Validate: |                     
@@ -387,7 +387,7 @@ Test-Scenario-9:
         ext = th._ext['Yoda'] 
         te = ext._test_engine = TestEngine()              
         path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi'
-        res = te.get_all_tests_from_path(path)
+        res = te.get_all_tests_from_path(path)[0]
       
       Validate: |  
         this.test_result = str(res)
@@ -401,7 +401,7 @@ Test-Scenario-9:
       
       Test: |            
         path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda'
-        res = te.get_all_tests_from_path(path)
+        res = te.get_all_tests_from_path(path)[0]
       
       Validate: |  
         this.test_result = str(res)
@@ -415,7 +415,7 @@ Test-Scenario-9:
       
       Test: |           
         path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi'
-        res = te.get_all_tests_from_path(path+':ts_01:tc_01:tco_01')
+        res = te.get_all_tests_from_path(path+':ts_01:tc_01:tco_01')[0]
       
       Validate: |  
         this.test_result = str(res)
@@ -429,7 +429,7 @@ Test-Scenario-9:
       
       Test: |           
         path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda2/tset_01.jedi'
-        res = te.get_all_tests_from_path(path)
+        res = te.get_all_tests_from_path(path)[0]
       
       Validate: |  
         this.test_result = str(res)
@@ -443,7 +443,7 @@ Test-Scenario-9:
       
       Test: |           
         path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions'
-        res = te.get_all_tests_from_path(path)
+        res = te.get_all_tests_from_path(path)[0]
       
       Validate: |  
         this.test_result = str(res)
@@ -478,7 +478,7 @@ Test-Scenario-10:
         ext = th._ext['Yoda'] 
         te = ext._test_engine = TestEngine()                                          
         path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda'
-        res = te.get_all_tests_from_container(path+'/tset.cont')
+        res = te.get_all_tests_from_container(path+'/tset.cont')[0]
         
       Validate: |  
         this.test_result = str(res)
@@ -493,7 +493,7 @@ Test-Scenario-10:
       Test: |
         te._templates_repo = '/var/local/hydratk/yoda/helpers/'                                        
         path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda'
-        res = te.get_all_tests_from_container(path+'/tset2.cont')
+        res = te.get_all_tests_from_container(path+'/tset2.cont')[0]
         
       Validate: |  
         this.test_result = str(res)
@@ -507,7 +507,7 @@ Test-Scenario-10:
       
       Test: |           
         path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset3.cont'
-        res = te.get_all_tests_from_container(path)
+        res = te.get_all_tests_from_container(path)[0]
       
       Validate: |  
         this.test_result = str(res)

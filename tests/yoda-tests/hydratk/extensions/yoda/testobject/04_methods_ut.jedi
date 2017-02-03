@@ -95,7 +95,7 @@ Test-Scenario-2:
         te._test_results_db = ext.create_test_results_db()      
         tr = te._test_run = TestRun()  
         tr._te = te     
-        ts = TestSet(tr, name)
+        ts = TestSet(tr, name, '<id>')
         ts.create_db_record()      
         c = DBO(dsn)._dbo_driver        
         recs = c.execute(query).fetchall()
@@ -158,7 +158,7 @@ Test-Scenario-3:
         te._test_results_db = ext.create_test_results_db()      
         tr = te._test_run = TestRun()  
         tr._te = te     
-        ts = TestSet(tr, name)
+        ts = TestSet(tr, name, '<id>')
         tsc = TestScenario(name, ts, tr)
         tsc._attr['id'] = name
         tsc.create_db_record()      
@@ -223,7 +223,7 @@ Test-Scenario-4:
         te._test_results_db = ext.create_test_results_db()      
         tr = te._test_run = TestRun()  
         tr._te = te     
-        ts = TestSet(tr, name)
+        ts = TestSet(tr, name, '<id>')
         tsc = TestScenario(name, ts, tr)
         tsc._attr['id'] = name
         tca = TestCase(name, tsc, tr)
@@ -290,7 +290,7 @@ Test-Scenario-5:
         te._test_results_db = ext.create_test_results_db()      
         tr = te._test_run = TestRun()  
         tr._te = te     
-        ts = TestSet(tr, name)
+        ts = TestSet(tr, name, '<id>')
         tsc = TestScenario(name, ts, tr)
         tsc._attr['id'] = name
         tca = TestCase(name, tsc, tr)
@@ -357,7 +357,7 @@ Test-Scenario-6:
         te = ext._test_engine = TestEngine()             
         tr = te._test_run = TestRun()  
         tr._te = te     
-        ts = TestSet(tr, name)
+        ts = TestSet(tr, name, '<id>')
         tsc = TestScenario(name, ts, tr)
         tsc._attr['id'] = name
         ts.append_ts(tsc)
@@ -405,7 +405,7 @@ Test-Scenario-7:
         te._tset_file = 'file.jedi'    
         tr = te._test_run = TestRun()  
         tr._te = te
-        obj = te.parse_tset_struct(tset2)   
+        obj = te.parse_tset_struct(tset2, '<id>')   
         obj.run()
         c = DBO(dsn)._dbo_driver        
         recs = c.execute(query).fetchall()        
@@ -454,7 +454,7 @@ Test-Scenario-8:
         te._tset_file = 'file.jedi'    
         tr = te._test_run = TestRun()  
         tr._te = te
-        obj = te.parse_tset_struct(tset2)
+        obj = te.parse_tset_struct(tset2, '<id>')
         obj.run()     
         c = DBO(dsn)._dbo_driver    
         recs = c.execute(query).fetchall()        
@@ -503,7 +503,7 @@ Test-Scenario-9:
         te._tset_file = 'file.jedi'    
         tr = te._test_run = TestRun()  
         tr._te = te
-        obj = te.parse_tset_struct(tset2)
+        obj = te.parse_tset_struct(tset2, '<id>')
         obj.run()     
         c = DBO(dsn)._dbo_driver    
         recs = c.execute(query).fetchall()        

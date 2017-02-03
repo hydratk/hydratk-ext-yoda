@@ -132,6 +132,28 @@ class Extension(extension.Extension):
         
         return bootstrapper._check_dependencies(dep_modules, 'hydratk-ext-yoda')  
     
+    def _uninstall(self):
+        """Method returns additional uninstall data 
+        
+        Args:            
+           none
+           
+        Returns:
+           list: files to delete    
+                
+        """            
+        
+        files = [
+                 '/usr/share/man/man1/yoda.1',
+                 '/etc/hydratk/conf.d/hydratk-ext-yoda.conf',                 
+                 '/var/local/hydratk/yoda'
+                ]
+        
+        if (self._test_repo_root != '/var/local/hydratk/yoda'):
+            files.append(self._test_repo_root)
+            
+        return files
+    
     def _init_repos(self):
         """Method initializes test repositories
         

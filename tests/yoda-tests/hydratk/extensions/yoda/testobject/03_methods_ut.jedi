@@ -24,7 +24,7 @@ Test-Scenario-1:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        ts = TestSet(cur, '<str>') 
+        ts = TestSet(cur, '<str>', '<id>') 
         tsc = TestScenario('test1', ts, cur)
         tsc._attr['id'] = 'test1'
         tc = TestCase('case1', tsc, cur)
@@ -60,7 +60,7 @@ Test-Scenario-2:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        ts = TestSet(cur, '<str>') 
+        ts = TestSet(cur, '<str>', '<id>') 
         tsc = TestScenario('test1', ts, cur)
         tsc._attr['id'] = 'test1'
         tc = TestCase('case1', tsc, cur)        
@@ -294,7 +294,7 @@ Test-Scenario-2:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        ts = TestSet(cur, '<str>') 
+        ts = TestSet(cur, '<str>', '<id>') 
         tsc = TestScenario('test1', ts, cur)
         tsc._attr['id'] = 'test1'
         tc = TestCase('case1', tsc, cur)
@@ -489,7 +489,7 @@ Test-Scenario-3:
             mh = MasterHead.get_head()
             ext = mh._ext['Yoda']
             cur = ext._test_engine.test_run
-            ts = TestSet(cur, '<str>') 
+            ts = TestSet(cur, '<str>', '<id>') 
             tsc = TestScenario('test1', ts, cur)
             tsc._attr['id'] = 'test1'
             tc = TestCase('case1', tsc, cur)
@@ -529,7 +529,7 @@ Test-Scenario-4:
             mh = MasterHead.get_head()
             ext = mh._ext['Yoda']
             cur = ext._test_engine.test_run
-            ts = TestSet(cur, '<str>') 
+            ts = TestSet(cur, '<str>', '<id>') 
             tsc = TestScenario('test1', ts, cur)
             tsc._attr['id'] = 'test1'
             tc = TestCase('case1', tsc, cur)
@@ -569,7 +569,7 @@ Test-Scenario-5:
             mh = MasterHead.get_head()
             ext = mh._ext['Yoda']
             cur = ext._test_engine.test_run
-            ts = TestSet(cur, '<str>') 
+            ts = TestSet(cur, '<str>', '<id>') 
             tsc = TestScenario('test1', ts, cur)
             tsc._attr['id'] = 'test1'
             tc = TestCase('case1', tsc, cur)
@@ -608,7 +608,7 @@ Test-Scenario-6:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        ts = TestSet(cur, '<str>') 
+        ts = TestSet(cur, '<str>', '<id>') 
         tsc = TestScenario('test1', ts, cur)
         tsc._attr['id'] = 'test1'
         tc = TestCase('case1', tsc, cur)
@@ -646,7 +646,7 @@ Test-Scenario-7:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        ts = TestSet(cur, '<str>') 
+        ts = TestSet(cur, '<str>', '<id>') 
         tsc = TestScenario('test1', ts, cur)
         tsc._attr['id'] = 'test1'
         tc = TestCase('case1', tsc, cur)
@@ -869,7 +869,7 @@ Test-Scenario-7:
         mh = MasterHead.get_head()
         ext = mh._ext['Yoda']
         cur = ext._test_engine.test_run
-        ts = TestSet(cur, '<str>') 
+        ts = TestSet(cur, '<str>', '<id>') 
         tsc = TestScenario('test1', ts, cur)
         tsc._attr['id'] = 'test1'
         tc = TestCase('case1', tsc, cur)
@@ -1093,7 +1093,7 @@ Test-Scenario-8:
             mh = MasterHead.get_head()
             ext = mh._ext['Yoda']
             cur = ext._test_engine.test_run
-            ts = TestSet(cur, '<str>') 
+            ts = TestSet(cur, '<str>', '<id>') 
             tsc = TestScenario('test1', ts, cur)
             tsc._attr['id'] = 'test1'
             tc = TestCase('case1', tsc, cur)
@@ -1135,7 +1135,7 @@ Test-Scenario-9:
             mh = MasterHead.get_head()
             ext = mh._ext['Yoda']
             cur = ext._test_engine.test_run
-            ts = TestSet(cur, '<str>') 
+            ts = TestSet(cur, '<str>', '<id>') 
             tsc = TestScenario('test1', ts, cur)
             tsc._attr['id'] = 'test1'
             tc = TestCase('case1', tsc, cur)
@@ -1177,7 +1177,7 @@ Test-Scenario-10:
             mh = MasterHead.get_head()
             ext = mh._ext['Yoda']
             cur = ext._test_engine.test_run
-            ts = TestSet(cur, '<str>') 
+            ts = TestSet(cur, '<str>', '<id>') 
             tsc = TestScenario('test1', ts, cur)
             tsc._attr['id'] = 'test1'
             tc = TestCase('case1', tsc, cur)
@@ -1219,7 +1219,7 @@ Test-Scenario-11:
             mh = MasterHead.get_head()
             ext = mh._ext['Yoda']
             cur = ext._test_engine.test_run
-            ts = TestSet(cur, '<str>') 
+            ts = TestSet(cur, '<str>', '<id>') 
             tsc = TestScenario('test1', ts, cur)
             tsc._attr['id'] = 'test1'
             tc = TestCase('case1', tsc, cur)
@@ -1261,7 +1261,7 @@ Test-Scenario-12:
             mh = MasterHead.get_head()
             ext = mh._ext['Yoda']
             cur = ext._test_engine.test_run
-            ts = TestSet(cur, '<str>') 
+            ts = TestSet(cur, '<str>', '<id>') 
             tsc = TestScenario('test1', ts, cur)
             tsc._attr['id'] = 'test1'
             tc = TestCase('case1', tsc, cur)

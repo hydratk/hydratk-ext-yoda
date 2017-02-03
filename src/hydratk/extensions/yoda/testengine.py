@@ -10,7 +10,7 @@
 
 import os
 import sys
-import md5
+import hashlib
 from hydratk.core.masterhead import MasterHead
 from hydratk.core.event import Event
 import yaml
@@ -553,17 +553,44 @@ class TestEngine(MacroParser):
 
     
     def get_ts_filter(self, index_file):
+        """Method gets test scenario filter
+        
+        Args:  
+           index_file (str): file index 
+           
+        Returns:
+           dict
+                
+        """ 
+                
         return self._ts_filter[index_file] if index_file in self._ts_filter else None  
-   
        
     def get_tca_filter(self, index_file):
-        return self._tca_filter[index_file] if index_file in self._tca_filter else None          
-    
+        """Method gets test case filter
         
+        Args:  
+           index_file (str): file index 
+           
+        Returns:
+           dict
+                
+        """ 
+                
+        return self._tca_filter[index_file] if index_file in self._tca_filter else None          
+            
     def get_tco_filter(self, index_file):
+        """Method get test condition filter
+        
+        Args:  
+           index_file (str): file index 
+           
+        Returns:
+           dict
+                
+        """ 
+                
         return self._tco_filter[index_file] if index_file in self._tco_filter else None       
-    
-    
+        
     @property
     def run_mode_area(self):
         """ run_mode_area property getter, setter """
@@ -958,7 +985,7 @@ class TestEngine(MacroParser):
                   
         """  
         self._tset_counter += 1 
-        test_path_id = md5.new("{0}{1}".format(self._tset_counter,test_path)).hexdigest()      
+        test_path_id = hashlib.md5('{0}{1}'.format(self._tset_counter,test_path).encode('utf-8')).hexdigest()      
         test_files   = []
         test_file_id = []
         dmsg(self._mh._trn.msg('yoda_getting_tests',test_path))
@@ -1028,7 +1055,7 @@ class TestEngine(MacroParser):
                     file_extension = os.path.splitext(fname)[1][1:]
                     test_file = dirname + '/' + fname
                     self._tset_counter += 1
-                    test_f_id = md5.new("{0}{1}".format(self._tset_counter,test_file)).hexdigest() 
+                    test_f_id = hashlib.md5('{0}{1}'.format(self._tset_counter,test_file).encode('utf-8')).hexdigest() 
                     if file_extension in self._test_file_ext:                        
                         if file_extension == 'yoda': #parsing yoda container
                             container_files, container_file_id = self.get_all_tests_from_container(test_file)

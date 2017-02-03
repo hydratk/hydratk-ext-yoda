@@ -270,7 +270,7 @@ Test-Scenario-4:
         te._tset_file = 'file.jedi'                
         tr = te._test_run = TestRun()  
         tr._te = te          
-        ext.process_tests([path])
+        ext.process_tests([path], ['<id>'])
         c = DBO(dsn)._dbo_driver    
         recs = c.execute(query).fetchall()  
         
@@ -316,7 +316,7 @@ Test-Scenario-5:
         te._tset_file = 'file.jedi'                
         tr = te._test_run = TestRun()  
         tr._te = te          
-        ext.process_test_set(path)
+        ext.process_test_set(path, '<id>')
         c = DBO(dsn)._dbo_driver    
         recs = c.execute(query).fetchall()  
         
@@ -437,7 +437,7 @@ Test-Scenario-8:
         init_sender(th)
         sleep(3)               
         ext = th._ext['Yoda']
-        ext.pp_process_test_set('test')
+        ext.pp_process_test_set('test', '<id>')
         res = ext._active_tickets      
       
       Validate: |                
@@ -484,7 +484,7 @@ Test-Scenario-9:
         te._tset_file = 'file.jedi'                
         tr = te._test_run = TestRun()  
         tr._te = te          
-        ext.pp_run_test_set(path)
+        ext.pp_run_test_set(path, '<id>')
         c = DBO(dsn)._dbo_driver    
         recs = c.execute(query).fetchall()  
         
