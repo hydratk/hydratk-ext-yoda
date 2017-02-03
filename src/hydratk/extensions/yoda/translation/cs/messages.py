@@ -110,6 +110,7 @@ msg = {
     'yoda_getting_action_data'                 : ["Získána data pro akci: {0} {1}"],
     'yoda_unknown_handler'                     : ["Neznámý handler: {0}"],
     'yoda_create_output_console'               : ["Vytvářím výstup testů na konzoli"],
+    'yoda_create_output_html'                  : ["Vytvářím výstup testů soubor html: {0}"],
     'yoda_create_testdata_db'                  : ["Vytvářím databázi testovacích dat s dsn: {0}"],
     'yoda_remove_testdata_db'                  : ["Mažu fatabázi testovacích dat s dsn: {0}"],
     'yoda_testdata_db_exists'                  : ["Databáze testovacích dat s dsn: {0} již existuje"],

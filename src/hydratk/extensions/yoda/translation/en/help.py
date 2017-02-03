@@ -38,8 +38,8 @@ help_opt = {
    'yoda-db-testdata-dsn' : { '{h}--yoda-db-testdata-dsn <dsn>{e}' : { 'description' : 'test data database access definition', 'commands' : ('yoda-create-testdata-db')}},
    #standalone with option profile yoda
    'test-path' : { '{h}-tp, --test-path <path>{e}' : { 'description' : 'test scenario path', 'commands' : ('run','simul')}},
-   'test-run-name' : { '{h}-tn, --test-run-name <name>{e}' : { 'description' : 'test run identification', 'commands' : ('run','simul')}},
-   'test-repo-root-dir' : { '{h}-tr, --test-repo-root-dir <path>{e}' : { 'description' : 'test repository root directory', 'commands' : ('run','simul')}},
+   'test-run-name' : { '{h}-rn, --test-run-name <name>{e}' : { 'description' : 'test run identification', 'commands' : ('run','simul')}},
+   'test-repo-root-dir' : { '{h}-rd, --test-repo-root-dir <path>{e}' : { 'description' : 'test repository root directory', 'commands' : ('run','simul')}},
    'test-results-output-create' : { '{h}-oc, --test-results-output-create <state>{e}' : { 'description' : 'activates/deactivates native test results output handler', 'commands' : ('run','simul')}},
    'test-results-output-handler' : { '{h}-oh, --test-results-output-handler <type>{e}' : { 'description' : 'set the test results output handler type', 'commands' : ('run','simul')}},
    'db-results-dsn' : { '{h}--db-results-dsn <dsn>{e}' : { 'description' : 'test results database access definition', 'commands' : ('run','simul','create-test-results-db')}},  

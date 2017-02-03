@@ -109,6 +109,7 @@ msg = {
     'yoda_getting_action_data'                 : ["Get data action: {0} {1}"],
     'yoda_unknown_handler'                     : ["Unknown handler: {0}"],
     'yoda_create_output_console'               : ["Creating console output"],
+    'yoda_create_output_html'                  : ["Creating output html file: {0}"],
     'yoda_create_testdata_db'                  : ["Creating testdata database with dsn: {0}"],
     'yoda_remove_testdata_db'                  : ["Removing testdata database with dsn: {0}"],
     'yoda_testdata_db_exists'                  : ["Database testdata with dsn: {0} already exists"],

@@ -859,6 +859,6 @@ class Extension(extension.Extension):
         if ev.will_run_default():
             if self._test_results_output_create == True:                
                 for output_handler in self._test_results_output_handler:   
-                    trof = TestResultsOutputFactory(self._mh.ext_cfg['Yoda']['db_results_dsn'], output_handler)
+                    trof = TestResultsOutputFactory(self._mh.ext_cfg['Yoda']['db_results_dsn'], output_handler)                    
                     trof.create(self._test_engine.test_run)
         

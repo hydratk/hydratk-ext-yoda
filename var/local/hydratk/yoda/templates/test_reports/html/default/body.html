@@ -1,0 +1,47 @@
+<html>
+<head>
+<style type="text/css">
+   table, th, td {
+      border: 1px solid black;
+   }
+   td {
+     margin-left:2px;
+     margin-right:2px;
+   }
+</style>
+</head>
+<body>
+[header]
+	<h1>Test Results</h1>	
+	<table>
+	    <caption>Summary</caption>
+		<thead>
+			<tr>
+			    <th>Test Run</th>
+			    <th>Start Time</th>
+			    <th>End Time</th>
+			    <th>Total Time</th>
+				<th>Total Test Sets</th>
+				<th>Total Tests</th>
+				<th>Passed Tests</th>
+				<th>Failed Tests</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+			    <td>[test_run_id]</td>
+			    <td>[test_run_start_time]</td>
+			    <td>[test_run_end_time]</td>
+			    <td>[test_run_total_time] s</td>
+				<td>[total_test_sets]</td>
+				<td>[total_tests]</td>
+				<td>[passed_tests]</td>
+				<td>[failed_tests]</td>
+			</tr>
+		</tbody>
+	</table>
+	<br>
+	[test_results]
+[footer]
+</body>
+</html>

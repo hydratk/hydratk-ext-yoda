@@ -38,8 +38,8 @@ help_opt = {
    'yoda-db-testdata-dsn' : { '{h}--yoda-db-testdata-dsn <dsn>{e}' : { 'description' : 'definice přístupu k databázi testovacích dat', 'commands' : ('yoda-create-testdata-db')}},
    #standalone with option profile yoda 
    'test-path' : { '{h}-tp, --test-path <cesta>{e}' : { 'description' : 'cesta k testovacímu scénáři', 'commands' : ('run','simul')}},
-   'test-run-name' : { '{h}-tn, --test-run-name <název>{e}' : { 'description' : 'identifikátor spouštěného běhu', 'commands' : ('run','simul')}},
-   'test-repo-root-dir' : { '{h}-tr, --test-repo-root-dir <cesta>{e}' : { 'description' : 'cesta ke kořenovému adresáři test. repozitáře', 'commands' : ('run','simul')}},
+   'test-run-name' : { '{h}-rn, --test-run-name <název>{e}' : { 'description' : 'identifikátor spouštěného běhu', 'commands' : ('run','simul')}},
+   'test-repo-root-dir' : { '{h}-rd, --test-repo-root-dir <cesta>{e}' : { 'description' : 'cesta ke kořenovému adresáři test. repozitáře', 'commands' : ('run','simul')}},
    'test-results-output-create' : { '{h}-oc, --test-results-output-create <stav>{e}' : { 'description' : 'aktivuje/deaktivuje nativní zpracování výsledků testů', 'commands' : ('run','simul')}},
    'test-results-output-handler' : { '{h}-oh, --test-results-output-handler <typ>{e}' : { 'description' : 'nastaví typ handleru pro zpracování výsledků testů', 'commands' : ('run','simul')}},
    'db-results-dsn' : { '{h}--db-results-dsn <dsn>{e}' : { 'description' : 'definice přístupu k databázi výsledků testů', 'commands' : ('run','simul','create-test-results-db')}},

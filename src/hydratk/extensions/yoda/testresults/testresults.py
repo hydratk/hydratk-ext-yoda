@@ -223,11 +223,14 @@ db_actions = {
                    'get_total_test_sets'         : "select count(tset_id) total_test_sets from test_set where test_run_id = :test_run_id",
                    'get_total_tests'             : "select count(tco_id) total_tests from test_condition where test_run_id = :test_run_id",
                    'get_failed_tests'            : "select count(tco_id) failed_tests from test_condition where test_run_id = :test_run_id and test_resolution = 'failed'",
-                   'get_passed_tests'            : "select count(tco_id) passed_tests from test_condition where test_run_id = :test_run_id and test_resolution = 'passed'",                                                                                                                                                                                                       
+                   'get_passed_tests'            : "select count(tco_id) passed_tests from test_condition where test_run_id = :test_run_id and test_resolution = 'passed'",
+                   'get_test_runs'               : "select * from test_run",
+                   'get_test_run'                : "select * from test_run where id = :test_run_id",                                                                                                             
                    'get_test_sets'               : "select * from test_set where test_run_id = :test_run_id",
                    'get_test_scenarios'          : """select distinct test_scenario.*, custom_data.key 'key', custom_data.value 'value', custom_data.pickled 'pickled' from test_scenario left join custom_data on test_scenario.id = custom_data.test_obj_id
                                                         where test_scenario.test_run_id = :test_run_id and test_scenario.test_set_id = :test_set_id and custom_data.key = 'name'                                                       
                                                    """,
+                   'get_test_custom_opt'         : """select "key","value", pickled, opt_name, opt_value FROM "custom_data" left join custom_data_opt on custom_data.id = custom_data_opt.custom_data_id where test_obj_id = :test_object_id""",                               
                    'get_test_cases'              : """select distinct test_case.*, custom_data.key 'key', custom_data.value 'value', custom_data.pickled 'pickled' from test_case left join custom_data on test_case.id = custom_data.test_obj_id
                                                         where test_case.test_run_id = :test_run_id and test_case.test_set_id = :test_set_id and test_case.test_scenario_id = :test_scenario_id and custom_data.key = 'name'                                                       
                                                    """,
