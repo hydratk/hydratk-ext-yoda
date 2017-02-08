@@ -276,7 +276,7 @@ Test-Scenario-4:
       
       Validate: |
         this.test_result = str(res)
-        exp = ('c', 'f')
+        exp = ['c', 'f']
         assert (res == exp), 'regex = {0}'.format(exp) 
         
     Test-Condition-3: 
@@ -290,7 +290,7 @@ Test-Scenario-4:
       
       Validate: |             
         this.test_resuls = str(res)
-        assert (res == None), 'regex = None'
+        assert (res == []), 'regex = []'
         
   Test-Case-2:
     Id: tc_02

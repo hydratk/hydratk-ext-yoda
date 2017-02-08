@@ -11,7 +11,7 @@
 from lxml.etree import fromstring, XMLSyntaxError, XPathEvalError
 from simplejson import loads
 from simplejson.scanner import JSONDecodeError
-from re import search
+from re import findall
 from sre_constants import error
 
 def load_json(document):
@@ -90,19 +90,19 @@ def regex(text, expression):
         
     Args:
        text (str): text
-       expression (str): XPATH expression
+       expression (str): regular expression
     
     Returns:
-       obj: str or tuple
+       obj: str or list
             
     """        
     
     try:
         
-        output = search(expression, text)
-        if (output != None):
-            gr = output.groups()
-            output = gr[0] if (len(gr) == 1) else gr
+        output = findall(expression, text)
+        if (len(output) == 1):
+            output = output[0] if (output[0].__class__.__name__ != 'tuple') else list(output[0])                  
+
         return output
         
     except error as ex:
