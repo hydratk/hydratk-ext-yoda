@@ -1,6 +1,21 @@
 <html>
 <head>
 <style type="text/css">
+@font-face {
+    font-family: 'starjedi';
+    src: url('[embed:file=content/fonts/Starjedi.ttf,charset=utf-8,encoding=base64]') format('truetype');     
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'starjedihol';    
+    src: url('[embed:file=content/fonts/Starjhol.ttf,charset=utf-8,encoding=base64]') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}        
+</style>
+<style type="text/css">
    table, th, td {
       border: 1px solid black;
    }
@@ -8,7 +23,21 @@
      margin-left:2px;
      margin-right:2px;
    }
+   body {            
+      background-color: #fdfdf9;
+      background: url('[embed:file=content/gfx/wgray_grid.png,encoding=base64]') repeat;    
+   }
 </style>
+
+<script type="text/javascript">
+[embed:file=content/js/jquery-3.1.1.min.js,encoding=no,content-type=none]
+</script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/*alert('JQuery init ok')*/
+});
+</script>
 </head>
 <body>
 [header]

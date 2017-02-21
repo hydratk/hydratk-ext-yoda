@@ -370,9 +370,16 @@ class TestCondition(testobject.TestCondition):
 class MacroParser(object):
     """Class MacroParser
     """
-    
+    _regexp = r'#<<(.*)::(.*)>>#'
     _hooks = {}
     
+    def __init__(self, regexp = None):
+        self.set_regexp(regexp)
+        
+    def set_regexp(self,regexp):
+        if regexp not in (None,''):
+            self._regexp = regexp
+            
     def mp_add_hooks(self, *args, **kwargs): 
         """Method registers macro hooks
         
@@ -422,7 +429,7 @@ class MacroParser(object):
                 
         """ 
                 
-        return re.sub(r'#<<(.*)::(.*)>>#',self._mp_processor,content)
+        return re.sub(self._regexp,self._mp_processor,content)
     
     def _mp_processor(self, match):
         """Method executes macro
@@ -434,13 +441,12 @@ class MacroParser(object):
            obj: callback result
            str: when macro is not defined
                 
-        """ 
-                
+        """               
         mdef = match.group(1).strip()
         mval = match.group(2).strip()
         if mdef in self._hooks:
             return self._hooks[mdef](mval)
-        else: return '<<{mdef} is undefined>>'.format(mdef=mdef) 
+        else: return '{mdef} is undefined'.format(mdef=mdef) 
         
         
 class TestEngine(MacroParser):

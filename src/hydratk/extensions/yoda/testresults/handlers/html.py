@@ -12,10 +12,79 @@ from hydratk.lib.string.operation import strip_accents
 from hydratk.lib.system.fs import file_get_contents, file_put_contents
 from hydratk.extensions.yoda.testresults import testresults
 from hydratk.core.masterhead import MasterHead
+from hydratk.extensions.yoda.testengine import MacroParser
 import datetime
 import os
 import pickle
+import base64
 
+class TemplateHooks(object):
+    _options = {}
+    
+    def __init__(self, options):
+        self._options = options
+        
+    def _dispatch_options(self,str_opt):
+        res = {}
+        if str_opt not in (None,''):
+            str_opts = str_opt.split(',')
+            for optval in str_opts:
+                opt, val = optval.split('=')
+                res[opt.strip()] = val.strip()
+                
+        return res
+    
+    def get_content_type(self, file_extension):
+        res = None        
+        if file_extension not in (None,''):
+            file_extension = file_extension.strip('.')
+            if file_extension == 'png':
+                res = 'image/png'
+            elif file_extension in ('jpg','jpeg'):
+                res = 'image/jpeg'
+            elif file_extension == 'gif':
+                res = 'image/gif'
+            elif file_extension == 'css':
+                res = 'text/css'
+            elif file_extension == 'js':
+                res = 'text/javascript'
+            elif file_extension == 'ttf':
+                res = 'font/truetype'
+        return res
+                
+            
+    def embed(self,content_opt):                
+        dcopt = self._dispatch_options(content_opt)
+        src_file = dcopt['file']
+        encoding = dcopt['encoding'] if 'encoding' in dcopt else 'no'
+        charset  = dcopt['charset'] if 'charset' in dcopt else None        
+        if dcopt['file'][0] != '/': #relative path to the current style
+            src_file = "{0}/{1}".format(self._options['style'],dcopt['file'])
+        if os.path.exists(src_file):
+            if encoding == 'no':
+                file_data = file_get_contents(src_file, mode='rb').decode()
+            elif encoding == 'text':
+                file_data = str(file_get_contents(src_file, mode='rb'))                    
+            elif encoding == 'base64':
+                file_data = base64.b64encode(file_get_contents(src_file, mode='rb')).decode()
+                
+            if 'content-type' not in dcopt:
+                file_extension = os.path.splitext(src_file)[1]
+                content_type = self.get_content_type(file_extension)
+            else:
+                content_type = dcopt['content-type']
+            #Put it all together
+            if content_type in (None,'none'):                
+                res = file_data
+            else:
+                charset_opt = "charset={0};".format(charset) if charset is not None else ''                                        
+                res = "data:{content_type};{charset_opt}base64,{file_data}".format(content_type=content_type, charset_opt=charset_opt, file_data=file_data)
+                
+        else:
+            res = "[{0} doesn't exists]".format(src_file);
+             
+        return res     
+    
 class TestResultsOutputHandler(object):
     _db_dsn               = None
     _db_con               = None
@@ -50,6 +119,14 @@ class TestResultsOutputHandler(object):
                 bind_var = '[{var}]'.format(var=var)                
                 content = content.replace(str(bind_var), str(value))                
         return content
+    
+    def _register_tpl_hooks(self,mp):
+        tplh = TemplateHooks(self._options)
+        mp.mp_add_hooks(
+                        {
+                          'embed' : tplh.embed
+                         }
+                        )
                          
     def create(self, test_run):
         """Methods creates test run output for html report
@@ -70,9 +147,12 @@ class TestResultsOutputHandler(object):
             return False 
         
         mh = MasterHead.get_head()
+        mp = MacroParser(r'\[(.*):(.*)\]')
+        self._register_tpl_hooks(mp)
+        
         self._db_con     = testresults.TestResultsDB(self._db_dsn)
         test_run_data    = self._db_con.db_data("get_test_run", {'test_run_id' : test_run.id })
-        test_run_id = test_run_data[0]['name'] if test_run_data[0]['name'] != 'Undefined' else test_run.id
+        test_run_id = test_run_data[0]['name'] if test_run_data[0]['name'].decode() != 'Undefined' else test_run.id
         test_report_file = "{0}/{1}{2}.html".format(self._options['path'],datetime.datetime.fromtimestamp(int(test_run_data[0]['start_time'])).strftime('%Y-%m-%d_%H-%M-%S_'),test_run_id)
         template_header_file = "{0}/header.html".format(self._options['style'])
         template_body_file   = "{0}/body.html".format(self._options['style'])
@@ -90,7 +170,7 @@ class TestResultsOutputHandler(object):
             self._have_template_header = True
             
         if os.path.exists(template_footer_file):
-            template_header = file_get_contents(template_footer_file)
+            template_footer = file_get_contents(template_footer_file)
             self._have_template_footer = True
                 
         template_body = file_get_contents(template_body_file)
@@ -120,9 +200,13 @@ class TestResultsOutputHandler(object):
                           'test_run_total_time' : round(test_run_data[0]['end_time'] - test_run_data[0]['start_time'],3),
                           'test_results' : test_results
                          }
-                        )         
+                        )
+        trf = mp.mp_parse(trf)         
         file_put_contents(test_report_file, trf)
-
+        
+    def _run_tpl_hooks(self, trf):
+        pass
+        
     def _format_custom_tco_opt(self, tco, tco_opt):
         
         res = ""
@@ -136,15 +220,16 @@ class TestResultsOutputHandler(object):
           <td>{tc_name}</td>
         </tr>       
         """.format(
-                   tco_id = tco['tco_id'],
-                   tc_name = tco['value'],
+                   tco_id = tco['tco_id'].decode(),
+                   tc_name = tco['value'].decode(),
                   )
+        tco_desc = ''
         tco_opt_rest = []        
         for opt_dict in tco_opt:          
             if opt_dict['key'] == 'name':               
                 continue
             if opt_dict['key'] == 'desc':                 
-                tco_desc = opt_dict['value']              
+                tco_desc = opt_dict['value'].decode()              
                 continue          
             tco_opt_rest.append(opt_dict)
             
@@ -186,23 +271,23 @@ class TestResultsOutputHandler(object):
                    start_time = datetime.datetime.fromtimestamp(int(tco['start_time'])).strftime('%Y-%m-%d %H:%M:%S'), 
                    end_time = datetime.datetime.fromtimestamp(int(tco['end_time'])).strftime('%Y-%m-%d %H:%M:%S'),
                    total_time = round(tco['end_time'] - tco['start_time'],3),
-                   test_resolution = tco['test_resolution'],
-                   expected_result = tco['expected_result'],
-                   test_result = tco['test_result'],                  
-                   log = tco['log'].replace("\n","<br>")
+                   test_resolution = tco['test_resolution'].decode() if hasattr(tco['test_resolution'], 'decode') else tco['test_resolution'],
+                   expected_result = tco['expected_result'].decode() if hasattr(tco['expected_result'], 'decode') else tco['expected_result'],
+                   test_result = tco['test_result'].decode(),                  
+                   log = tco['log'].decode().replace("\n","<br>")
                   )
         tco_opt_rest_all = {} 
                              
         for opt_dict in tco_opt_rest:
             if opt_dict['key'] not in tco_opt_rest_all:
                 tco_opt_rest_all[opt_dict['key']] = {
-                                                    'key'   : opt_dict['key'],
-                                                    'value' : opt_dict['value'],
+                                                    'key'   : opt_dict['key'].decode(),
+                                                    'value' : opt_dict['value'].decode(),
                                                     'pickled' : opt_dict['pickled'],
                                                     'options' : { } 
                                                    }
             if opt_dict['opt_name'] is not None:    
-                tco_opt_rest_all[opt_dict['key']]['options'][opt_dict['opt_name']] = opt_dict['opt_value']
+                tco_opt_rest_all[opt_dict['key']]['options'][opt_dict['opt_name'].decode()] = opt_dict['opt_value'].decode()
         
         if len(tco_opt_rest_all) > 0:            
             res += self._process_custom_data_opt(tco_opt_rest_all)
@@ -222,16 +307,18 @@ class TestResultsOutputHandler(object):
           <td>{tc_name}</td>
         </tr>
         """.format(
-                   tca_id = tc['tca_id'],
-                   tc_name = tc['value']
+                   tca_id = tc['tca_id'].decode(),
+                   tc_name = tc['value'].decode()
                    )
+        
+        tc_desc = ''
         
         tc_opt_rest = []        
         for opt_dict in tc_opt:          
             if opt_dict['key'] == 'name':               
                 continue
             if opt_dict['key'] == 'desc':                 
-                tc_desc = opt_dict['value']              
+                tc_desc = opt_dict['value'].decode()              
                 continue          
             tc_opt_rest.append(opt_dict)
             
@@ -276,7 +363,7 @@ class TestResultsOutputHandler(object):
                    total_tests = tc['total_tests'],
                    passed_tests = tc['passed_tests'],
                    failed_tests = tc['failed_tests'],
-                   log = tc['log'].replace("\n","<br>")
+                   log = tc['log'].decode().replace("\n","<br>")
                   )
         tc_opt_rest_all = {} 
                              
@@ -307,8 +394,12 @@ class TestResultsOutputHandler(object):
           <th>Name:</th>
           <td>{ts_name}</td>
         </tr>
-        """.format(ts_id = ts['ts_id'], ts_name = ts['value'])        
-      
+        """.format(
+                   ts_id = ts['ts_id'].decode() if hasattr(ts['ts_id'], 'decode') else ts['ts_id'],
+                   ts_name = ts['value'].decode() if hasattr(ts['value'], 'decode') else ts['value']
+                   )
+                
+        ts_path    = ''
         ts_desc    = ''
         ts_author  = ''
         ts_version = ''
@@ -317,16 +408,16 @@ class TestResultsOutputHandler(object):
             if opt_dict['key'] == 'name':               
                 continue
             if opt_dict['key'] == 'desc':                 
-                ts_desc = opt_dict['value']              
+                ts_desc = opt_dict['value'].decode() if hasattr(opt_dict['value'], 'decode') else opt_dict['value']             
                 continue
             if opt_dict['key'] == 'path':                 
-                ts_path = opt_dict['value']              
+                ts_path = opt_dict['value'].decode() if hasattr(opt_dict['value'], 'decode') else opt_dict['value']              
                 continue
             if opt_dict['key'] == 'author':    
-                ts_author = opt_dict['value']              
+                ts_author = opt_dict['value'].decode() if hasattr(opt_dict['value'], 'decode') else opt_dict['value']              
                 continue
             if opt_dict['key'] == 'version':    
-                ts_version = opt_dict['value']                
+                ts_version = opt_dict['value'].decode() if hasattr(opt_dict['value'], 'decode') else opt_dict['value']                
                 continue
             ts_opt_rest.append(opt_dict)
         
@@ -405,20 +496,20 @@ class TestResultsOutputHandler(object):
                    total_tests = ts['total_tests'],
                    passed_tests = ts['passed_tests'],
                    failed_tests = ts['failed_tests'],
-                   log = ts['log'].replace("\n","<br>") 
+                   log = ts['log'].decode().replace("\n","<br>") 
                   )
         
         ts_opt_rest_all = {}                      
         for opt_dict in ts_opt_rest:
             if opt_dict['key'] not in ts_opt_rest_all:
                 ts_opt_rest_all[opt_dict['key']] = {
-                                                    'key'   : opt_dict['key'],
-                                                    'value' : opt_dict['value'],
+                                                    'key'   : opt_dict['key'].decode(),
+                                                    'value' : opt_dict['value'].decode(),
                                                     'pickled' : opt_dict['pickled'],
                                                     'options' : { } 
                                                    }
             if opt_dict['opt_name'] is not None:    
-                ts_opt_rest_all[opt_dict['key']]['options'][opt_dict['opt_name']] = opt_dict['opt_value']
+                ts_opt_rest_all[opt_dict['key']]['options'][opt_dict['opt_name'].decode()] = opt_dict['opt_value'].decode()
         
         if len(ts_opt_rest_all) > 0:            
             res += self._process_custom_data_opt(ts_opt_rest_all)
@@ -437,7 +528,10 @@ class TestResultsOutputHandler(object):
                     <th>{opt_name}</th>
                     <td>{opt_value}</td>
                  </tr> 
-               """.format(opt_name = opt_name, opt_value = v['value'])
+               """.format(
+                          opt_name = opt_name.decode() if hasattr(opt_name, 'decode') else opt_name, 
+                          opt_value = v['value'].decode() if hasattr(v['value'], 'decode') else v['value']
+                          )
         return res
                
     def get_test_results(self, test_run_id):
@@ -484,14 +578,14 @@ class TestResultsOutputHandler(object):
                                <td>{test_set_log}</td>
                             </tr>                                                       
                         """.format(
-                                   test_set_id           = test_set['tset_id'],
+                                   test_set_id           = test_set['tset_id'].decode() if hasattr(test_set['tset_id'], 'decode') else test_set['tset_id'],
                                    test_set_start_time   = datetime.datetime.fromtimestamp(int(test_set['start_time'])).strftime('%Y-%m-%d %H:%M:%S'),
                                    test_set_end_time     = test_set_end_time,
                                    test_set_total_time   = 0 if int(test_set['end_time']) == -1 else round(test_set['end_time'] - test_set['start_time'],3),
                                    test_set_total_tests  = test_set['total_tests'],
                                    test_set_passed_tests = test_set['passed_tests'],                                   
                                    test_set_failed_tests = test_set['failed_tests'],
-                                   test_set_log          = test_set['log'].replace("\n","<br>"),
+                                   test_set_log          = test_set['log'].decode().replace("\n","<br>"),
                                  )
                         
             test_scenarios = self._db_con.db_data("get_test_scenarios", {'test_run_id' : test_run_id, 'test_set_id' : test_set['id'].decode() })                                                             
