@@ -16,17 +16,105 @@
 }        
 </style>
 <style type="text/css">
+   .ToggleButton {
+     display:inline-table;
+     width:30px;
+     height:30px;
+     vertical-align:middle;
+     font-size:20px;
+     border: 1px solid black;
+   }
+   
    table, th, td {
       border: 1px solid black;
    }
    td {
      margin-left:2px;
      margin-right:2px;
+     font-size: 12px;
+     border-radius: 2px;
+   }
+   .TDValue {
+     background-color:#f9fbf2;
+   
    }
    body {            
       background-color: #fdfdf9;
       background: url('[embed:file=content/gfx/wgray_grid.png,encoding=base64]') repeat;    
    }
+   /*
+   h1, th, caption {
+     text-transform:lowercase;
+   }
+   */
+   
+   h1, th, td, caption {
+      font-family: Verdana,sans-serif;
+   }   
+   h1 {
+     letter-spacing: 0px;
+   }
+   th {
+     font-size: 14px;
+     letter-spacing: 0px;
+     background-color: #976dc1;
+     border-radius: 2px;
+   }   
+   caption {
+     font-size: 24px;
+     letter-spacing: 0px;
+     font-weight: bold;
+   }
+   
+   .TestSummaryTable {
+     border:none;
+   }
+   
+   .TestSetTable {
+     border:none;
+   }
+   
+   .TestSetTableValue {
+     background-color:#f9fbf2;
+   }
+   
+   .TestSet_TestScenarioNode {
+     background-color: transparent;
+     border: none;
+   }
+   
+   .TestSet_TestScenarioNodeContainer {
+     background-color: transparent;
+     border: none;
+   }
+   
+   .TestScenarioTable {
+     border:none;
+   }
+   
+   .TestScenarioTableValue {
+     background-color:#f9fbf2;
+   }
+   
+   .TestCaseTable {
+     border:none;
+   }
+   
+   .TestCaseTableValue {
+     background-color:#f9fbf2;
+   }
+   
+   .TestConditionTable {
+     border:none;
+   }
+
+   .TestConditionTableValue {
+     background-color:#f9fbf2;
+   }
+   
+   
+   
+   
 </style>
 
 <script type="text/javascript">
@@ -42,7 +130,7 @@ $(document).ready(function() {
 <body>
 [header]
 	<h1>Test Results</h1>	
-	<table>
+	<table class="TestSummaryTable">
 	    <caption>Summary</caption>
 		<thead>
 			<tr>
@@ -58,14 +146,14 @@ $(document).ready(function() {
 		</thead>
 		<tbody>
 			<tr>
-			    <td>[test_run_id]</td>
-			    <td>[test_run_start_time]</td>
-			    <td>[test_run_end_time]</td>
-			    <td>[test_run_total_time] s</td>
-				<td>[total_test_sets]</td>
-				<td>[total_tests]</td>
-				<td>[passed_tests]</td>
-				<td>[failed_tests]</td>
+			    <td class="TDValue">[test_run_id]</td>
+			    <td class="TDValue">[test_run_start_time]</td>
+			    <td class="TDValue">[test_run_end_time]</td>
+			    <td class="TDValue">[test_run_total_time] s</td>
+				<td class="TDValue">[total_test_sets]</td>
+				<td class="TDValue">[total_tests]</td>
+				<td class="TDValue">[passed_tests]</td>
+				<td class="TDValue">[failed_tests]</td>
 			</tr>
 		</tbody>
 	</table>

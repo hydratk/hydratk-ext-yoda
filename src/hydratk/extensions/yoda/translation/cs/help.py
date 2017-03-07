@@ -36,6 +36,7 @@ help_opt = {
    'yoda-test-results-output-handler' : { '{h}--yoda-test-results-output-handler <typ>{e}' : { 'description' : 'nastaví typ handleru pro zpracování výsledků testů', 'commands' : ('yoda-run','yoda-simul')}},
    'yoda-db-results-dsn' : { '{h}--yoda-db-results-dsn <dsn>{e}' : { 'description' : 'definice přístupu k databázi výsledků testů', 'commands' : ('yoda-run','yoda-simul','yoda-create-test-results-db')}},
    'yoda-db-testdata-dsn' : { '{h}--yoda-db-testdata-dsn <dsn>{e}' : { 'description' : 'definice přístupu k databázi testovacích dat', 'commands' : ('yoda-create-testdata-db')}},
+   'yoda-multiply-tests' : { '{h}--yoda-multiply-tests <číslo>{e}' : { 'description' : 'počet nalezených testů bude vynásoben zvoleným číslem', 'commands' : ('yoda-run')}},
    #standalone with option profile yoda 
    'test-path' : { '{h}-tp, --test-path <cesta>{e}' : { 'description' : 'cesta k testovacímu scénáři', 'commands' : ('run','simul')}},
    'test-run-name' : { '{h}-rn, --test-run-name <název>{e}' : { 'description' : 'identifikátor spouštěného běhu', 'commands' : ('run','simul')}},
@@ -43,5 +44,6 @@ help_opt = {
    'test-results-output-create' : { '{h}-oc, --test-results-output-create <stav>{e}' : { 'description' : 'aktivuje/deaktivuje nativní zpracování výsledků testů', 'commands' : ('run','simul')}},
    'test-results-output-handler' : { '{h}-oh, --test-results-output-handler <typ>{e}' : { 'description' : 'nastaví typ handleru pro zpracování výsledků testů', 'commands' : ('run','simul')}},
    'db-results-dsn' : { '{h}--db-results-dsn <dsn>{e}' : { 'description' : 'definice přístupu k databázi výsledků testů', 'commands' : ('run','simul','create-test-results-db')}},
-   'db-testdata-dsn' : { '{h}--db-testdata-dsn <dsn>{e}' : { 'description' : 'definice přístupu k databázi testovacích dat', 'commands' : ('create-testdata-db')}}      
+   'db-testdata-dsn' : { '{h}--db-testdata-dsn <dsn>{e}' : { 'description' : 'definice přístupu k databázi testovacích dat', 'commands' : ('create-testdata-db')}},
+   'multiply-tests' : { '{h}--multiply-tests <číslo>{e}' : { 'description' : 'počet nalezených testů bude vynásoben zvoleným číslem', 'commands' : ('run')}},         
 }

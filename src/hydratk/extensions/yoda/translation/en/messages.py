@@ -114,5 +114,6 @@ msg = {
     'yoda_remove_testdata_db'                  : ["Removing testdata database with dsn: {0}"],
     'yoda_testdata_db_exists'                  : ["Database testdata with dsn: {0} already exists"],
     'yoda_testdata_db_created'                 : ["Database testdata created successfully"],
-    'yoda_testdata_db_error'                   : ["Error during testdata database creation: {0}"]                  
+    'yoda_testdata_db_error'                   : ["Error during testdata database creation: {0}"],
+    'yoda_multiply_tests'                      : ["Total test sets after multiplication is: {0}"]                   
 }

@@ -543,39 +543,39 @@ class TestResultsOutputHandler(object):
             test_set_end_time = "Not completed" if int(test_set['end_time']) == -1 else datetime.datetime.fromtimestamp(int(test_set['end_time'])).strftime('%Y-%m-%d %H:%M:%S')               
             res += """<hr>
             
-                      <table>
-                            <caption>Test set</caption>
+                      <table class="TestSetTable">
+                            <caption><div class="ToggleButton">-</div>Test set</caption>
                             <tr>
                                <th>Path:</th>
-                               <td>{test_set_id}</td>
+                               <td class="TestSetTableValue">{test_set_id}</td>
                             </tr>            
                             <tr>
                                <th>Start time:</th>
-                               <td>{test_set_start_time}</td>
+                               <td class="TestSetTableValue">{test_set_start_time}</td>
                             </tr>
                             <tr>
                                <th>End time:</th>
-                               <td>{test_set_end_time}</td>
+                               <td class="TestSetTableValue">{test_set_end_time}</td>
                             </tr>
                              <tr>
                                <th>Total time:</th>
-                               <td>{test_set_total_time} s</td>
+                               <td class="TestSetTableValue">{test_set_total_time} s</td>
                             </tr>
                             <tr>
                                <th>Total tests:</th>
-                               <td>{test_set_total_tests}</td>
+                               <td class="TestSetTableValue">{test_set_total_tests}</td>
                             </tr>
                             <tr>
                                <th>Passed tests:</th>
-                               <td>{test_set_passed_tests}</td>
+                               <td class="TestSetTableValue">{test_set_passed_tests}</td>
                             </tr>
                             <tr>
                                <th>Failed tests:</th>
-                               <td>{test_set_failed_tests}</td>
+                               <td class="TestSetTableValue">{test_set_failed_tests}</td>
                             </tr>
                             <tr>
                                <th>Log:</th>
-                               <td>{test_set_log}</td>
+                               <td class="TestSetTableValue">{test_set_log}</td>
                             </tr>                                                       
                         """.format(
                                    test_set_id           = test_set['tset_id'].decode() if hasattr(test_set['tset_id'], 'decode') else test_set['tset_id'],
@@ -592,20 +592,20 @@ class TestResultsOutputHandler(object):
             for ts in test_scenarios:
                 ts_opt = self._db_con.db_data("get_test_custom_opt", {'test_object_id' : ts['id']})                
                 res += """<tr>
-                            <td>&nbsp;</td>
-                            <td>
-                               <table>
+                            <td class="TestSet_TestScenarioNode">&nbsp;</td>
+                            <td class="TestSet_TestScenarioNodeContainer">
+                               <table class="TestScenarioTable">
                                   <caption>Test Scenario</caption>
                                   {ts_opt}
                                   <tr>
-                                    <td>&nbsp;</td>
-                                      <td>
+                                    <td class="TestScenario_TestCaseNode">&nbsp;</td>
+                                    <td class="TestScenario_TestCaseNodeContainer">
                        """.format(ts_opt = self._format_custom_ts_opt(ts, ts_opt))
                 test_cases = self._db_con.db_data("get_test_cases", {'test_run_id' : test_run_id, 'test_set_id' : test_set['id'].decode(), 'test_scenario_id' : ts['id'].decode() })                
                 for tca in test_cases: 
                     tca_opt = self._db_con.db_data("get_test_custom_opt", {'test_object_id' : tca['id']})  
                     res += """      
-                                          <table>
+                                          <table class="TestCaseTable">
                                             <caption>Test Case</caption>
                                              {tc_opt}
                                              <tr>
@@ -616,7 +616,7 @@ class TestResultsOutputHandler(object):
                     for tco in test_conditions:
                         tco_opt = self._db_con.db_data("get_test_custom_opt", {'test_object_id' : tco['id']})
                         res += """      
-                                          <table>
+                                          <table class="TestConditionTable">
                                             <caption>Test Condition</caption>
                                              {tco_opt}                                             
                                           </table>                                          

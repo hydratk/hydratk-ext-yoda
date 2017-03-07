@@ -115,5 +115,6 @@ msg = {
     'yoda_remove_testdata_db'                  : ["Mažu fatabázi testovacích dat s dsn: {0}"],
     'yoda_testdata_db_exists'                  : ["Databáze testovacích dat s dsn: {0} již existuje"],
     'yoda_testdata_db_created'                 : ["Databáze testovacích dat úspěšně vytvořena"],
-    'yoda_testdata_db_error'                   : ["Nastala chyb při vytváření databáze testovacích dat: {0}"]                                  
+    'yoda_testdata_db_error'                   : ["Nastala chyb při vytváření databáze testovacích dat: {0}"],
+    'yoda_multiply_tests'                      : ["Celkový počet test setů po vynásobení je: {0}"]                                   
 }

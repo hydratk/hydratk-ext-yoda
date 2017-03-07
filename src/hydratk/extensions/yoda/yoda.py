@@ -61,6 +61,7 @@ class Extension(extension.Extension):
     _test_results_output_create          = True
     _test_results_output_handler         = ['console'] 
     _run_mode               = const.CORE_RUN_MODE_SINGLE_APP
+    _pp_got_ticket                       = False #Check if there was at least one ticket processed
     _pp_attr                = {
                                 'test_run_started'   : False,
                                 'test_run_completed' : False                               
@@ -85,9 +86,9 @@ class Extension(extension.Extension):
            
         self._ext_id      = 'yoda'        
         self._ext_name    = 'Yoda'
-        self._ext_version = '0.2.2'
+        self._ext_version = '0.2.3'
         self._ext_author  = 'Petr Czaderna <pc@hydratk.org>, HydraTK team <team@hydratk.org>'
-        self._ext_year    = '2014 - 2016'
+        self._ext_year    = '2014 - 2017'
         
         if (not self._check_dependencies()):
             exit(0)              
@@ -297,6 +298,7 @@ class Extension(extension.Extension):
         self._mh.match_long_option('yoda-db-results-dsn', True, 'yoda-db-results-dsn')
         self._mh.match_long_option('yoda-db-testdata-dsn', True, 'yoda-db-testdata-dsn')
         self._mh.match_long_option('yoda-test-run-name', True, 'yoda-test-run-name')
+        self._mh.match_long_option('yoda-multiply-tests', True, 'yoda-multiply-tests')
         self._mh.match_long_option('yoda-test-results-output-create', True, 'yoda-test-results-output-create')
         self._mh.match_long_option('yoda-test-results-output-handler', True, 'yoda-test-results-output-handler')
           
@@ -339,7 +341,8 @@ class Extension(extension.Extension):
         self._mh.match_cli_option(('oh','test-results-output-handler'), True, 'yoda-test-results-output-handler', False, option_profile)
         self._mh.match_long_option('db-results-dsn', True, 'yoda-db-results-dsn', False, option_profile)
         self._mh.match_long_option('db-testdata-dsn', True, 'yoda-db-testdata-dsn', False, option_profile)
-        self._mh.match_cli_option(('rn','test-run-name'), True, 'yoda-test-run-name', False, option_profile)        
+        self._mh.match_cli_option(('rn','test-run-name'), True, 'yoda-test-run-name', False, option_profile)
+        self._mh.match_long_option('multiply-tests', True, 'yoda-multiply-tests', False, option_profile)        
         self._mh.match_cli_option(('c','config'), True, 'config', False, option_profile)
         self._mh.match_cli_option(('d','debug'), True, 'debug', False, option_profile)   
         self._mh.match_cli_option(('e','debug-channel'), True, 'debug-channel', False, option_profile)
@@ -377,6 +380,7 @@ class Extension(extension.Extension):
                     dmsg(self._mh._trn.msg('yoda_waiting_tickets',len(self._active_tickets)))
                     
         else:
+            print(self._pp_attr)
             self._pp_attr['test_run_completed'] = True
             try:
                 self._test_engine.test_run.end_time = time.time()                    
@@ -604,8 +608,20 @@ class Extension(extension.Extension):
                 self._test_engine.run_mode_area = 'inrepo'                    
                 test_path                       = self._templates_repo + test_path                
                 self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_running_tset_repo',test_path), self._mh.fromhere())                                                  
-                                          
-            test_files, test_file_id = self._test_engine.get_all_tests_from_path(test_path)
+            
+            multiply_tests = CommandlineTool.get_input_option('yoda-multiply-tests')
+            test_files = []
+            test_file_id = []
+            if multiply_tests != False:
+                multiply_tests = int(multiply_tests)
+            if multiply_tests > 0:    
+                for i in range(multiply_tests):            
+                    tfiles, tfile_id = self._test_engine.get_all_tests_from_path(test_path)
+                    test_files += tfiles
+                    test_file_id += tfile_id
+                self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_multiply_tests',i), self._mh.fromhere())                                              
+            else:
+                test_files, test_file_id = self._test_engine.get_all_tests_from_path(test_path)          
                             
             ev = event.Event('yoda_before_process_tests', test_files, test_file_id)        
             if (self._mh.fire_event(ev) > 0):
