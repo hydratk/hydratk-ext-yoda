@@ -273,7 +273,7 @@ class TestResultsOutputHandler(object):
                    total_time = round(tco['end_time'] - tco['start_time'],3),
                    test_resolution = tco['test_resolution'].decode() if hasattr(tco['test_resolution'], 'decode') else tco['test_resolution'],
                    expected_result = tco['expected_result'].decode() if hasattr(tco['expected_result'], 'decode') else tco['expected_result'],
-                   test_result = tco['test_result'].decode() if hasattr(tco['expected_result'], 'decode') else tco['test_result'],                  
+                   test_result = tco['test_result'].decode() if hasattr(tco['test_result'], 'decode') else tco['test_result'],                  
                    log = tco['log'].decode().replace("\n","<br>")
                   )
         tco_opt_rest_all = {} 
