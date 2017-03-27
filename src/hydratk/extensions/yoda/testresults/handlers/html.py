@@ -224,6 +224,9 @@ class TestResultsOutputHandler(object):
                    tc_name = tco['value'].decode(),
                   )
         tco_desc = ''
+        print("-------------- TCO opt")
+        print(tco_opt)  
+        
         tco_opt_rest = []        
         for opt_dict in tco_opt:          
             if opt_dict['key'] == 'name':               
@@ -403,7 +406,7 @@ class TestResultsOutputHandler(object):
         ts_desc    = ''
         ts_author  = ''
         ts_version = ''
-        ts_opt_rest = []        
+        ts_opt_rest = []                
         for opt_dict in ts_opt:          
             if opt_dict['key'] == 'name':               
                 continue
@@ -499,7 +502,7 @@ class TestResultsOutputHandler(object):
                    log = ts['log'].decode().replace("\n","<br>") 
                   )
         
-        ts_opt_rest_all = {}                      
+        ts_opt_rest_all = {}                            
         for opt_dict in ts_opt_rest:
             if opt_dict['key'] not in ts_opt_rest_all:
                 ts_opt_rest_all[opt_dict['key']] = {
@@ -517,6 +520,8 @@ class TestResultsOutputHandler(object):
         return res
      
     def _process_custom_data_opt(self, opt_dict):
+        print("----------------- Processing custom data:")
+        print(opt_dict)
         res = ""        
         for k,v in opt_dict.items():                            
             if v['pickled'] == 1:
