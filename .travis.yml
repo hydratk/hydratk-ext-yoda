@@ -1,7 +1,6 @@
 language: python
 
 python:
-  - "2.6"
   - "2.7"
   - "3.3"
   - "3.4"
@@ -12,13 +11,16 @@ python:
 sudo: required  
   
 install:
-  - "sudo pip install --upgrade pip"
-  - "sudo pip install --upgrade setuptools"
+  - "cmdpath=`which pip`"
+  - "export pip=$cmdpath"
+  - "sudo $cmdpath install --upgrade pip"
+  - "sudo $cmdpath install --upgrade setuptools"
+  - "cmdpath=`which python`"
   - "sudo git clone -b develop https://github.com/hydratk/hydratk.git"
   - "cd hydratk"
-  - "sudo -H python setup.py install"
+  - "sudo -H $cmdpath setup.py install"
   - "cd .."
-  - "sudo -H python setup.py install"
+  - "sudo -H $cmdpath setup.py install"
   - "cd hydratk"  
   - "sudo cp -R tests/yodalib/hydratk /var/local/hydratk/yoda/lib/yodalib"
   - "sudo cp -R tests/yodahelpers/hydratk /var/local/hydratk/yoda/helpers/yodahelpers"
@@ -28,6 +30,7 @@ install:
   - "sudo cp -R tests/yodahelpers/hydratk /var/local/hydratk/yoda/helpers/yodahelpers"
   - "sudo cp -R tests/yoda-tests/hydratk /var/local/hydratk/yoda/yoda-tests"  
   - "sudo cp tests/travis.yoda /var/local/hydratk/yoda/yoda-tests"
+  - "cmdpath=`which yoda`"
   
 script:
-  - "sudo yoda -tp travis.yoda run"        
+  - "sudo $cmdpath -tp travis.yoda run"        

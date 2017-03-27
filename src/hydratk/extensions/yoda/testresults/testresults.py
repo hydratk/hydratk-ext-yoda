@@ -13,7 +13,6 @@ from hydratk.core.masterhead import MasterHead
 from hydratk.lib.database.dbo import dbo
 from hydratk.lib.debugging.simpledebug import dmsg
 from hydratk.lib.system.io import cprint
-from hydratk.lib.debugging.simpledebug import dmsg
 
 check_db_struct = {
             'sqlite' : { 'query'    : "SELECT count(*) expected from sqlite_master where type='table'",

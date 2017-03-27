@@ -147,7 +147,8 @@ class Extension(extension.Extension):
         files = [
                  '/usr/share/man/man1/yoda.1',
                  '/etc/hydratk/conf.d/hydratk-ext-yoda.conf',                 
-                 '/var/local/hydratk/yoda'
+                 '/var/local/hydratk/yoda',
+                 '/tmp/test_output'
                 ]
         
         if (self._test_repo_root != '/var/local/hydratk/yoda'):

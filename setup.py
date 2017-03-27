@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
-from sys import argv
+from sys import argv, version_info
 import hydratk.lib.install.task as task
 
 with open("README.rst", "r") as f:
@@ -29,14 +29,26 @@ classifiers = [
     "Topic :: Utilities"
 ]
 
+def version_update(cfg):
+    
+    major, minor = version_info[0], version_info[1]
+
+    if (major == 2 and minor == 6):     
+        cfg['modules'].append('simplejson==3.8.2')
+    else:
+        cfg['modules'].append('simplejson>=3.8.2')
+        
+
 config = {
   'pre_tasks' : [
+                 version_update,
                  task.install_libs,
                  task.install_modules
                 ],
 
   'post_tasks' : [
                   task.set_config,
+                  task.create_dirs,
                   task.copy_files,
                   task.set_access_rights,
                   task.set_manpage
@@ -45,20 +57,25 @@ config = {
   'modules' : [    
                'hydratk',     
                'lxml>=3.3.3',  
-               'pytz>=2016.6.1',                
-               'simplejson>=3.8.2'                                                 
+               'pytz>=2016.6.1'                               
               ],
+          
+  'dirs' : [
+            '/tmp/test_output/html',
+            '/tmp/test_output/text'
+           ],
           
   'files' : {
              'config'  : {
                           'etc/hydratk/conf.d/hydratk-ext-yoda.conf' : '/etc/hydratk/conf.d'
                          },
              'data'    : {
-                          'var/local/hydratk/yoda/yoda-tests/test1/example1.yoda'  : '/var/local/hydratk/yoda/yoda-tests/test1',
-                          'var/local/hydratk/yoda/helpers/yodahelpers/__init__.py' : '/var/local/hydratk/yoda/helpers/yodahelpers',
-                          'var/local/hydratk/yoda/lib/yodalib/__init__.py'         : '/var/local/hydratk/yoda/lib/yodalib',
-                          'var/local/hydratk/yoda/db_testdata/db_struct.sql'       : '/var/local/hydratk/yoda/db_testdata',
-                          'var/local/hydratk/yoda/db_testdata/db_data.sql'         : '/var/local/hydratk/yoda/db_testdata'
+                          'var/local/hydratk/yoda/yoda-tests/test1/example1.yoda'                : '/var/local/hydratk/yoda/yoda-tests/test1',
+                          'var/local/hydratk/yoda/helpers/yodahelpers/__init__.py'               : '/var/local/hydratk/yoda/helpers/yodahelpers',
+                          'var/local/hydratk/yoda/lib/yodalib/__init__.py'                       : '/var/local/hydratk/yoda/lib/yodalib',
+                          'var/local/hydratk/yoda/db_testdata/db_struct.sql'                     : '/var/local/hydratk/yoda/db_testdata',
+                          'var/local/hydratk/yoda/db_testdata/db_data.sql'                       : '/var/local/hydratk/yoda/db_testdata',
+                          'var/local/hydratk/yoda/templates/test_reports/html/default/body.html' : '/var/local/hydratk/yoda/templates/test_reports/html/default' 
                          },
              'manpage' : 'doc/yoda.1'         
             },
@@ -81,7 +98,8 @@ config = {
           
   'rights' : {
               '/etc/hydratk'       : 'a+r',
-              '/var/local/hydratk' : 'a+rwx'
+              '/var/local/hydratk' : 'a+rwx',
+              '/tmp/test_output'   : 'a+rwx'
              }                              
 }
 
