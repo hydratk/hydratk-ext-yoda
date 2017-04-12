@@ -73,18 +73,29 @@ class TestObject(object):
             print(content) 
          
     def exec_test(self, test_path, report_results = 1):
-        """Method executes test block
+        """Method executes tests in path, wrapper for using in tests
         
         Args:  
            test_path (str): test path
            report_results (int) : 1 (default) results reported, 0 results not reported     
            
         Returns:
-           void
+           result (dict) : { 
+                             'total_tests' : int, 
+                             'passed_tests' : int,
+                             'failed_tests' : int, 
+                             'detail' : {
+                                    test_set_id : {
+                                       'total_tests' : int, 
+                                       'passed_tests' : int,
+                                       'failed_tests' : int, 
+                                    }
+                              } 
+                          }
                 
         """   
                 
-        self._current.te.exec_test(test_path, report_results)
+        return self._current.te.exec_test(test_path, report_results)
 
         
     def write_custom_data(self):

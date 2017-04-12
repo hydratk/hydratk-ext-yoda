@@ -880,14 +880,25 @@ class TestEngine(MacroParser):
         return tset_obj
     
     def exec_test(self, test_path, report_results = 1):
-        """Method executes tests on path
+        """Method executes tests in path
         
         Args:  
            test_path (str): test path
            report_results (int) : 1 (default) results reported, 0 results not reported
            
         Returns:
-           void
+           result (dict) : { 
+                             'total_tests' : int, 
+                             'passed_tests' : int,
+                             'failed_tests' : int, 
+                             'detail' : {
+                                    test_set_id : {
+                                       'total_tests' : int, 
+                                       'passed_tests' : int,
+                                       'failed_tests' : int, 
+                                    }
+                              } 
+                          }
            
         Raises:
            exception: Exception
@@ -896,6 +907,13 @@ class TestEngine(MacroParser):
         """ 
         if report_results not in (0,1): #fix report_results if invalid
             report_results = 1
+            
+        result = {
+                  'total_tests' : 0,
+                  'passed_tests' : 0,
+                  'failed_tests' : 0,
+                  'detail' : {}
+                 }
                     
         self._exec_level += 1        
         dmsg('Inline test exec: {0}'.format(test_path))
@@ -950,13 +968,27 @@ class TestEngine(MacroParser):
                                 raise Exception(self._mh._trn.msg('yoda_update_tset_db_error'))
                             if test_path in self._test_run.inline_tests:
                                 self._test_run.inline_tests.remove(test_path)
+                                
+                            """ Write statistics"""    
+                            result['total_tests']  += tset_obj.total_tests
+                            result['passed_tests'] += tset_obj.passed_tests
+                            result['failed_tests'] += tset_obj.failed_tests
+                            
+                            result['detail'][tset_obj.current_test_set_file] = {
+                                                                                  'total_tests' : tset_obj.total_tests,
+                                                                                  'passed_tests' : tset_obj.passed_tests,                                  
+                                                                                  'failed_tests' : tset_obj.failed_tests
+                                                                                }
                 i += 1
             
             self._current.tset = backup_tset 
             self._current.ts   = backup_ts
             self._current.tca  = backup_tca 
             self._current.tco  = backup_tco
-            self._exec_level  += 1            
+            self._exec_level  -= 1
+                        
+        return result
+    
     
     def get_all_tests_from_container(self, container_file):
         """Method returns all tests found in container
