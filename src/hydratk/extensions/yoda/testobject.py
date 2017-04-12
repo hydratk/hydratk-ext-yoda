@@ -60,6 +60,15 @@ class TestObject(object):
             self._report_results = state 
 
     def cprint(self, content):
+        """Method prints content regarding the report_results option
+        
+        Args:  
+           content (mixed): content      
+           
+        Returns:
+           void
+                
+        """                   
         if self._report_results == 1:
             print(content) 
          
@@ -67,7 +76,8 @@ class TestObject(object):
         """Method executes test block
         
         Args:  
-           test_path (str): test path     
+           test_path (str): test path
+           report_results (int) : 1 (default) results reported, 0 results not reported     
            
         Returns:
            void

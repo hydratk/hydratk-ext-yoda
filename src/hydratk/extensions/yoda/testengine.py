@@ -823,6 +823,8 @@ class TestEngine(MacroParser):
         Args:  
            tset_struct (dict): test set structure
            tset_id (str): test set id
+           exec_mode (int) : mode regarding current test set execution, 1 (default) - native, 2 - inline 
+           report_results (int) : 1 (default) results reported, 0 results not reported
            
         Returns:
            obj: test set
@@ -882,6 +884,7 @@ class TestEngine(MacroParser):
         
         Args:  
            test_path (str): test path
+           report_results (int) : 1 (default) results reported, 0 results not reported
            
         Returns:
            void
