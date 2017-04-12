@@ -815,7 +815,7 @@ class TestEngine(MacroParser):
             self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg('yoda_parsing_test_condition',tco_key,tco_val), self._mh.fromhere(), 5)    
             tco.setattr(tco_key.lower(), tco_val)            
                        
-    def parse_tset_struct(self, tset_struct, tset_id):
+    def parse_tset_struct(self, tset_struct, tset_id, exec_mode = 1, report_results = 1):
         """Method parses test set
         
         Hierarchy test scenario, case, condition
@@ -832,23 +832,30 @@ class TestEngine(MacroParser):
         tset_obj = False
         if (type(tset_struct).__name__ == 'dict'):
             tset_obj = TestSet(self._current, self._tset_file, tset_id)
-                                    
+            tset_obj.exec_mode = exec_mode
+            tset_obj.report_results = report_results                        
             ts_num = 1
             ts_k = 'Test-Scenario-%d' % ts_num
             while ts_k in tset_struct:                
-                ts = TestScenario(ts_num, tset_obj, self._current)                               
+                ts = TestScenario(ts_num, tset_obj, self._current) 
+                ts.exec_mode = exec_mode
+                ts.report_results = report_results                               
                 self._parse_ts_node(tset_struct[ts_k], ts)
                 tset_obj.parsed_tests['total_ts'] += 1
                 tca_num = 1
                 tca_k = 'Test-Case-%d' % tca_num                
                 while tca_k in tset_struct[ts_k]:                    
-                    tca = TestCase(tca_num, ts, self._current)                    
+                    tca = TestCase(tca_num, ts, self._current)
+                    tca.exec_mode = exec_mode
+                    tca.report_results = report_results                     
                     self._parse_tca_node(tset_struct[ts_k][tca_k], tca)
                     tset_obj.parsed_tests['total_tca'] += 1
                     tco_num = 1
                     tco_k = 'Test-Condition-%d' % tco_num                    
                     while tco_k in tset_struct[ts_k][tca_k]:                                                                   
-                        tco = TestCondition(tco_num, tca, self._current)                        
+                        tco = TestCondition(tco_num, tca, self._current)
+                        tco.exec_mode = exec_mode
+                        tco.report_results = report_results
                         self._parse_tco_node(tset_struct[ts_k][tca_k][tco_k], tco)
                         tset_obj.parsed_tests['total_tco'] += 1
                         tco_num += 1
@@ -870,7 +877,7 @@ class TestEngine(MacroParser):
         
         return tset_obj
     
-    def exec_test(self, test_path):
+    def exec_test(self, test_path, report_results = 1):
         """Method executes tests on path
         
         Args:  
@@ -884,7 +891,9 @@ class TestEngine(MacroParser):
            event: yoda_before_parse_test_file
                 
         """ 
-                
+        if report_results not in (0,1): #fix report_results if invalid
+            report_results = 1
+                    
         self._exec_level += 1        
         dmsg('Inline test exec: {0}'.format(test_path))
         if test_path is not None and test_path != '':
@@ -918,7 +927,7 @@ class TestEngine(MacroParser):
                 if ev.will_run_default():
                     tset_struct = self.load_tset_from_file(tf)
                     if tset_struct != False:                    
-                        tset_obj = self.parse_tset_struct(tset_struct, test_file_id[i]);
+                        tset_obj = self.parse_tset_struct(tset_struct, test_file_id[i], 2, report_results);
                         if tset_obj != False:
                             try:
                                 dmsg(self._mh._trn.msg('yoda_create_tset_db',tf), 1)                    

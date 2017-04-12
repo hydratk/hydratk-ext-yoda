@@ -35,8 +35,35 @@ class TestObject(object):
         
         return self._parent    
 
+    @property
+    def exec_mode(self):
+        """ exec_mode property getter """
+        
+        return self._exec_mode
+    
+    @exec_mode.setter
+    def exec_mode(self, mode):
+        """ exec_mode property setter """
+        if mode in (1,2):
+            self._exec_mode = mode  
 
-    def exec_test(self, test_path):
+    @property
+    def report_results(self):
+        """ report_results property getter """
+        
+        return self._report_results
+    
+    @report_results.setter
+    def report_results(self, state):
+        """ report_results setter """
+        if state in (0,1):
+            self._report_results = state 
+
+    def cprint(self, content):
+        if self._report_results == 1:
+            print(content) 
+         
+    def exec_test(self, test_path, report_results = 1):
         """Method executes test block
         
         Args:  
@@ -47,7 +74,7 @@ class TestObject(object):
                 
         """   
                 
-        self._current.te.exec_test(test_path)
+        self._current.te.exec_test(test_path, report_results)
 
         
     def write_custom_data(self):
@@ -757,6 +784,8 @@ class TestSet(TestObject):
     _end_time                = None
     _log                     = ''
     _struct_log              = {}
+    _exec_mode               = 1 # 1 - identified as native exec mode, 2 - identified as inline mode 
+    _report_results          = 1 # 1 - yes, 0 - no
     
     '''Test Scenarios'''
     _ts                      = []         
@@ -924,10 +953,10 @@ class TestSet(TestObject):
         return self._start_time
     
     @start_time.setter
-    def start_time(self, time):
+    def start_time(self, end_time):
         """ start_Time property setter """
         
-        self._start_time = time 
+        self._start_time = end_time 
 
     @property
     def end_time(self):
@@ -936,10 +965,10 @@ class TestSet(TestObject):
         return self._end_time
     
     @end_time.setter
-    def end_time(self, time):
+    def end_time(self, end_time):
         """ end_time property setter """
         
-        self._end_time = time            
+        self._end_time = end_time            
     
     def __init__(self, current, test_set_file, test_set_file_id):
         """Class constructor
@@ -998,7 +1027,9 @@ class TestSet(TestObject):
                                                   self._failed_tests,
                                                   self._passed_tests,
                                                   self._log,                                                  
-                                                  pickle.dumps(self._struct_log)  
+                                                  pickle.dumps(self._struct_log),
+                                                  self._exec_mode,
+                                                  self._report_results  
                                                 ])
     
     def update_db_record(self):
@@ -1015,16 +1046,19 @@ class TestSet(TestObject):
         self._current.te.test_results_db.db_action(
                                                    'update_test_set_record',
                                                  {
-                                                  'id'           : self._id,                                                  
-                                                  'tset_id'      : self._current_test_set_file,
-                                                  'test_run_id'  : self._current.te.test_run.id,
-                                                  'start_time'   : self._start_time,
-                                                  'end_time'     : self._end_time,
-                                                  'total_tests'  : self._total_tests,
-                                                  'failed_tests' : self._failed_tests,
-                                                  'passed_tests' : self._passed_tests,
-                                                  'log'          : self._log,                                                  
-                                                  'struct_log'   : pickle.dumps(self._struct_log)   
+                                                  'id'             : self._id,                                                  
+                                                  'tset_id'        : self._current_test_set_file,
+                                                  'test_run_id'    : self._current.te.test_run.id,
+                                                  'start_time'     : self._start_time,
+                                                  'end_time'       : self._end_time,
+                                                  'total_tests'    : self._total_tests,
+                                                  'failed_tests'   : self._failed_tests,
+                                                  'passed_tests'   : self._passed_tests,
+                                                  'log'            : self._log,                                                  
+                                                  'struct_log'     : pickle.dumps(self._struct_log), 
+                                                  'exec_mode'      : self._exec_mode,
+                                                  'report_results' : self._report_results    
+                                                    
                                                 })               
                 
     
@@ -1217,6 +1251,8 @@ class TestScenario(TestObject):
     _current        = None
     _log            = ''
     _struct_log     = {}
+    _exec_mode      = 1 # 1 - identified as native exec mode, 2 - identified as inline mode 
+    _report_results = 1 # 1 - yes, 0 - no
     
     def __init__(self, ts_num, parent_tset, current):
         """Class constructor
@@ -1300,7 +1336,9 @@ class TestScenario(TestObject):
                                                   self._events_passed,
                                                   self._failures,  
                                                   self._log,                                                  
-                                                  pickle.dumps(self._struct_log)  
+                                                  pickle.dumps(self._struct_log),
+                                                  self._exec_mode,
+                                                  self._report_results    
                                                 ])
                
     def update_db_record(self):
@@ -1333,7 +1371,10 @@ class TestScenario(TestObject):
                                                   'events_passed'  : self._events_passed,
                                                   'failures'       : self._failures,  
                                                   'log'            : self._log,                                                  
-                                                  'struct_log'     : pickle.dumps(self._struct_log)   
+                                                  'struct_log'     : pickle.dumps(self._struct_log),
+                                                  'exec_mode'      : self._exec_mode,
+                                                  'report_results' : self._report_results    
+   
                                                 }) 
         
     def run(self):    
@@ -1825,7 +1866,9 @@ class TestCase(TestObject):
     _end_time       = None
     _events_passed  = None
     _log            = ''
-    _struct_log     = {}  
+    _struct_log     = {}
+    _exec_mode      = 1 # 1 - identified as native exec mode, 2 - identified as inline mode 
+    _report_results = 1 # 1 - yes, 0 - no  
             
     def __init__(self, tca_num, parent_ts, current):
         """Class constructor
@@ -1900,7 +1943,10 @@ class TestCase(TestObject):
                                                   self._events_passed,
                                                   self._failures, 
                                                   self._log,                                                  
-                                                  pickle.dumps(self._struct_log)  
+                                                  pickle.dumps(self._struct_log),
+                                                  self._exec_mode,
+                                                  self._report_results    
+  
                                                 ])
            
     
@@ -1931,7 +1977,9 @@ class TestCase(TestObject):
                                                   'events_passed'    : self._events_passed,
                                                   'failures'         : self._failures, 
                                                   'log'              : self._log,                                                  
-                                                  'struct_log'       : pickle.dumps(self._struct_log)   
+                                                  'struct_log'       : pickle.dumps(self._struct_log),
+                                                  'exec_mode'      : self._exec_mode,
+                                                  'report_results' : self._report_results                                                         
                                                 })   
          
                 
@@ -2341,7 +2389,9 @@ class TestCondition(TestObject):
     _test_exec_passed     = None
     _validate_exec_passed = None
     _log                  = ''
-    _struct_log           = {}       
+    _struct_log           = {}
+    _exec_mode            = 1 # 1 - identified as native exec mode, 2 - identified as inline mode 
+    _report_results       = 1 # 1 - yes, 0 - no       
     
             
     def __init__(self, tco_num, parent_tca, current):
@@ -2409,7 +2459,9 @@ class TestCondition(TestObject):
                                                   self._test_exec_passed,
                                                   self._validate_exec_passed,  
                                                   self._log,                                                  
-                                                  pickle.dumps(self._struct_log)  
+                                                  pickle.dumps(self._struct_log),
+                                                  self._exec_mode,
+                                                  self._report_results      
                                                 ])
                                                     
     def update_db_record(self):  
@@ -2441,7 +2493,9 @@ class TestCondition(TestObject):
                                                   'test_exec_passed'     : self._test_exec_passed,
                                                   'validate_exec_passed' : self._validate_exec_passed,
                                                   'log'                  : self._log,                                                  
-                                                  'struct_log'           : pickle.dumps(self._struct_log)   
+                                                  'struct_log'           : pickle.dumps(self._struct_log),
+                                                  'exec_mode'      : self._exec_mode,
+                                                  'report_results' : self._report_results                                                         
                                                 })   
                   
                             
@@ -2591,7 +2645,7 @@ class TestCondition(TestObject):
                 current.te.test_run.passed_tests += 1                    
                 tco_note = "*** {ts}/{tca}/{tco}: ".format(ts=current.ts.name,tca=current.tca.name,tco=self.name)
                 tco_note = colorize(tco_note, rgb=0x00bfff) + colorize('PASSED',rgb=0x00ff00)
-                print(tco_note)                                                    
+                self.cprint(tco_note)                                                    
             
             except (BreakTestRun,BreakTestSet, BreakTestCase, BreakTest) as exc:
                 raise exc
@@ -2640,7 +2694,7 @@ class TestCondition(TestObject):
         if self.test_resolution == 'Failed':
             tco_note = "*** {ts}/{tca}/{tco}: ".format(ts=current.ts.name,tca=current.tca.name,tco=self.name)
             tco_note = colorize(tco_note, rgb=0x00bfff) + colorize('FAILED',rgb=0xff0000)
-            print(tco_note)              
+            self.cprint(tco_note)              
                                     
         if self.action == None:
             self.status = "finished"

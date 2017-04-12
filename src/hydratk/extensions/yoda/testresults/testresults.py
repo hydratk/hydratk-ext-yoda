@@ -46,6 +46,8 @@ db_struct = {
                         passed_tests INTEGER,
                         log BLOB,
                         struct_log BLOB,
+                        exec_mode INTEGER NOT NULL,
+                        report_results INTEGER NOT NULL,
                         PRIMARY KEY(id),
                         FOREIGN KEY(test_run_id) REFERENCES test_run(id)
                        );
@@ -66,6 +68,8 @@ db_struct = {
                         failures INTEGER,
                         log BLOB,
                         struct_log BLOB,
+                        exec_mode INTEGER NOT NULL,
+                        report_results INTEGER NOT NULL,
                         PRIMARY KEY(id),
                         FOREIGN KEY(test_set_id) REFERENCES test_set(id)
                        );                       
@@ -85,6 +89,8 @@ db_struct = {
                         failures INTEGER,
                         log BLOB,
                         struct_log BLOB,
+                        exec_mode INTEGER NOT NULL,
+                        report_results INTEGER NOT NULL,
                         PRIMARY KEY(id),
                         FOREIGN KEY(test_scenario_id) REFERENCES test_scenario(id)
                        );
@@ -106,6 +112,8 @@ db_struct = {
                         validate_exec_passed INTEGER,   
                         log BLOB,
                         struct_log BLOB,
+                        exec_mode INTEGER NOT NULL,
+                        report_results INTEGER NOT NULL,
                         PRIMARY KEY(id),
                         FOREIGN KEY(test_case_id) REFERENCES test_case(id)
                        );
@@ -147,7 +155,7 @@ db_actions = {
                                                   struct_log=:struct_log
                               WHERE id=:id
                             """,
-                  'create_test_set_record' : "INSERT INTO test_set VALUES (?,?,?,?,?,?,?,?,?,?)",
+                  'create_test_set_record' : "INSERT INTO test_set VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
                   'update_test_set_record' : """
                               UPDATE test_set SET tset_id=:tset_id,
                                                   test_run_id=:test_run_id,
@@ -157,10 +165,12 @@ db_actions = {
                                                   failed_tests=:failed_tests, 
                                                   passed_tests=:passed_tests, 
                                                   log=:log, 
-                                                  struct_log=:struct_log
+                                                  struct_log=:struct_log,
+                                                  exec_mode=:exec_mode,
+                                                  report_results=:report_results
                               WHERE id=:id
                             """,        
-                  'create_test_scenario_record' : "INSERT INTO test_scenario VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                  'create_test_scenario_record' : "INSERT INTO test_scenario VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                   'update_test_scenario_record' : """
                               UPDATE test_scenario SET ts_id=:ts_id,
                                                   test_run_id=:test_run_id,
@@ -175,10 +185,12 @@ db_actions = {
                                                   events_passed=:events_passed,
                                                   failures=:failures, 
                                                   log=:log, 
-                                                  struct_log=:struct_log
+                                                  struct_log=:struct_log,
+                                                  exec_mode=:exec_mode,
+                                                  report_results=:report_results
                               WHERE id=:id
                             """,
-                  'create_test_case_record' : "INSERT INTO test_case VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                  'create_test_case_record' : "INSERT INTO test_case VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                   'update_test_case_record' : """
                               UPDATE test_case SET tca_id=:tca_id,
                                                   test_run_id=:test_run_id,
@@ -192,10 +204,12 @@ db_actions = {
                                                   events_passed=:events_passed,
                                                   failures=:failures, 
                                                   log=:log, 
-                                                  struct_log=:struct_log
+                                                  struct_log=:struct_log,
+                                                  exec_mode=:exec_mode,
+                                                  report_results=:report_results
                               WHERE id=:id
                             """,
-                  'create_test_condition_record' : "INSERT INTO test_condition VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                  'create_test_condition_record' : "INSERT INTO test_condition VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                   'update_test_condition_record' : """
                               UPDATE test_condition SET tco_id=:tco_id,
                                                   test_run_id=:test_run_id,
@@ -211,30 +225,35 @@ db_actions = {
                                                   test_exec_passed=:test_exec_passed,
                                                   validate_exec_passed=:validate_exec_passed, 
                                                   log=:log, 
-                                                  struct_log=:struct_log
+                                                  struct_log=:struct_log,
+                                                  exec_mode=:exec_mode,
+                                                  report_results=:report_results
                               WHERE id=:id
                             """,
                    'write_custom_data'           : "INSERT OR REPLACE INTO custom_data VALUES(?,?,?,?,?,?,?)", 
                    'create_custom_data'          : "INSERT INTO custom_data VALUES(?,?,?,?,?,?,?)",
                    'write_custom_data_opt'       : "INSERT OR REPLACE INTO custom_data_opt VALUES(?,?,?,?)",                   
                    'create_custom_data_opt'      : "INSERT INTO custom_data_opt VALUES(?,?,?)",
-                   'get_test_stats'              : "select sum(total_tests) total_tests, sum(failed_tests) failed_tests, sum(passed_tests) passed_tests from test_set where test_run_id = :test_run_id",
-                   'get_total_test_sets'         : "select count(tset_id) total_test_sets from test_set where test_run_id = :test_run_id",
-                   'get_total_tests'             : "select count(tco_id) total_tests from test_condition where test_run_id = :test_run_id",
-                   'get_failed_tests'            : "select count(tco_id) failed_tests from test_condition where test_run_id = :test_run_id and test_resolution = 'failed'",
-                   'get_passed_tests'            : "select count(tco_id) passed_tests from test_condition where test_run_id = :test_run_id and test_resolution = 'passed'",
+                   'get_test_stats'              : "select sum(total_tests) total_tests, sum(failed_tests) failed_tests, sum(passed_tests) passed_tests from test_set where test_run_id = :test_run_id and report_results = 1",
+                   'get_total_test_sets'         : "select count(tset_id) total_test_sets from test_set where test_run_id = :test_run_id and report_results = 1",
+                   'get_total_tests'             : "select count(tco_id) total_tests from test_condition where test_run_id = :test_run_id and report_results = 1",
+                   'get_failed_tests'            : "select count(tco_id) failed_tests from test_condition where test_run_id = :test_run_id and test_resolution = 'failed' and report_results = 1",
+                   'get_passed_tests'            : "select count(tco_id) passed_tests from test_condition where test_run_id = :test_run_id and test_resolution = 'passed' and report_results = 1",
                    'get_test_runs'               : "select * from test_run",
                    'get_test_run'                : "select * from test_run where id = :test_run_id",                                                                                                             
-                   'get_test_sets'               : "select * from test_set where test_run_id = :test_run_id order by test_set.start_time asc",
+                   'get_test_sets'               : "select * from test_set where test_run_id = :test_run_id and report_results = 1 order by test_set.start_time asc",
                    'get_test_scenarios'          : """select distinct test_scenario.*, custom_data.key 'key', custom_data.value 'value', custom_data.pickled 'pickled' from test_scenario left join custom_data on test_scenario.id = custom_data.test_obj_id
-                                                        where test_scenario.test_run_id = :test_run_id and test_scenario.test_set_id = :test_set_id and custom_data.key = 'name' order by test_scenario.start_time asc                                                      
+                                                        where test_scenario.test_run_id = :test_run_id and test_scenario.test_set_id = :test_set_id and custom_data.key = 'name' 
+                                                        and report_results = 1 order by test_scenario.start_time asc                                                      
                                                    """,
                    'get_test_custom_opt'         : """select "key","value", pickled, opt_name, opt_value FROM "custom_data" left join custom_data_opt on custom_data.id = custom_data_opt.custom_data_id where test_obj_id = :test_object_id""",                               
                    'get_test_cases'              : """select distinct test_case.*, custom_data.key 'key', custom_data.value 'value', custom_data.pickled 'pickled' from test_case left join custom_data on test_case.id = custom_data.test_obj_id
-                                                        where test_case.test_run_id = :test_run_id and test_case.test_set_id = :test_set_id and test_case.test_scenario_id = :test_scenario_id and custom_data.key = 'name' order by test_case.start_time asc                                                      
+                                                        where test_case.test_run_id = :test_run_id and test_case.test_set_id = :test_set_id and test_case.test_scenario_id = :test_scenario_id and custom_data.key = 'name' 
+                                                        and report_results = 1 order by test_case.start_time asc                                                      
                                                    """,
                    'get_test_conditions'         : """select distinct test_condition.*, custom_data.key 'key', custom_data.value 'value', custom_data.pickled 'pickled' from test_condition left join custom_data on test_condition.id = custom_data.test_obj_id
-                                                        where test_condition.test_run_id = :test_run_id and test_condition.test_set_id = :test_set_id and test_condition.test_scenario_id = :test_scenario_id and test_condition.test_case_id = :test_case_id and custom_data.key = 'name' order by test_condition.start_time asc                                                      
+                                                        where test_condition.test_run_id = :test_run_id and test_condition.test_set_id = :test_set_id and test_condition.test_scenario_id = :test_scenario_id and test_condition.test_case_id = :test_case_id and custom_data.key = 'name' 
+                                                        and report_results = 1 order by test_condition.start_time asc                                                      
                                                    """                                                                                                        
                 }                           
 }

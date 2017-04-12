@@ -213,19 +213,17 @@ class TestResultsOutputHandler(object):
         res += """
         <tr>
           <th>Id:</th>
-          <td>{tco_id}</td>
+          <td class="TestConditionTableValue">{tco_id}</td>
         </tr>
         <tr>
           <th>Name:</th>
-          <td>{tc_name}</td>
+          <td class="TestConditionTableValue">{tc_name}</td>
         </tr>       
         """.format(
                    tco_id = tco['tco_id'].decode(),
                    tc_name = tco['value'].decode(),
                   )
         tco_desc = ''
-        print("-------------- TCO opt")
-        print(tco_opt)  
         
         tco_opt_rest = []        
         for opt_dict in tco_opt:          
@@ -239,35 +237,35 @@ class TestResultsOutputHandler(object):
         res += """
          <tr>
            <th>Description:</th>
-           <td>{tco_desc}</td>
+           <td class="TestConditionTableValue">{tco_desc}</td>
         </tr>
         <tr>   
            <th>Start time:</th>
-          <td>{start_time}</td>
+          <td class="TestConditionTableValue">{start_time}</td>
         </tr>
         <tr>
           <th>End time:</th>
-          <td>{end_time}</td>
+          <td class="TestConditionTableValue">{end_time}</td>
         </tr>
         <tr>
           <th>Total time:</th>
-          <td>{total_time} s</td>
+          <td class="TestConditionTableValue">{total_time} s</td>
         </tr>        
         <tr>
           <th>Test resolution:</th>
-          <td>{test_resolution}</td>
+          <td class="TestConditionTableValue">{test_resolution}</td>
         </tr>
         <tr>
           <th>Expected result:</th>
-          <td>{expected_result}</td>
+          <td class="TestConditionTableValue">{expected_result}</td>
         </tr>
         <tr>
           <th>Actual result:</th>
-          <td>{test_result}</td>
+          <td class="TestConditionTableValue">{test_result}</td>
         </tr>
         </tr>
           <th>Log:</th>
-          <td>{log}</td>          
+          <td class="TestConditionTableValue">{log}</td>          
         </tr>                       
         """.format(
                    tco_desc = tco_desc,
@@ -293,7 +291,7 @@ class TestResultsOutputHandler(object):
                 tco_opt_rest_all[opt_dict['key']]['options'][opt_dict['opt_name'].decode()] = opt_dict['opt_value'].decode()
         
         if len(tco_opt_rest_all) > 0:            
-            res += self._process_custom_data_opt(tco_opt_rest_all)
+            res += self._process_custom_data_opt(tco_opt_rest_all, 'TestCondition')
             
         return res  
         
@@ -303,11 +301,11 @@ class TestResultsOutputHandler(object):
         res += """
         <tr>
           <th>Id:</th>
-          <td>{tca_id}</td>
+          <td class="TestCaseTableValue">{tca_id}</td>
         </tr>
         <tr>
           <th>Name:</th>
-          <td>{tc_name}</td>
+          <td class="TestCaseTableValue">{tc_name}</td>
         </tr>
         """.format(
                    tca_id = tc['tca_id'].decode(),
@@ -328,35 +326,35 @@ class TestResultsOutputHandler(object):
         res += """
          <tr>
            <th>Description:</th>
-           <td>{tc_desc}</td>
+           <td class="TestCaseTableValue">{tc_desc}</td>
         </tr>
          <tr>
           <th>Start time:</th>
-          <td>{start_time}</td>
+          <td class="TestCaseTableValue">{start_time}</td>
         </tr>
         <tr>
           <th>End time:</th>
-          <td>{end_time}</td>
+          <td class="TestCaseTableValue">{end_time}</td>
         </tr>
         <tr>
           <th>Total time:</th>
-          <td>{total_time} s</td>
+          <td class="TestCaseTableValue">{total_time} s</td>
         </tr>
         <tr>
           <th>Total tests:</th>
-          <td>{total_tests}</td>
+          <td class="TestCaseTableValue">{total_tests}</td>
         </tr>
         <tr>
           <th>Passed tests:</th>
-          <td>{passed_tests}</td>          
+          <td class="TestCaseTableValue">{passed_tests}</td>          
         </tr>
         <tr>
           <th>Failed tests:</th>
-          <td>{failed_tests}</td>          
+          <td class="TestCaseTableValue">{failed_tests}</td>          
         </tr>
         <tr>
           <th>Log:</th>
-          <td>{log}</td>          
+          <td class="TestCaseTableValue">{log}</td>          
         </tr>                       
         """.format(                   
                    tc_desc = tc_desc,
@@ -382,7 +380,7 @@ class TestResultsOutputHandler(object):
                 tc_opt_rest_all[opt_dict['key']]['options'][opt_dict['opt_name']] = opt_dict['opt_value']
         
         if len(tc_opt_rest_all) > 0:            
-            res += self._process_custom_data_opt(tc_opt_rest_all)
+            res += self._process_custom_data_opt(tc_opt_rest_all, 'TestCase')
             
         return res  
     
@@ -391,11 +389,11 @@ class TestResultsOutputHandler(object):
         res += """
         <tr>
           <th>Id:</th>
-          <td>{ts_id}</td>
+          <td class="TestScenarioTableValue">{ts_id}</td>
         </tr>
         <tr>
           <th>Name:</th>
-          <td>{ts_name}</td>
+          <td class="TestScenarioTableValue">{ts_name}</td>
         </tr>
         """.format(
                    ts_id = ts['ts_id'].decode() if hasattr(ts['ts_id'], 'decode') else ts['ts_id'],
@@ -435,55 +433,55 @@ class TestResultsOutputHandler(object):
         res += """
         <tr>
           <th>Path:</th>
-          <td>{ts_path}</td>
+          <td class="TestScenarioTableValue">{ts_path}</td>
         </tr>
         <tr>
           <th>Description:</th>
-          <td>{ts_desc}</td>
+          <td class="TestScenarioTableValue">{ts_desc}</td>
         </tr>
         <tr>
           <th>Author:</th>
-          <td>{ts_author}</td>
+          <td class="TestScenarioTableValue">{ts_author}</td>
         </tr>
         <tr>
           <th>Version:</th>
-          <td>{ts_version}</td>
+          <td class="TestScenarioTableValue">{ts_version}</td>
         </tr>
         <tr>
           <th>Prerequisities:</th>
-          <td>{prereq}</td>
+          <td class="TestScenarioTableValue">{prereq}</td>
         </tr>
         <tr>
           <th>Postrequisities:</th>
-          <td>{postreq}</td>
+          <td class="TestScenarioTableValue">{postreq}</td>
         </tr>
         <tr>
           <th>Start time:</th>
-          <td>{start_time}</td>
+          <td class="TestScenarioTableValue">{start_time}</td>
         </tr>
         <tr>
           <th>End time:</th>
-          <td>{end_time}</td>
+          <td class="TestScenarioTableValue">{end_time}</td>
         </tr>
         <tr>
           <th>Total time:</th>
-          <td>{total_time} s</td>
+          <td class="TestScenarioTableValue">{total_time} s</td>
         </tr>
         <tr>
           <th>Total tests:</th>
-          <td>{total_tests}</td>
+          <td class="TestScenarioTableValue">{total_tests}</td>
         </tr>
         <tr>
           <th>Passed tests:</th>
-          <td>{passed_tests}</td>          
+          <td class="TestScenarioTableValue">{passed_tests}</td>          
         </tr>
         <tr>
           <th>Failed tests:</th>
-          <td>{failed_tests}</td>          
+          <td class="TestScenarioTableValue">{failed_tests}</td>          
         </tr>
         <tr>
           <th>Log:</th>
-          <td>{log}</td>          
+          <td class="TestScenarioTableValue">{log}</td>          
         </tr>               
                        
         """.format(
@@ -515,15 +513,13 @@ class TestResultsOutputHandler(object):
                 ts_opt_rest_all[opt_dict['key']]['options'][opt_dict['opt_name'].decode()] = opt_dict['opt_value'].decode()
         
         if len(ts_opt_rest_all) > 0:            
-            res += self._process_custom_data_opt(ts_opt_rest_all)
+            res += self._process_custom_data_opt(ts_opt_rest_all, 'TestScenario')
                
         return res
      
-    def _process_custom_data_opt(self, opt_dict):
-        print("----------------- Processing custom data:")
-        print(opt_dict)
+    def _process_custom_data_opt(self, opt_dict, td_class):
         res = ""        
-        for k,v in opt_dict.items():                            
+        for _,v in opt_dict.items():                            
             if v['pickled'] == 1:
                 v['value'] = pickle.loads(opt_dict['value'])
             opt_name = v['key'] if 'label' not in v['options'] else v['options']['label'] 
@@ -531,11 +527,12 @@ class TestResultsOutputHandler(object):
             res += """
                  <tr>
                     <th>{opt_name}</th>
-                    <td>{opt_value}</td>
+                    <td class="{td_class}TableValue">{opt_value}</td>
                  </tr> 
                """.format(
                           opt_name = opt_name.decode() if hasattr(opt_name, 'decode') else opt_name, 
-                          opt_value = v['value'].decode() if hasattr(v['value'], 'decode') else v['value']
+                          opt_value = v['value'].decode() if hasattr(v['value'], 'decode') else v['value'],
+                          td_class = td_class
                           )
         return res
                
@@ -549,7 +546,7 @@ class TestResultsOutputHandler(object):
             res += """<hr>
             
                       <table class="TestSetTable">
-                            <caption><div class="ToggleButton">-</div>Test set</caption>
+                            <caption><div class="ToggleButton">-</div>Test set [{test_set_id}]</caption>
                             <tr>
                                <th>Path:</th>
                                <td class="TestSetTableValue">{test_set_id}</td>
@@ -600,32 +597,44 @@ class TestResultsOutputHandler(object):
                             <td class="TestSet_TestScenarioNode">&nbsp;</td>
                             <td class="TestSet_TestScenarioNodeContainer">
                                <table class="TestScenarioTable">
-                                  <caption>Test Scenario</caption>
+                                  <caption><div class="ToggleButton">-</div>Test Scenario [{ts_id}\\{ts_name}]</caption>
                                   {ts_opt}
                                   <tr>
                                     <td class="TestScenario_TestCaseNode">&nbsp;</td>
                                     <td class="TestScenario_TestCaseNodeContainer">
-                       """.format(ts_opt = self._format_custom_ts_opt(ts, ts_opt))
+                       """.format(
+                                   ts_id   = ts['ts_id'].decode() if hasattr(ts['ts_id'], 'decode') else ts['ts_id'],
+                                   ts_name = ts['value'].decode() if hasattr(ts['value'], 'decode') else ts['value'],
+                                   ts_opt  = self._format_custom_ts_opt(ts, ts_opt)
+                                 )
                 test_cases = self._db_con.db_data("get_test_cases", {'test_run_id' : test_run_id, 'test_set_id' : test_set['id'].decode(), 'test_scenario_id' : ts['id'].decode() })                
                 for tca in test_cases: 
                     tca_opt = self._db_con.db_data("get_test_custom_opt", {'test_object_id' : tca['id']})  
                     res += """      
                                           <table class="TestCaseTable">
-                                            <caption>Test Case</caption>
+                                            <caption><div class="ToggleButton">-</div>Test Case [{tca_id}\\{tca_name}]</caption>
                                              {tc_opt}
                                              <tr>
-                                               <td>&nbsp;</td>
-                                               <td>                                      
-                          """.format(tc_opt = self._format_custom_tc_opt(tca, tca_opt))
+                                               <td class="TestCase_TestConditionNode">&nbsp;</td>
+                                               <td class="TestCase_TestConditionNode">                                      
+                          """.format(
+                                     tc_opt = self._format_custom_tc_opt(tca, tca_opt),
+                                     tca_id = tca['tca_id'].decode(),
+                                     tca_name = tca['value'].decode() 
+                                    )
                     test_conditions = self._db_con.db_data("get_test_conditions", {'test_run_id' : test_run_id, 'test_set_id' : test_set['id'].decode(), 'test_scenario_id' : ts['id'].decode(), 'test_case_id' : tca['id'].decode() })        
                     for tco in test_conditions:
-                        tco_opt = self._db_con.db_data("get_test_custom_opt", {'test_object_id' : tco['id']})
+                        tco_opt = self._db_con.db_data("get_test_custom_opt", {'test_object_id' : tco['id'].decode()})                        
                         res += """      
                                           <table class="TestConditionTable">
-                                            <caption>Test Condition</caption>
+                                            <caption><div class="ToggleButton">-</div>Test Condition [{tco_id}\\{tco_name}]</caption>
                                              {tco_opt}                                             
                                           </table>                                          
-                               """.format(tco_opt = self._format_custom_tco_opt(tco, tco_opt))                                      
+                               """.format(
+                                          tco_opt  = self._format_custom_tco_opt(tco, tco_opt),
+                                          tco_id   = tco['tco_id'].decode(),
+                                          tco_name = tco['value'].decode()
+                                         )                                      
                     #End of test cases             
                     res +=  """</td>
                        </tr>

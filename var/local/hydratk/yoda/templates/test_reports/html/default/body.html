@@ -22,7 +22,12 @@
      height:30px;
      vertical-align:middle;
      font-size:20px;
-     border: 1px solid black;
+     margin-right: 10px;
+     border: 2px inset black;
+     border-radius: 10px;
+     cursor: pointer;
+     background-color:#f9fbf2;
+     text-align: center;
    }
    
    table, th, td {
@@ -33,6 +38,7 @@
      margin-right:2px;
      font-size: 12px;
      border-radius: 2px;
+     white-space: nowrap;
    }
    .TDValue {
      background-color:#f9fbf2;
@@ -47,25 +53,30 @@
      text-transform:lowercase;
    }
    */
+   caption {
+      text-align: left;
+      white-space: nowrap;      
+      font-size: 24px;
+      letter-spacing: 0px;
+      font-weight: bold;
+      width:100%;
+   }
    
    h1, th, td, caption {
       font-family: Verdana,sans-serif;
-   }   
+   }
+      
    h1 {
      letter-spacing: 0px;
    }
+   
    th {
      font-size: 14px;
      letter-spacing: 0px;
      background-color: #976dc1;
      border-radius: 2px;
-   }   
-   caption {
-     font-size: 24px;
-     letter-spacing: 0px;
-     font-weight: bold;
-   }
-   
+   } 
+           
    .TestSummaryTable {
      border:none;
    }
@@ -75,7 +86,7 @@
    }
    
    .TestSetTableValue {
-     background-color:#f9fbf2;
+     background-color:#f9fbf2;     
    }
    
    .TestSet_TestScenarioNode {
@@ -92,8 +103,19 @@
      border:none;
    }
    
+   .TestScenario_TestCaseNode {
+     background-color: transparent;
+     border: none;   
+   }
+   
+   .TestScenario_TestCaseNodeContainer {
+     background-color: transparent;
+     border: none;      
+   }
+   
    .TestScenarioTableValue {
      background-color:#f9fbf2;
+     width: 100%;     
    }
    
    .TestCaseTable {
@@ -102,14 +124,27 @@
    
    .TestCaseTableValue {
      background-color:#f9fbf2;
+     width: 100%;     
+   }
+
+   .TestCase_TestConditionNode {
+     background-color: transparent;
+     border: none;   
    }
    
+   .TestCase_TestConditionNodeContainer {
+     background-color: transparent;
+     border: none;      
+   }
+      
    .TestConditionTable {
      border:none;
    }
 
+
    .TestConditionTableValue {
      background-color:#f9fbf2;
+     width: 100%;    
    }
    
    
