@@ -152,6 +152,9 @@ class TestResultsOutputHandler(object):
         
         self._db_con     = testresults.TestResultsDB(self._db_dsn)
         test_run_data    = self._db_con.db_data("get_test_run", {'test_run_id' : test_run.id })
+        if (test_run_data == None or len(test_run_data) == 0):
+            return False
+        
         test_run_id = test_run_data[0]['name'] if test_run_data[0]['name'].decode() != 'Undefined' else test_run.id
         test_report_file = "{0}/{1}{2}.html".format(self._options['path'],datetime.datetime.fromtimestamp(int(test_run_data[0]['start_time'])).strftime('%Y-%m-%d_%H-%M-%S_'),test_run_id)
         template_header_file = "{0}/header.html".format(self._options['style'])
