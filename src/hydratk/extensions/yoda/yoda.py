@@ -44,6 +44,25 @@ from hydratk.lib.database.dbo.dbo import DBO
 from hydratk.lib.system.fs import file_get_contents
 from sqlite3 import Error
 
+dep_modules = {
+  'hydratk'    : {
+                  'min-version' : '0.4.0', 
+                  'package'     : 'hydratk'
+                 },
+  'lxml'       : {
+                  'min-version' : '3.3.3',
+                  'package'     : 'lxml'
+                 },
+  'pytz'       : {
+                  'min-version' : '2016.6.1',
+                  'package'     : 'pytz'
+                 },
+  'simplejson' : {
+                  'min-version' : '3.8.2',
+                  'package'     : 'simplejson'
+                 }
+}
+
 class Extension(extension.Extension):
     """Class Extension
     """
@@ -110,26 +129,7 @@ class Extension(extension.Extension):
         Returns:
            bool    
                 
-        """         
-        
-        dep_modules = {
-          'hydratk'    : {
-                          'min-version' : '0.4.0', 
-                          'package'     : 'hydratk'
-                         },
-          'lxml'       : {
-                          'min-version' : '3.3.3',
-                          'package'     : 'lxml'
-                         },
-          'pytz'       : {
-                          'min-version' : '2016.6.1',
-                          'package'     : 'pytz'
-                         },
-          'simplejson' : {
-                          'min-version' : '3.8.2',
-                          'package'     : 'simplejson'
-                         }
-        }  
+        """                 
         
         return bootstrapper._check_dependencies(dep_modules, 'hydratk-ext-yoda')  
     
@@ -140,7 +140,7 @@ class Extension(extension.Extension):
            none
            
         Returns:
-           list: files to delete    
+           tuple: list (files), list (modules)   
                 
         """            
         
@@ -149,12 +149,12 @@ class Extension(extension.Extension):
                  '/etc/hydratk/conf.d/hydratk-ext-yoda.conf',                 
                  '/var/local/hydratk/yoda',
                  '/tmp/test_output'
-                ]
+                ],
         
         if (self._test_repo_root != '/var/local/hydratk/yoda'):
             files.append(self._test_repo_root)
             
-        return files
+        return files, dep_modules
     
     def _init_repos(self):
         """Method initializes test repositories

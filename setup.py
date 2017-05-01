@@ -29,14 +29,14 @@ classifiers = [
     "Topic :: Utilities"
 ]
 
-def version_update(cfg):
+def version_update(cfg, *args):
     
     major, minor = version_info[0], version_info[1]
 
     if (major == 2 and minor == 6):     
-        cfg['modules'].append('simplejson==3.8.2')
+        cfg['modules'].append({'module': 'simplejson', 'version': '==3.8.2'})
     else:
-        cfg['modules'].append('simplejson>=3.8.2')
+        cfg['modules'].append({'module': 'simplejson', 'version': '>=3.8.2'})
         
 
 config = {
@@ -55,9 +55,9 @@ config = {
                  ],
           
   'modules' : [    
-               'hydratk',     
-               'lxml>=3.3.3',  
-               'pytz>=2016.6.1'                               
+               {'module': 'hydratk', 'version': '>=0.4.0'},     
+               {'module': 'lxml',    'version': '>=3.3.3'},  
+               {'module': 'pytz',    'version': '>=2016.6.1'}                               
               ],
           
   'dirs' : [
@@ -81,19 +81,19 @@ config = {
             },
           
   'libs' : {
-            'lxml>=3.3.3' : {
-                             'repo'    : [
-                                          'python-lxml'
-                                         ],
-                             'apt-get' : [
-                                          'libxml2-dev',
-                                          'libxslt1-dev'
-                                         ],
-                             'yum'     : [
-                                          'libxml2-devel',
-                                          'libxslt-devel'
-                                         ]
-                             }                   
+            'lxml' : {
+                      'repo'    : [
+                                   'python-lxml'
+                                  ],
+                      'apt-get' : [
+                                   'libxml2-dev',
+                                   'libxslt1-dev'
+                                  ],
+                      'yum'     : [
+                                   'libxml2-devel',
+                                   'libxslt-devel'
+                                  ]
+                     }                   
            },
           
   'rights' : {
