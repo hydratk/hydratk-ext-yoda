@@ -7,13 +7,15 @@
 .. moduleauthor:: Petr Czaderna <pc@hydratk.org>
 
 """
+
+
 class TestResultsOutputHandler(object):
-    _db_dsn  = None
+    _db_dsn = None
     _options = {}
-    
-    def __init__(self, db_dsn, options = {}):
-        self._db_dsn  = db_dsn
+
+    def __init__(self, db_dsn, options={}):
+        self._db_dsn = db_dsn
         self._options = options
-            
+
     def create(self):
         print("Creating txt output")
