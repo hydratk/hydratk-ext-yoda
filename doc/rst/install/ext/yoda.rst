@@ -10,12 +10,9 @@ Package
 
 Install it via Python package managers PIP or easy_install.
 
-Filename after PIP download contains version, adapt sample code.
-
   .. code-block:: bash
   
-     $ sudo pip download hydratk-ext-yoda
-     $ sudo pip install hydratk-ext-yoda.tar.gz 
+     $ sudo pip install --no-binary :all: hydratk-ext-yoda
      
   .. code-block:: bash
   
@@ -23,8 +20,8 @@ Filename after PIP download contains version, adapt sample code.
      
   .. note::
   
-     Use PIP to install package from local file for correct installation.
-     When installed from remote repository, PIP sometimes doesn't call setup.py.       
+     PIP needs option --no-binary to run setup.py install.
+     Otherwise it runs setup.py bdist_wheel.    
 
 Source
 ^^^^^^
@@ -233,10 +230,10 @@ You can run Yoda also in standalone mode.
 Upgrade
 =======
 
-Use same procedure as for installation. Command options --upgrade (pip, easy_install) or --force (setup.py) are not necessary.
+Use same procedure as for installation. Use command option --upgrade for pip, easy_install, --force for setup.py.
 If configuration file differs from default settings the file is backuped (extension _old) and replaced by default. Adapt the configuration if needed.
 
 Uninstall
 =========    
 
-Run command htkuninstall yoda.                                                    
+Run command htkuninstall. Use option -y if you want to uninstall also dependent Python modules (for advanced user).                                                         
