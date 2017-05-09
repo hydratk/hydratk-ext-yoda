@@ -542,70 +542,95 @@ class TestResultsOutputHandler(object):
         test_sets = self._db_con.db_data("get_test_sets", {'test_run_id' : test_run_id })
                    
         for test_set in test_sets:
-            test_set_end_time = "Not completed" if int(test_set['end_time']) == -1 else datetime.datetime.fromtimestamp(int(test_set['end_time'])).strftime('%Y-%m-%d %H:%M:%S')               
+            test_set_end_time = "Not completed" if int(test_set['end_time']) == -1 else datetime.datetime.fromtimestamp(int(test_set['end_time'])).strftime('%Y-%m-%d %H:%M:%S')
+            if 'test_set_node_state' in self._options and self._options['test_set_node_state'].lower() == 'open':
+                test_set_button_state_class = "ToggleButtonOn"
+                test_set_node_state_class   = "NodeOpen"
+                  
+            else: 
+                test_set_button_state_class = 'ToggleButtonOff'
+                test_set_node_state_class   = "NodeClosed"                 
             res += """<hr>
             
                       <table class="TestSetTable">
-                            <caption><div class="ToggleButton">-</div>Test set [{test_set_id}]</caption>
-                            <tr>
-                               <th>Path:</th>
-                               <td class="TestSetTableValue">{test_set_id}</td>
-                            </tr>            
-                            <tr>
-                               <th>Start time:</th>
-                               <td class="TestSetTableValue">{test_set_start_time}</td>
-                            </tr>
-                            <tr>
-                               <th>End time:</th>
-                               <td class="TestSetTableValue">{test_set_end_time}</td>
-                            </tr>
-                             <tr>
-                               <th>Total time:</th>
-                               <td class="TestSetTableValue">{test_set_total_time} s</td>
-                            </tr>
-                            <tr>
-                               <th>Total tests:</th>
-                               <td class="TestSetTableValue">{test_set_total_tests}</td>
-                            </tr>
-                            <tr>
-                               <th>Passed tests:</th>
-                               <td class="TestSetTableValue">{test_set_passed_tests}</td>
-                            </tr>
-                            <tr>
-                               <th>Failed tests:</th>
-                               <td class="TestSetTableValue">{test_set_failed_tests}</td>
-                            </tr>
-                            <tr>
-                               <th>Log:</th>
-                               <td class="TestSetTableValue">{test_set_log}</td>
-                            </tr>                                                       
+                            <caption><div id="{test_set_objid}" class="{test_set_button_state_class}">-</div>Test set [{test_set_id}]</caption>
+                            <tr>                              
+                              <td class="TestSetTableContainer">
+                                 <div id="{test_set_objid}_container" class="TestSetTableContainerWrapper {test_set_node_state_class}"> 
+                                   <table class="TestSetTableContainerTable">
+                                    <tr>
+                                       <th>Path:</th>
+                                       <td class="TestSetTableValue">{test_set_id}</td>
+                                    </tr>            
+                                    <tr>
+                                       <th>Start time:</th>
+                                       <td class="TestSetTableValue">{test_set_start_time}</td>
+                                    </tr>
+                                    <tr>
+                                       <th>End time:</th>
+                                       <td class="TestSetTableValue">{test_set_end_time}</td>
+                                    </tr>
+                                     <tr>
+                                       <th>Total time:</th>
+                                       <td class="TestSetTableValue">{test_set_total_time} s</td>
+                                    </tr>
+                                    <tr>
+                                       <th>Total tests:</th>
+                                       <td class="TestSetTableValue">{test_set_total_tests}</td>
+                                    </tr>
+                                    <tr>
+                                       <th>Passed tests:</th>
+                                       <td class="TestSetTableValue">{test_set_passed_tests}</td>
+                                    </tr>
+                                    <tr>
+                                       <th>Failed tests:</th>
+                                       <td class="TestSetTableValue">{test_set_failed_tests}</td>
+                                    </tr>
+                                    <tr>
+                                       <th>Log:</th>
+                                       <td class="TestSetTableValue">{test_set_log}</td>
+                                    </tr>                                                       
                         """.format(
-                                   test_set_id           = test_set['tset_id'].decode() if hasattr(test_set['tset_id'], 'decode') else test_set['tset_id'],
-                                   test_set_start_time   = datetime.datetime.fromtimestamp(int(test_set['start_time'])).strftime('%Y-%m-%d %H:%M:%S'),
-                                   test_set_end_time     = test_set_end_time,
-                                   test_set_total_time   = 0 if int(test_set['end_time']) == -1 else round(test_set['end_time'] - test_set['start_time'],3),
-                                   test_set_total_tests  = test_set['total_tests'],
-                                   test_set_passed_tests = test_set['passed_tests'],                                   
-                                   test_set_failed_tests = test_set['failed_tests'],
-                                   test_set_log          = test_set['log'].decode().replace("\n","<br>"),
+                                   test_set_objid            = test_set['id'].decode() if hasattr(test_set['id'], 'decode') else test_set['id'],
+                                   test_set_node_state_class = test_set_node_state_class,                                   
+                                   test_set_id               = test_set['tset_id'].decode() if hasattr(test_set['tset_id'], 'decode') else test_set['tset_id'],
+                                   test_set_start_time       = datetime.datetime.fromtimestamp(int(test_set['start_time'])).strftime('%Y-%m-%d %H:%M:%S'),
+                                   test_set_end_time         = test_set_end_time,
+                                   test_set_total_time       = 0 if int(test_set['end_time']) == -1 else round(test_set['end_time'] - test_set['start_time'],3),
+                                   test_set_total_tests      = test_set['total_tests'],
+                                   test_set_passed_tests     = test_set['passed_tests'],                                   
+                                   test_set_failed_tests     = test_set['failed_tests'],
+                                   test_set_log              = test_set['log'].decode().replace("\n","<br>"),
                                  )
                         
             test_scenarios = self._db_con.db_data("get_test_scenarios", {'test_run_id' : test_run_id, 'test_set_id' : test_set['id'].decode() })                                                             
             for ts in test_scenarios:
-                ts_opt = self._db_con.db_data("get_test_custom_opt", {'test_object_id' : ts['id']})                
+                ts_opt = self._db_con.db_data("get_test_custom_opt", {'test_object_id' : ts['id']})
+                
+                if 'test_scenario_node_state' in self._options and self._options['test_scenario_node_state'].lower() == 'open':
+                    test_scenario_button_state_class = "ToggleButtonOn"
+                    test_scenario_node_state_class   = "NodeOpen"
+                      
+                else: 
+                    test_scenario_button_state_class = 'ToggleButtonOff'
+                    test_scenario_node_state_class   = "NodeClosed"  
+                                  
                 res += """<tr>
                             <td class="TestSet_TestScenarioNode">&nbsp;</td>
                             <td class="TestSet_TestScenarioNodeContainer">
-                               <table class="TestScenarioTable">
-                                  <caption><div class="ToggleButton">-</div>Test Scenario [{ts_id}\\{ts_name}]</caption>
-                                  {ts_opt}
-                                  <tr>
-                                    <td class="TestScenario_TestCaseNode">&nbsp;</td>
-                                    <td class="TestScenario_TestCaseNodeContainer">
+                               <div id="{test_scenario_objid}_container" class="TestSet_TestScenarioNodeContainerWrapper {test_scenario_node_state_class}"> 
+                                   <table class="TestScenarioTable">
+                                      <caption><div class="{test_scenario_button_state_class}">-</div>Test Scenario [{ts_id}\\{ts_name}]</caption>
+                                      {ts_opt}
+                                      <tr>
+                                        <td class="TestScenario_TestCaseNode">&nbsp;</td>
+                                        <td class="TestScenario_TestCaseNodeContainer">
                        """.format(
-                                   ts_id   = ts['ts_id'].decode() if hasattr(ts['ts_id'], 'decode') else ts['ts_id'],
-                                   ts_name = ts['value'].decode() if hasattr(ts['value'], 'decode') else ts['value'],
-                                   ts_opt  = self._format_custom_ts_opt(ts, ts_opt)
+                                   test_scenario_objid            = ts['id'].decode() if hasattr(ts['id'], 'decode') else ts['id'],
+                                   test_scenario_node_state_class = test_scenario_node_state_class,
+                                   ts_id                          = ts['ts_id'].decode() if hasattr(ts['ts_id'], 'decode') else ts['ts_id'],
+                                   ts_name                        = ts['value'].decode() if hasattr(ts['value'], 'decode') else ts['value'],
+                                   ts_opt                         = self._format_custom_ts_opt(ts, ts_opt)
                                  )
                 test_cases = self._db_con.db_data("get_test_cases", {'test_run_id' : test_run_id, 'test_set_id' : test_set['id'].decode(), 'test_scenario_id' : ts['id'].decode() })                
                 for tca in test_cases: 
@@ -636,18 +661,25 @@ class TestResultsOutputHandler(object):
                                           tco_name = tco['value'].decode()
                                          )                                      
                     #End of test cases             
-                    res +=  """</td>
-                       </tr>
+                    res +=  """
+                           </td>
+                         </tr>
                        </table>                                                                                 
                     """      
                 #End of test scenarios             
-                res +=  """</td>
-                       </tr>                                             
+                res +=  """ </div>
+                           </td>
+                         </tr>                                             
                        </table>              
                     """ 
             #end of test set          
-            res +=  """</td>
-                       </tr>                                             
+            res +=  """
+                               </table>
+                              </td>
+                             </tr>
+                            </div>
+                           </td>
+                         </tr>                                             
                        </table>              
                     """ 
         #TODO implement rest of the info

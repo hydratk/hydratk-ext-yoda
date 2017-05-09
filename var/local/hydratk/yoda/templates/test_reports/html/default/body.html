@@ -16,7 +16,7 @@
 }        
 </style>
 <style type="text/css">
-   .ToggleButton {
+   .ToggleButtonOn {
      display:inline-table;
      width:30px;
      height:30px;
@@ -28,6 +28,28 @@
      cursor: pointer;
      background-color:#f9fbf2;
      text-align: center;
+   }
+
+   .ToggleButtonOff {
+     display:inline-table;
+     width:30px;
+     height:30px;
+     vertical-align:middle;
+     font-size:20px;
+     margin-right: 10px;
+     border: 2px inset black;
+     border-radius: 10px;
+     cursor: pointer;
+     background-color:#f9fbf2;
+     text-align: center;
+   }
+   
+   .NodeOpen {
+     display:inline;
+   }
+   
+   .NodeClosed {
+     display: none;
    }
    
    table, th, td {
@@ -87,6 +109,18 @@
    
    .TestSetTableValue {
      background-color:#f9fbf2;     
+   }
+      
+   .TestSetTableContainer {
+     border: none;        
+   }
+
+   .TestSetTableContainer {
+     border: none;
+   }
+      
+   .TestSetTableContainerTable {
+     border: none;
    }
    
    .TestSet_TestScenarioNode {
@@ -158,7 +192,19 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
-	/*alert('JQuery init ok')*/
+	$(document.body).on( "click", '.ToggleButtonOn', function() {
+		var container_id = $( this ).attr('id') + '_container';		  		  
+		$('#'+container_id).slideUp("fast");
+		$( this ).removeClass('ToggleButtonOn').addClass('ToggleButtonOff').addClass('NodeClosed');		
+		$( this ).html('+');		
+	});
+	
+	$(document.body).on( "click", '.ToggleButtonOff', function() {		  
+		  var container_id = $( this ).attr('id') + '_container';		  
+		  $('#'+container_id).slideDown("fast");
+		  $( this ).removeClass('ToggleButtonOff').addClass('ToggleButtonOn').addClass('NodeOpen');
+		  $( this ).html('-');
+	});	
 });
 </script>
 </head>
