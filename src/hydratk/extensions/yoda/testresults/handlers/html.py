@@ -13,6 +13,7 @@ from hydratk.lib.system.fs import file_get_contents, file_put_contents
 from hydratk.extensions.yoda.testresults import testresults
 from hydratk.core.masterhead import MasterHead
 from hydratk.extensions.yoda.testengine import MacroParser
+import hydratk.lib.system.config as syscfg
 import datetime
 import os
 import pickle
@@ -23,6 +24,7 @@ class TemplateHooks(object):
     
     def __init__(self, options):
         self._options = options
+        self._options['style'] = self._options['style'].format(var_dir=syscfg.HTK_VAR_DIR)
         
     def _dispatch_options(self,str_opt):
         res = {}
@@ -152,6 +154,9 @@ class TestResultsOutputHandler(object):
         
         self._db_con     = testresults.TestResultsDB(self._db_dsn)
         test_run_data    = self._db_con.db_data("get_test_run", {'test_run_id' : test_run.id })
+        if (test_run_data == None or len(test_run_data) == 0):
+            return False
+
         test_run_id = test_run_data[0]['name'] if test_run_data[0]['name'].decode() != 'Undefined' else test_run.id
         test_report_file = "{0}/{1}{2}.html".format(self._options['path'],datetime.datetime.fromtimestamp(int(test_run_data[0]['start_time'])).strftime('%Y-%m-%d_%H-%M-%S_'),test_run_id)
         template_header_file = "{0}/header.html".format(self._options['style'])
@@ -591,17 +596,17 @@ class TestResultsOutputHandler(object):
                                        <td class="TestSetTableValue">{test_set_log}</td>
                                     </tr>                                                       
                         """.format(
-                                   test_set_objid            = test_set['id'].decode() if hasattr(test_set['id'], 'decode') else test_set['id'],
-                                   test_set_node_state_class = test_set_node_state_class,
-                                   test_set_node_state_class = test_set_node_state_class,
-                                   test_set_id               = test_set['tset_id'].decode() if hasattr(test_set['tset_id'], 'decode') else test_set['tset_id'],
-                                   test_set_start_time       = datetime.datetime.fromtimestamp(int(test_set['start_time'])).strftime('%Y-%m-%d %H:%M:%S'),
-                                   test_set_end_time         = test_set_end_time,
-                                   test_set_total_time       = 0 if int(test_set['end_time']) == -1 else round(test_set['end_time'] - test_set['start_time'],3),
-                                   test_set_total_tests      = test_set['total_tests'],
-                                   test_set_passed_tests     = test_set['passed_tests'],                                   
-                                   test_set_failed_tests     = test_set['failed_tests'],
-                                   test_set_log              = test_set['log'].decode().replace("\n","<br>"),
+                                   test_set_objid              = test_set['id'].decode() if hasattr(test_set['id'], 'decode') else test_set['id'],
+                                   test_set_node_state_class   = test_set_node_state_class,
+                                   test_set_button_state_class = test_set_button_state_class,
+                                   test_set_id                 = test_set['tset_id'].decode() if hasattr(test_set['tset_id'], 'decode') else test_set['tset_id'],
+                                   test_set_start_time         = datetime.datetime.fromtimestamp(int(test_set['start_time'])).strftime('%Y-%m-%d %H:%M:%S'),
+                                   test_set_end_time           = test_set_end_time,
+                                   test_set_total_time         = 0 if int(test_set['end_time']) == -1 else round(test_set['end_time'] - test_set['start_time'],3),
+                                   test_set_total_tests        = test_set['total_tests'],
+                                   test_set_passed_tests       = test_set['passed_tests'],                                   
+                                   test_set_failed_tests       = test_set['failed_tests'],
+                                   test_set_log=test_set['log'].decode().replace("\n", "<br>")
                                  )
                         
             test_scenarios = self._db_con.db_data("get_test_scenarios", {'test_run_id' : test_run_id, 'test_set_id' : test_set['id'].decode() })                                                             
@@ -627,11 +632,12 @@ class TestResultsOutputHandler(object):
                                         <td class="TestScenario_TestCaseNode">&nbsp;</td>
                                         <td class="TestScenario_TestCaseNodeContainer">
                        """.format(
-                                   test_scenario_objid            = ts['id'].decode() if hasattr(ts['id'], 'decode') else ts['id'],
-                                   test_scenario_node_state_class = test_scenario_node_state_class,
-                                   ts_id                          = ts['ts_id'].decode() if hasattr(ts['ts_id'], 'decode') else ts['ts_id'],
-                                   ts_name                        = ts['value'].decode() if hasattr(ts['value'], 'decode') else ts['value'],
-                                   ts_opt                         = self._format_custom_ts_opt(ts, ts_opt)
+                                   test_scenario_objid=ts['id'].decode() if hasattr(ts['id'], 'decode') else ts['id'],
+                                   test_scenario_node_state_class=test_scenario_node_state_class,
+                                   test_scenario_button_state_class=test_scenario_button_state_class,
+                                   ts_id=ts['ts_id'].decode() if hasattr(ts['ts_id'], 'decode') else ts['ts_id'],
+                                   ts_name=ts['value'].decode() if hasattr(ts['value'], 'decode') else ts['value'],
+                                   ts_opt=self._format_custom_ts_opt(ts, ts_opt)
                                  )
                 test_cases = self._db_con.db_data("get_test_cases", {'test_run_id' : test_run_id, 'test_set_id' : test_set['id'].decode(), 'test_scenario_id' : ts['id'].decode() })                
                 for tca in test_cases: 

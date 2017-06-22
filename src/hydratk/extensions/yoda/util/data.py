@@ -10,6 +10,7 @@
 
 from hydratk.core.masterhead import MasterHead
 from hydratk.lib.database.dbo.dbo import DBO
+import hydratk.lib.system.config as syscfg
 from random import randint, choice
 from string import digits, ascii_lowercase, ascii_uppercase, ascii_letters, printable
 from time import mktime
@@ -701,7 +702,7 @@ def _get_dsn():
     """
 
     mh = MasterHead.get_head()
-    return mh.ext_cfg['Yoda']['db_testdata_dsn']
+    return mh.ext_cfg['Yoda']['db_testdata_dsn'].format(var_dir=syscfg.HTK_VAR_DIR)
 
 
 def create_type(title, description=None, col_titles=[]):

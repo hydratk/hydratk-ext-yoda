@@ -67,14 +67,40 @@ See installation example.
 
   .. code-block:: bash
   
+     **************************************
+     *     Running pre-install tasks      *
+     **************************************
+     
+     *** Running task: version_update ***
+     
+     *** Running task: install_libs ***
+     Checking python-lxml...FAILED
+        Unable to locate package python-lxml
+     Checking libxslt1-dev...FAILED
+        Unable to locate package libxslt1-dev
+     Checking libxml2-dev...FAILED
+        Unable to locate package libxml2-dev
+     Installing package python-lxml
+     Installing package libxslt1-dev
+     Installing package libxml2-dev
+     
+     *** Running task: install_modules ***
+     Module hydratk already installed with version 0.5.0rc1
+     Module lxml already installed with version 3.4.0
+     Installing module pytz>=2016.6.1
+     pip install "pytz>=2016.6.1"
+     Installing module simplejson>=3.8.2
+     pip install "simplejson>=3.8.2"
+
      running install
      running bdist_egg
      running egg_info
-     writing requirements to src/hydratk_ext_yoda.egg-info/requires.txt
+     creating src/hydratk_ext_yoda.egg-info
      writing src/hydratk_ext_yoda.egg-info/PKG-INFO
      writing top-level names to src/hydratk_ext_yoda.egg-info/top_level.txt
      writing dependency_links to src/hydratk_ext_yoda.egg-info/dependency_links.txt
      writing entry points to src/hydratk_ext_yoda.egg-info/entry_points.txt
+     writing manifest file 'src/hydratk_ext_yoda.egg-info/SOURCES.txt'
      reading manifest file 'src/hydratk_ext_yoda.egg-info/SOURCES.txt'
      reading manifest template 'MANIFEST.in'
      writing manifest file 'src/hydratk_ext_yoda.egg-info/SOURCES.txt'
@@ -84,43 +110,68 @@ See installation example.
      creating build
      creating build/lib.linux-x86_64-2.7
      creating build/lib.linux-x86_64-2.7/hydratk
-     copying src/hydratk/__init__.py -> build/lib.linux-x86_64-2.7/hydratk
-     creating build/lib.linux-x86_64-2.7/hydratk/extensions
-     copying src/hydratk/extensions/__init__.py -> build/lib.linux-x86_64-2.7/hydratk/extensions
-     creating build/lib.linux-x86_64-2.7/hydratk/extensions/yoda
-     copying src/hydratk/extensions/yoda/__init__.py -> build/lib.linux-x86_64-2.7/hydratk/extensions/yoda
      ...
-     
-     byte-compiling build/bdist.linux-x86_64/egg/hydratk/__init__.py to __init__.pyc
-     byte-compiling build/bdist.linux-x86_64/egg/hydratk/extensions/__init__.py to __init__.pyc
-     ...
-     
      creating build/bdist.linux-x86_64/egg/EGG-INFO
      copying src/hydratk_ext_yoda.egg-info/PKG-INFO -> build/bdist.linux-x86_64/egg/EGG-INFO
      copying src/hydratk_ext_yoda.egg-info/SOURCES.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
      copying src/hydratk_ext_yoda.egg-info/dependency_links.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
      copying src/hydratk_ext_yoda.egg-info/entry_points.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
      copying src/hydratk_ext_yoda.egg-info/not-zip-safe -> build/bdist.linux-x86_64/egg/EGG-INFO
-     copying src/hydratk_ext_yoda.egg-info/requires.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
      copying src/hydratk_ext_yoda.egg-info/top_level.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
      creating dist
-     creating 'dist/hydratk_ext_yoda-0.2.1a0.dev1-py2.7.egg' and adding 'build/bdist.linux-x86_64/egg' to it
+     creating 'dist/hydratk_ext_yoda-0.2.3rc1-py2.7.egg' and adding 'build/bdist.linux-x86_64/egg' to it
      removing 'build/bdist.linux-x86_64/egg' (and everything under it)
-     Processing hydratk_ext_yoda-0.2.1a0.dev1-py2.7.egg
-     creating /usr/local/lib/python2.7/dist-packages/hydratk_ext_yoda-0.2.1a0.dev1-py2.7.egg
-     Extracting hydratk_ext_yoda-0.2.1a0.dev1-py2.7.egg to /usr/local/lib/python2.7/dist-packages
-     Adding hydratk-ext-yoda 0.2.1a0.dev1 to easy-install.pth file
+     Processing hydratk_ext_yoda-0.2.3rc1-py2.7.egg
+     creating /usr/local/lib/python2.7/dist-packages/hydratk_ext_yoda-0.2.3rc1-py2.7.egg
+     Extracting hydratk_ext_yoda-0.2.3rc1-py2.7.egg to /usr/local/lib/python2.7/dist-packages
+     Adding hydratk-ext-yoda 0.2.3rc1 to easy-install.pth file
      Installing yoda script to /usr/local/bin
-     Installed /usr/local/lib/python2.7/dist-packages/hydratk_ext_yoda-0.2.1a0.dev1-py2.7.egg
-     Processing dependencies for hydratk-ext-yoda==0.2.1a0.dev1
-     Finished processing dependencies for hydratk-ext-yoda==0.2.1a0.dev1  
+     Installed /usr/local/lib/python2.7/dist-packages/hydratk_ext_yoda-0.2.3rc1-py2.7.egg
+     Processing dependencies for hydratk-ext-yoda==0.2.3rc1
+     Finished processing dependencies for hydratk-ext-yoda==0.2.3rc1
+     
+     **************************************
+     *     Running post-install tasks     *
+     **************************************
 
-Application installs following (paths depend on your OS configuration)
+     *** Running task: set_config ***
 
-* yoda command in /usr/local/bin/yoda
-* modules in /usr/local/lib/python2.7/dist-packages/hydratk-ext-yoda-0.2.0-py2.7egg
-* configuration file in /etc/hydratk/conf.d/hydratk-ext-yoda.conf 
-* application folder in /var/local/hydratk/yoda
+     Creating directory /etc/hydratk/conf.d
+     Copying file etc/hydratk/conf.d/hydratk-ext-yoda.conf to /etc/hydratk/conf.d
+
+     *** Running task: create_dirs ***
+
+     Creating directory /tmp/test_output/html
+     Creating directory /tmp/test_output/text
+
+     *** Running task: copy_files ***
+
+     Creating directory /var/local/hydratk/yoda/db_testdata
+     Copying file var/local/hydratk/yoda/db_testdata/db_struct.sql to /var/local/hydratk/yoda/db_testdata
+     Creating directory /var/local/hydratk/yoda/yoda-tests/test1
+     Copying file var/local/hydratk/yoda/yoda-tests/test1/example1.jedi to /var/local/hydratk/yoda/yoda-tests/test1
+     Creating directory /var/local/hydratk/yoda/lib/yodalib
+     Copying file var/local/hydratk/yoda/lib/yodalib/__init__.py to /var/local/hydratk/yoda/lib/yodalib
+     Creating directory /var/local/hydratk/yoda/templates/test_reports/html/default
+     Copying file var/local/hydratk/yoda/templates/test_reports/html/default/body.html to /var/local/hydratk/yoda/templates/test_reports/html/default
+     Creating directory /var/local/hydratk/yoda/helpers/yodahelpers
+     Copying file var/local/hydratk/yoda/helpers/yodahelpers/__init__.py to /var/local/hydratk/yoda/helpers/yodahelpers
+     Copying file var/local/hydratk/yoda/db_testdata/db_data.sql to /var/local/hydratk/yoda/db_testdata
+
+     *** Running task: set_access_rights ***
+
+     Setting rights a+rwx for /var/local/hydratk
+     Setting rights a+r for /etc/hydratk
+     Setting rights a+rwx for /tmp/test_output
+
+     *** Running task: set_manpage ***          
+
+     Application installs following (paths depend on your OS configuration)
+
+     * yoda command in /usr/local/bin/yoda
+     * modules in /usr/local/lib/python2.7/dist-packages/hydratk-ext-yoda-0.2.3-py2.7egg
+     * configuration file in /etc/hydratk/conf.d/hydratk-ext-yoda.conf 
+     * application folder in /var/local/hydratk/yoda
        
 Run
 ^^^
@@ -131,10 +182,9 @@ Check hydratk-ext-yoda module is installed.
 
   .. code-block:: bash
   
-     $ pip list | grep hydratk
+     $ pip list | grep hydratk-ext-yoda
      
-     hydratk (0.3.0a0.dev1)
-     hydratk-ext-yoda (0.2.0)
+     hydratk-ext-yoda (0.2.3)
     
 Check installed extensions
 
@@ -142,7 +192,7 @@ Check installed extensions
   
      $ htk list-extensions
      
-     Yoda: Yoda v0.2.0 (c) [2014 - 2016 Petr Czaderna <pc@hydratk.org>]
+     Yoda: Yoda v0.2.3 (c) [2014 - 2017 Petr Czaderna <pc@hydratk.org>]
      
 Type command htk help and detailed info is displayed.
 Type man yoda to display manual page. 
@@ -185,8 +235,8 @@ You can run Yoda also in standalone mode.
   
      $ yoda help
      
-     Yoda v0.2.0
-     (c) 2014 - 2016 Petr Czaderna <pc@hydratk.org>
+     Yoda v0.2.3
+     (c) 2014 - 2017 Petr Czaderna <pc@hydratk.org>
      Usage: /usr/local/bin/yoda [options] command
 
      Commands:

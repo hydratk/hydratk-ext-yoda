@@ -1,8 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from setuptools import setup, find_packages
+from setuptools import setup as st_setup
+from setuptools import find_packages as st_find_packages
 from sys import argv, version_info
 import hydratk.lib.install.task as task
+import hydratk.lib.system.config as syscfg
+
+try:
+    os_info = syscfg.get_supported_os()
+except Exception as exc:
+    print(str(exc))
+    exit(1)
 
 with open("README.rst", "r") as f:
     readme = f.read()
@@ -68,38 +76,69 @@ config = {
 
     'files': {
         'config': {
-            'etc/hydratk/conf.d/hydratk-ext-yoda.conf': '/etc/hydratk/conf.d'
+            'etc/hydratk/conf.d/hydratk-ext-yoda.conf': '{0}/hydratk/conf.d'.format(syscfg.HTK_ETC_DIR)
         },
         'data': {
-            'var/local/hydratk/yoda/yoda-tests/test1/example1.yoda': '/var/local/hydratk/yoda/yoda-tests/test1',
-            'var/local/hydratk/yoda/helpers/yodahelpers/__init__.py': '/var/local/hydratk/yoda/helpers/yodahelpers',
-            'var/local/hydratk/yoda/lib/yodalib/__init__.py': '/var/local/hydratk/yoda/lib/yodalib',
-            'var/local/hydratk/yoda/db_testdata/db_struct.sql': '/var/local/hydratk/yoda/db_testdata',
-            'var/local/hydratk/yoda/db_testdata/db_data.sql': '/var/local/hydratk/yoda/db_testdata',
-            'var/local/hydratk/yoda/templates/test_reports/html/default/body.html': '/var/local/hydratk/yoda/templates/test_reports/html/default'
+            'var/local/hydratk/yoda/yoda-tests/test1/example1.jedi': '{0}/hydratk/yoda/yoda-tests/test1'.format(syscfg.HTK_VAR_DIR),
+            'var/local/hydratk/yoda/helpers/yodahelpers/__init__.py': '{0}/hydratk/yoda/helpers/yodahelpers'.format(syscfg.HTK_VAR_DIR),
+            'var/local/hydratk/yoda/lib/yodalib/__init__.py': '{0}/hydratk/yoda/lib/yodalib'.format(syscfg.HTK_VAR_DIR),
+            'var/local/hydratk/yoda/db_testdata/db_struct.sql': '{0}/hydratk/yoda/db_testdata'.format(syscfg.HTK_VAR_DIR),
+            'var/local/hydratk/yoda/db_testdata/db_data.sql': '{0}/hydratk/yoda/db_testdata'.format(syscfg.HTK_VAR_DIR),
+            'var/local/hydratk/yoda/templates/test_reports/html/default/body.html': '{0}/hydratk/yoda/templates/test_reports/html/default'.format(syscfg.HTK_VAR_DIR)
         },
         'manpage': 'doc/yoda.1'
     },
 
     'libs': {
         'lxml': {
-            'repo': [
-                'python-lxml'
-            ],
-            'apt-get': [
-                'libxml2-dev',
-                'libxslt1-dev'
-            ],
-            'yum': [
-                'libxml2-devel',
-                'libxslt-devel'
-            ]
+            'debian': {
+                'apt-get': [
+                    'python-lxml',
+                    'libxml2-dev',
+                    'libxslt1-dev'
+                ],
+                'check': {
+                    'python-lxml': {
+                        'cmd': 'dpkg --get-selections | grep python-lxml',
+                        'errmsg': 'Unable to locate package python-lxml'
+                    },
+                    'libxml2-dev': {
+                        'cmd': 'dpkg --get-selections | grep libxml2-dev',
+                        'errmsg': 'Unable to locate package libxml2-dev'
+                    },
+                    'libxslt1-dev': {
+                        'cmd': 'dpkg --get-selections | grep libxslt1-dev',
+                        'errmsg': 'Unable to locate package libxslt1-dev'
+                    }
+                }
+            },
+            'redhat': {
+                'yum': [
+                    'python-lxml',
+                    'libxml2-devel',
+                    'libxslt-devel'
+                ],
+                'check': {
+                    'python-lxml': {
+                        'cmd': 'yum -q list installed python-lxml',
+                        'errmsg': 'Unable to locate package python-lxml'
+                    },
+                    'libxml2-devel': {
+                        'cmd': 'yum -q list installed libxml2-devel',
+                        'errmsg': 'Unable to locate package libxml2-devel'
+                    },
+                    'libxslt-devel': {
+                        'cmd': 'yum -q list installed libxslt-devel',
+                        'errmsg': 'Unable to locate shared library libxslt-devel'
+                    }
+                }
+            }
         }
     },
 
     'rights': {
-        '/etc/hydratk': 'a+r',
-        '/var/local/hydratk': 'a+rwx',
+        '{0}/hydratk'.format(syscfg.HTK_ETC_DIR): 'a+r',
+        '{0}/hydratk'.format(syscfg.HTK_VAR_DIR): 'a+rwx',
         '/tmp/test_output': 'a+rwx'
     }
 }
@@ -112,16 +151,16 @@ entry_points = {
     ]
 }
 
-setup(
+st_setup(
     name='hydratk-ext-yoda',
-    version='0.2.3a.dev3',
+    version='0.2.3rc1',
     description='Test Automation Tool',
     long_description=readme,
     author='Petr Czaderna, HydraTK team',
     author_email='pc@hydratk.org, team@hydratk.org',
     url='http://extensions.hydratk.org/yoda',
     license='BSD',
-    packages=find_packages('src'),
+    packages=st_find_packages('src'),
     package_dir={'': 'src'},
     classifiers=classifiers,
     zip_safe=False,
