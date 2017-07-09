@@ -64,7 +64,7 @@ config = {
     ],
 
     'modules': [
-        {'module': 'hydratk', 'version': '>=0.4.0'},
+        {'module': 'hydratk', 'version': '>=0.5.0'},
         {'module': 'lxml',    'version': '>=3.3.3'},
         {'module': 'pytz',    'version': '>=2016.6.1'}
     ],

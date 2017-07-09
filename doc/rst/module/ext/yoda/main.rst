@@ -119,7 +119,7 @@ Method registers action hooks for standalone mode.
 commands - run, simul, create-test-results-db, create-testdata-db, help
 long options - test-path, test-repo-root-dir, db-results-dsn, db-testdata-dsn, test-run-name, test-results-output-create, test-results-output-handler
 short options - tp, rd, oc, oh, rn
-global options - config, debug, debug-channel, language, run-mode, force, interactive
+global options - config, debug, debug-channel, language, run-mode, force, interactive, home
 
 * pp_app_check
 

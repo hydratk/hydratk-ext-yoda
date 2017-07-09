@@ -228,7 +228,7 @@ Test-Scenario-5:
         assert (sorted(res.keys()) == exp), '_cmd_hooks = {0}'.format(exp)  
         res = commandopt.long_opt['yoda']
         this.test_result = str(res)
-        exp = ['config', 'db-results-dsn', 'db-testdata-dsn', 'debug', 'debug-channel', 'force', 'interactive', 'language', 'multiply-tests', 'run-mode',
+        exp = ['config', 'db-results-dsn', 'db-testdata-dsn', 'debug', 'debug-channel', 'force', 'home', 'interactive', 'language', 'multiply-tests', 'run-mode',
                'test-path', 'test-repo-root-dir', 'test-results-output-create', 'test-results-output-handler', 'test-run-name']
         assert (sorted(res) == exp), 'long_opt = {0}'.format(exp)        
         th.clear_cmd()     
@@ -292,7 +292,7 @@ Test-Scenario-6:
         assert (sorted(res.keys()) == exp), '_cmd_hooks = {0}'.format(exp)
         res = commandopt.long_opt['yoda']
         this.test_result = str(res)
-        exp = ['config', 'db-results-dsn', 'db-testdata-dsn', 'debug', 'debug-channel', 'force', 'interactive', 'language', 'multiply-tests', 'run-mode',
+        exp = ['config', 'db-results-dsn', 'db-testdata-dsn', 'debug', 'debug-channel', 'force', 'home', 'interactive', 'language', 'multiply-tests', 'run-mode',
                'test-path', 'test-repo-root-dir', 'test-results-output-create', 'test-results-output-handler', 'test-run-name']
         assert (sorted(res) == exp), 'long_opt = {0}'.format(exp)           
         th.clear_cmd()    
