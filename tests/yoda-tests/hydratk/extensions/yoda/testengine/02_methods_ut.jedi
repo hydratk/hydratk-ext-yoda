@@ -167,7 +167,7 @@ Test-Scenario-4:
       
       Validate: |             
         this.test_result = res
-        exp = '<<test is undefined>>'
+        exp = 'test is undefined'
         assert (res == exp), 'mp_parse = {0}'.format(exp)   
         
     Test-Condition-3: 
@@ -227,7 +227,7 @@ Test-Scenario-5:
       
       Validate: |             
         this.test_result = res
-        exp = '<<test is undefined>>'
+        exp = 'test is undefined'
         assert (res == exp), '_mp_processor = {0}'.format(exp)
         
 Test-Scenario-6:

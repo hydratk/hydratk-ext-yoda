@@ -12,6 +12,7 @@ Test-Scenario-1:
     from hydratk.lib.database.dbo.dbo import DBO
     from yodalib.hydratk.core.testhead import TestHead
     from os import remove
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -26,7 +27,7 @@ Test-Scenario-1:
       Test: |
         th = TestHead()
         ext = th._ext['Yoda']
-        file, name, query = '/var/local/hydratk/test.db3', 'test', 'SELECT name FROM test_run'
+        file, name, query = prefix+'/var/local/hydratk/test.db3', 'test', 'SELECT name FROM test_run'
         dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:'+file
         te = ext._test_engine = TestEngine()
         te._test_results_db = ext.create_test_results_db()      
@@ -75,6 +76,7 @@ Test-Scenario-2:
     from hydratk.lib.database.dbo.dbo import DBO
     from yodalib.hydratk.core.testhead import TestHead
     from os import remove
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -89,7 +91,7 @@ Test-Scenario-2:
       Test: |
         th = TestHead()
         ext = th._ext['Yoda']
-        file, name, query = '/var/local/hydratk/test.db3', 'test', 'SELECT tset_id FROM test_set'
+        file, name, query = prefix+'/var/local/hydratk/test.db3', 'test', 'SELECT tset_id FROM test_set'
         dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:'+file
         te = ext._test_engine = TestEngine()
         te._test_results_db = ext.create_test_results_db()      
@@ -138,6 +140,7 @@ Test-Scenario-3:
     from hydratk.lib.database.dbo.dbo import DBO
     from yodalib.hydratk.core.testhead import TestHead
     from os import remove
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -152,7 +155,7 @@ Test-Scenario-3:
       Test: |
         th = TestHead()
         ext = th._ext['Yoda']
-        file, name, query = '/var/local/hydratk/test.db3', 'test', 'SELECT ts_id FROM test_scenario'
+        file, name, query = prefix+'/var/local/hydratk/test.db3', 'test', 'SELECT ts_id FROM test_scenario'
         dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:'+file
         te = ext._test_engine = TestEngine()
         te._test_results_db = ext.create_test_results_db()      
@@ -203,6 +206,7 @@ Test-Scenario-4:
     from hydratk.lib.database.dbo.dbo import DBO
     from yodalib.hydratk.core.testhead import TestHead
     from os import remove
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -217,7 +221,7 @@ Test-Scenario-4:
       Test: |
         th = TestHead()
         ext = th._ext['Yoda']
-        file, name, query = '/var/local/hydratk/test.db3', 'test', 'SELECT tca_id FROM test_case'
+        file, name, query = prefix+'/var/local/hydratk/test.db3', 'test', 'SELECT tca_id FROM test_case'
         dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
         te = ext._test_engine = TestEngine()
         te._test_results_db = ext.create_test_results_db()      
@@ -270,6 +274,7 @@ Test-Scenario-5:
     from hydratk.lib.database.dbo.dbo import DBO
     from yodalib.hydratk.core.testhead import TestHead
     from os import remove
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -284,7 +289,7 @@ Test-Scenario-5:
       Test: |
         th = TestHead()
         ext = th._ext['Yoda']
-        file, name, query = '/var/local/hydratk/test.db3', 'test', 'SELECT tco_id FROM test_condition'
+        file, name, query = prefix+'/var/local/hydratk/test.db3', 'test', 'SELECT tco_id FROM test_condition'
         dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
         te = ext._test_engine = TestEngine()
         te._test_results_db = ext.create_test_results_db()      
@@ -383,6 +388,7 @@ Test-Scenario-7:
     from yodalib.hydratk.core.testhead import TestHead
     from yodahelpers.hydratk.extensions.yoda.tscript import tset2
     from os import remove
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -397,7 +403,7 @@ Test-Scenario-7:
       Test: |
         th = TestHead()
         ext = th._ext['Yoda']
-        file, name = '/var/local/hydratk/test.db3', 'test'
+        file, name = prefix+'/var/local/hydratk/test.db3', 'test'
         query = 'SELECT ts_id, total_tests, passed_tests, failed_tests, failures FROM test_scenario ORDER BY ts_id'
         dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
         te = ext._test_engine = TestEngine()
@@ -432,6 +438,7 @@ Test-Scenario-8:
     from yodalib.hydratk.core.testhead import TestHead
     from yodahelpers.hydratk.extensions.yoda.tscript import tset2
     from os import remove
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -446,7 +453,7 @@ Test-Scenario-8:
       Test: |
         th = TestHead()
         ext = th._ext['Yoda']
-        file, name = '/var/local/hydratk/test.db3', 'test'
+        file, name = prefix+'/var/local/hydratk/test.db3', 'test'
         query = 'SELECT tca_id, total_tests, passed_tests, failed_tests, failures FROM test_case ORDER BY tca_id'
         dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
         te = ext._test_engine = TestEngine()
@@ -481,6 +488,7 @@ Test-Scenario-9:
     from yodalib.hydratk.core.testhead import TestHead
     from yodahelpers.hydratk.extensions.yoda.tscript import tset2
     from os import remove
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -495,7 +503,7 @@ Test-Scenario-9:
       Test: |
         th = TestHead()
         ext = th._ext['Yoda']
-        file, name = '/var/local/hydratk/test.db3', 'test'
+        file, name = prefix+'/var/local/hydratk/test.db3', 'test'
         query = 'SELECT tco_id, test_resolution FROM test_condition ORDER BY tco_id'
         dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
         te = ext._test_engine = TestEngine()
@@ -927,6 +935,7 @@ Test-Scenario-17:
     from yodalib.hydratk.core.testhead import TestHead
     from hydratk.lib.database.dbo.dbo import DBO
     from os import remove
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -941,7 +950,7 @@ Test-Scenario-17:
       Test: |
         th = TestHead() 
         ext = th._ext['Yoda'] 
-        file, name = '/var/local/hydratk/test.db3', 'test'
+        file, name = prefix+'/var/local/hydratk/test.db3', 'test'
         query = 'SELECT a.key, a.value, b.opt_name, b.opt_value FROM custom_data a, custom_data_opt b'
         dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
         te = ext._test_engine = TestEngine()
@@ -977,7 +986,8 @@ Test-Scenario-18:
     from hydratk.extensions.yoda.testobject import TestRun
     from yodalib.hydratk.core.testhead import TestHead 
     from hydratk.lib.database.dbo.dbo import DBO
-    from os import remove     
+    from os import remove
+    from sys import prefix     
   
   Test-Case-1:
     Id: tc_01
@@ -992,8 +1002,8 @@ Test-Scenario-18:
       Test: |
         th = TestHead() 
         ext = th._ext['Yoda']
-        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
-        file, query = '/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
+        path = prefix+'/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
+        file, query = prefix+'/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
         dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
         te = ext._test_engine = TestEngine()   
         te._test_results_db = ext.create_test_results_db()  
@@ -1017,7 +1027,7 @@ Test-Scenario-18:
       Desc: Test with relative path
       
       Test: |
-        te._templates_repo = '/var/local/hydratk/yoda/helpers/' 
+        te._templates_repo = prefix+'/var/local/hydratk/yoda/helpers/' 
         obj.exec_test('yodahelpers/hydratk/extensions/yoda/tset_01.jedi')   
         recs = c.execute(query).fetchall()              
         

@@ -83,7 +83,7 @@ Test-Scenario-2:
         this.test_result = str(res)
         exp = ['yoda', 'Yoda']
         assert (res == exp), '_ext_id, _ext_name = {0}'.format(exp)
-        exp = [1, True, ['console', 'html:path=/tmp/test_output/html;style=/var/local/hydratk/yoda/templates/test_reports/html/default']]
+        exp = [1, True, ['console']]
         res = [ext._run_mode, ext._test_results_output_create, ext._test_results_output_handler]
         this.test_result = str(res)
         assert (res == exp), '_run_mode, _test_results_output_create, _test_results_output_handler = {0}'.format(exp) 
@@ -98,6 +98,7 @@ Test-Scenario-3:
   
   Pre-Req: |
     from hydratk.core.masterhead import MasterHead
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -117,7 +118,7 @@ Test-Scenario-3:
       
       Validate: |
         this.test_result = str(res)
-        root = mh._config['Extensions']['Yoda']['test_repo_root']
+        root = mh._config['Extensions']['Yoda']['test_repo_root'].format(var_dir=prefix+'/var/local')
         exp = [root, root+'/lib', root+'/yoda-tests/', root+'/helpers']
         assert (res == exp), '_test_repo_root, _libs_repo, _templates_repo, _helpers_repo = {0}'.format(exp)
         
@@ -307,7 +308,8 @@ Test-Scenario-7:
   
   Pre-Req: |
     from yodalib.hydratk.core.testhead import TestHead           
-    from os import path, remove    
+    from os import path, remove
+    from sys import prefix    
   
   Test-Case-1:
     Id: tc_01
@@ -322,7 +324,7 @@ Test-Scenario-7:
       Test: |
         th = TestHead()
         ext = th._ext['Yoda']
-        file = '/var/local/hydratk/test.db3'
+        file = prefix+'/var/local/hydratk/test.db3'
         th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:'+file
         res = ext.create_test_results_db()
         
@@ -345,7 +347,8 @@ Test-Scenario-8:
   Pre-Req: |
     from hydratk.extensions.yoda.testengine import TestEngine
     from yodalib.hydratk.core.testhead import TestHead               
-    from os import path, remove    
+    from os import path, remove
+    from sys import prefix    
   
   Test-Case-1:
     Id: tc_01
@@ -361,7 +364,7 @@ Test-Scenario-8:
         try:
             th = TestHead()
             ext = th._ext['Yoda']
-            file = '/var/local/hydratk/test.db3'
+            file = prefix+'/var/local/hydratk/test.db3'
             th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:'+file
             ext.init_test_results_db()
             ex = False
@@ -400,7 +403,8 @@ Test-Scenario-9:
   Pre-Req: |
     from hydratk.extensions.yoda.testengine import TestEngine
     from yodalib.hydratk.core.testhead import TestHead               
-    from os import path, remove    
+    from os import path, remove
+    from sys import prefix    
   
   Test-Case-1:
     Id: tc_01
@@ -416,7 +420,7 @@ Test-Scenario-9:
         try:
             th = TestHead()
             ext = th._ext['Yoda']
-            file = '/var/local/hydratk/test.db3'
+            file = prefix+'/var/local/hydratk/test.db3'
             th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:'+file
             th._config['Extensions']['Yoda']['db_results_autocreate'] = 0
             ext.check_test_results_db(None)
@@ -473,6 +477,7 @@ Test-Scenario-10:
     from yodalib.hydratk.core.testhead import TestHead 
     from yodahelpers.hydratk.core.events import events, reg_ev_hook            
     from sys import path
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -489,7 +494,7 @@ Test-Scenario-10:
         ext = th._ext['Yoda']  
         evs = 'yoda_before_append_helpers_dir'
         reg_ev_hook(th, evs)
-        ext._helpers_repo = folder = '/var/local/hydratk/testenv' 
+        ext._helpers_repo = folder = prefix+'/var/local/hydratk/testenv' 
         ext.init_helpers()
         res = path
         
@@ -529,6 +534,7 @@ Test-Scenario-11:
     from yodalib.hydratk.core.testhead import TestHead 
     from yodahelpers.hydratk.core.events import events, reg_ev_hook            
     from sys import path
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -545,7 +551,7 @@ Test-Scenario-11:
         ext = th._ext['Yoda']  
         evs = 'yoda_before_append_lib_dir'
         reg_ev_hook(th, evs)
-        ext._libs_repo = folder = '/var/local/hydratk/testenv' 
+        ext._libs_repo = folder = prefix+'/var/local/hydratk/testenv' 
         ext.init_libs()
         res = path
         
