@@ -57,8 +57,16 @@ Module lxml requires several libraries which will be installed via Linux package
 
 lxml
 
-* apt-get: python-lxml, libxml2-dev, libxslt1-dev
-* yum: python-lxml, libxml2-devel, libxslt-devel   
+* Debian apt-get: python-lxml, libxml2-dev, libxslt1-dev
+* Red Hat yum: python-lxml, libxml2-devel, libxslt-devel
+* Fedora dnf: python-lxml, libxml2-devel, libxslt-devel
+* SuSe zypper: python-lxml, libxml2-devel, libxslt-devel
+* FreeBSD pkg: py27-lxml
+
+  .. note::
+  
+     Installation for Python 3 has some differences.
+     Library py36-lxml is installed instead of py27-lxml.
      
 Installation
 ^^^^^^^^^^^^

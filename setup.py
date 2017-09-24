@@ -47,6 +47,8 @@ def version_update(cfg, *args):
     else:
         cfg['modules'].append({'module': 'simplejson', 'version': '>=3.8.2'})
 
+    if (major == 3):
+        cfg['libs']['lxml']['freebsd']['pkg'] = ['py36-lxml']
 
 config = {
     'pre_tasks': [
@@ -120,17 +122,74 @@ config = {
                 ],
                 'check': {
                     'python-lxml': {
-                        'cmd': 'yum -q list installed python-lxml',
+                        'cmd': 'yum list installed | grep python-lxml',
                         'errmsg': 'Unable to locate package python-lxml'
                     },
                     'libxml2-devel': {
-                        'cmd': 'yum -q list installed libxml2-devel',
+                        'cmd': 'yum list installed | grep libxml2-devel',
                         'errmsg': 'Unable to locate package libxml2-devel'
                     },
                     'libxslt-devel': {
-                        'cmd': 'yum -q list installed libxslt-devel',
+                        'cmd': 'yum list installed | grep libxslt-devel',
                         'errmsg': 'Unable to locate shared library libxslt-devel'
                     }
+                }
+            },
+            'fedora': {
+                'dnf': [
+                    'python-lxml',
+                    'libxml2-devel',
+                    'libxslt-devel'
+                ],
+                'check': {
+                    'python-lxml': {
+                        'cmd': 'dnf list installed | grep python-lxml',
+                        'errmsg': 'Unable to locate package python-lxml'
+                    },
+                    'libxml2-devel': {
+                        'cmd': 'dnf list installed | grep libxml2-devel',
+                        'errmsg': 'Unable to locate package libxml2-devel'
+                    },
+                    'libxslt-devel': {
+                        'cmd': 'dnf list installed | grep libxslt-devel',
+                        'errmsg': 'Unable to locate shared library libxslt-devel'
+                    }
+                }
+            },
+            'suse': {
+                'zypper': [
+                    'python-lxml',
+                    'libxml2-devel',
+                    'libxslt-devel'
+                ],
+                'check': {
+                    'python-lxml': {
+                        'cmd': 'rpm -qa | grep python-lxml',
+                        'errmsg': 'Unable to locate package python-lxml'
+                    },
+                    'libxml2-devel': {
+                        'cmd': 'rpm -qa | grep libxml2-devel',
+                        'errmsg': 'Unable to locate package libxml2-devel'
+                    },
+                    'libxslt-devel': {
+                        'cmd': 'rpm -qa | grep libxslt-devel',
+                        'errmsg': 'Unable to locate shared library libxslt-devel'
+                    }
+                }
+            },
+            'freebsd': {
+                'pkg': [
+                    'py27-lxml'
+                ],
+                'check': {
+                    'py27-lxml': {
+                        'cmd': 'pkg info | grep py27-lxml',
+                        'errmsg': 'Unable to locate package py27-lxml'
+                    },
+                    'py36-lxml': {
+                        'cmd': 'pkg info | grep py36-lxml',
+                        'errmsg': 'Unable to locate package py36-lxml'
+                    }                          
                 }
             }
         }
@@ -167,7 +226,7 @@ st_setup(
     entry_points=entry_points,
     keywords='hydratk,testing,test automation,engine',
     requires_python='>=2.6,!=3.0.*,!=3.1.*,!=3.2.*',
-    platforms='Linux'
+    platforms='Linux,FreeBSD'
 )
 
 task.run_post_install(argv, config)
