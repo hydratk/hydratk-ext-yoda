@@ -23,6 +23,7 @@ yoda_before_exec_ts_prereq
 yoda_before_exec_tco_test
 yoda_before_exec_validate_test
 yoda_before_exec_ts_postreq
+yoda_on_test_run_completed
 
 """
 import os
@@ -105,12 +106,12 @@ class Extension(extension.Extension):
         """
 
         self._ext_id = 'yoda'
-        self._ext_name = 'Yoda'
+        self._ext_name='Yoda'
         self._ext_version = '0.2.3'
         self._ext_author = 'Petr Czaderna <pc@hydratk.org>, HydraTK team <team@hydratk.org>'
         self._ext_year = '2014 - 2017'
 
-        if (not self._check_dependencies()):
+        if not self._check_dependencies():
             exit(0)
 
         self._run_mode = self._mh.run_mode  # synchronizing run mode
@@ -434,6 +435,9 @@ class Extension(extension.Extension):
             if ev.will_run_default():
                 self._check_results()
             self._mh.stop_pp_app()
+            
+            ev = event.Event('yoda_on_test_run_completed', self._test_engine.test_run.id)
+            self._mh.fire_event(ev)
 
     def create_test_results_db(self):
         """Method creates results database
@@ -695,6 +699,9 @@ class Extension(extension.Extension):
                 self._mh.fire_event(ev)
                 if ev.will_run_default():
                     self._check_results()
+                
+                ev = event.Event('yoda_on_test_run_completed',self._test_engine.test_run.id)
+                self._mh.fire_event(ev)
 
     def init_global_tests(self, test_base_path):
         pass

@@ -546,14 +546,16 @@ class TestResultsOutputHandler(object):
             if 'test_set_node_state' in self._options and self._options['test_set_node_state'].lower() == 'open':
                 test_set_button_state_class = "ToggleButtonOn"
                 test_set_node_state_class   = "NodeOpen"
+                test_set_node_char          = "-"
                   
             else: 
                 test_set_button_state_class = 'ToggleButtonOff'
-                test_set_node_state_class   = "NodeClosed"                 
+                test_set_node_state_class   = "NodeClosed"
+                test_set_node_char          = "+"                 
             res += """<hr>
             
                       <table class="TestSetTable">
-                            <caption><div id="{test_set_objid}" class="{test_set_button_state_class}">-</div>Test set [{test_set_id}]</caption>
+                            <caption><div id="{test_set_objid}" class="{test_set_button_state_class}">{test_set_node_char}</div>Test set [{test_set_id}]</caption>
                             <tr>                              
                               <td class="TestSetTableContainer">
                                  <div id="{test_set_objid}_container" class="TestSetTableContainerWrapper {test_set_node_state_class}"> 
@@ -593,7 +595,8 @@ class TestResultsOutputHandler(object):
                         """.format(
                                    test_set_objid            = test_set['id'].decode() if hasattr(test_set['id'], 'decode') else test_set['id'],
                                    test_set_node_state_class = test_set_node_state_class,
-                                   test_set_node_state_class = test_set_node_state_class,
+                                   test_set_button_state_class = test_set_button_state_class, 
+                                   test_set_node_char        = test_set_node_char,                                  
                                    test_set_id               = test_set['tset_id'].decode() if hasattr(test_set['tset_id'], 'decode') else test_set['tset_id'],
                                    test_set_start_time       = datetime.datetime.fromtimestamp(int(test_set['start_time'])).strftime('%Y-%m-%d %H:%M:%S'),
                                    test_set_end_time         = test_set_end_time,
@@ -611,42 +614,60 @@ class TestResultsOutputHandler(object):
                 if 'test_scenario_node_state' in self._options and self._options['test_scenario_node_state'].lower() == 'open':
                     test_scenario_button_state_class = "ToggleButtonOn"
                     test_scenario_node_state_class   = "NodeOpen"
+                    test_scenario_node_char          = "-"
                       
-                else: 
+                else:
                     test_scenario_button_state_class = 'ToggleButtonOff'
-                    test_scenario_node_state_class   = "NodeClosed"  
+                    test_scenario_node_state_class   = "NodeClosed"
+                    test_scenario_node_char          = "+"
                                   
                 res += """<tr>
                             <td class="TestSet_TestScenarioNode">&nbsp;</td>
-                            <td class="TestSet_TestScenarioNodeContainer">
-                               <div id="{test_scenario_objid}_container" class="TestSet_TestScenarioNodeContainerWrapper {test_scenario_node_state_class}"> 
-                                   <table class="TestScenarioTable">
-                                      <caption><div class="{test_scenario_button_state_class}">-</div>Test Scenario [{ts_id}\\{ts_name}]</caption>
-                                      {ts_opt}
-                                      <tr>
-                                        <td class="TestScenario_TestCaseNode">&nbsp;</td>
-                                        <td class="TestScenario_TestCaseNodeContainer">
+                            <td class="TestSet_TestScenarioNodeContainer">                                
+                                <table class="TestScenarioTable">
+                                    <caption><div id="{test_scenario_objid}" class="{test_scenario_button_state_class}">{test_scenario_node_char}</div>Test Scenario [{ts_id}\\{ts_name}]</caption>
+                                    <tr>
+                                       <td class="TestScenarioTableContainer">
+                                           <div id="{test_scenario_objid}_container" class="TestSet_TestScenarioNodeContainerWrapper {test_scenario_node_state_class}">
+                                              <table class="TestScenarioTableContainerTable"> 
+                                                {ts_opt}
+                                                <tr>
+                                                   <td class="TestScenario_TestCaseNode">&nbsp;</td>
+                                                   <td class="TestScenario_TestCaseNodeContainer">
                        """.format(
-                                   test_scenario_objid            = ts['id'].decode() if hasattr(ts['id'], 'decode') else ts['id'],
-                                   test_scenario_node_state_class = test_scenario_node_state_class,
-                                   ts_id                          = ts['ts_id'].decode() if hasattr(ts['ts_id'], 'decode') else ts['ts_id'],
-                                   ts_name                        = ts['value'].decode() if hasattr(ts['value'], 'decode') else ts['value'],
-                                   ts_opt                         = self._format_custom_ts_opt(ts, ts_opt)
+                                   test_scenario_objid              = ts['id'].decode() if hasattr(ts['id'], 'decode') else ts['id'],
+                                   test_scenario_node_state_class   = test_scenario_node_state_class,
+                                   test_scenario_button_state_class = test_scenario_button_state_class,
+                                   test_scenario_node_char          = test_scenario_node_char,
+                                   ts_id                            = ts['ts_id'].decode() if hasattr(ts['ts_id'], 'decode') else ts['ts_id'],
+                                   ts_name                          = ts['value'].decode() if hasattr(ts['value'], 'decode') else ts['value'],
+                                   ts_opt                           = self._format_custom_ts_opt(ts, ts_opt)
                                  )
                 test_cases = self._db_con.db_data("get_test_cases", {'test_run_id' : test_run_id, 'test_set_id' : test_set['id'].decode(), 'test_scenario_id' : ts['id'].decode() })                
                 for tca in test_cases: 
-                    tca_opt = self._db_con.db_data("get_test_custom_opt", {'test_object_id' : tca['id']})  
+                    tca_opt = self._db_con.db_data("get_test_custom_opt", {'test_object_id' : tca['id']})
+                    
+                    if 'test_case_node_state' in self._options and self._options['test_case_node_state'].lower() == 'open':
+                        test_case_button_state_class = "ToggleButtonOn"
+                        test_case_node_state_class   = "NodeOpen"
+                        test_case_node_char          = "-"
+                      
+                    else:
+                        test_case_button_state_class = 'ToggleButtonOff'
+                        test_case_node_state_class   = "NodeClosed"
+                        test_case_node_char          = "+"  
                     res += """      
                                           <table class="TestCaseTable">
-                                            <caption><div class="ToggleButton">-</div>Test Case [{tca_id}\\{tca_name}]</caption>
+                                            <caption><div class="ToggleButton">{test_case_node_char}</div>Test Case [{tca_id}\\{tca_name}]</caption>
                                              {tc_opt}
                                              <tr>
                                                <td class="TestCase_TestConditionNode">&nbsp;</td>
                                                <td class="TestCase_TestConditionNode">                                      
                           """.format(
-                                     tc_opt = self._format_custom_tc_opt(tca, tca_opt),
-                                     tca_id = tca['tca_id'].decode(),
-                                     tca_name = tca['value'].decode() 
+                                     tc_opt              = self._format_custom_tc_opt(tca, tca_opt),
+                                     tca_id              = tca['tca_id'].decode(),
+                                     test_case_node_char = test_case_node_char,
+                                     tca_name            = tca['value'].decode() 
                                     )
                     test_conditions = self._db_con.db_data("get_test_conditions", {'test_run_id' : test_run_id, 'test_set_id' : test_set['id'].decode(), 'test_scenario_id' : ts['id'].decode(), 'test_case_id' : tca['id'].decode() })        
                     for tco in test_conditions:
@@ -668,10 +689,14 @@ class TestResultsOutputHandler(object):
                        </table>                                                                                 
                     """      
                 #End of test scenarios             
-                res +=  """ </div>
+                res +=  """     </tr>
+                               </table>
+                             </div>
                            </td>
                          </tr>                                             
-                       </table>              
+                       </table>
+                    </td>
+                </tr>              
                     """ 
             #end of test set          
             res +=  """

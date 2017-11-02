@@ -136,6 +136,13 @@
    .TestScenarioTable {
      border:none;
    }
+   .TestScenarioTableContainer {
+     border:none;
+   }
+   
+    .TestScenarioTableContainerTable {
+     border:none;
+   }
    
    .TestScenario_TestCaseNode {
      background-color: transparent;
@@ -194,15 +201,15 @@
 $(document).ready(function() {
 	$(document.body).on( "click", '.ToggleButtonOn', function() {
 		var container_id = $( this ).attr('id') + '_container';		  		  
-		$('#'+container_id).slideUp("fast");
-		$( this ).removeClass('ToggleButtonOn').addClass('ToggleButtonOff').addClass('NodeClosed');		
+		$('#'+container_id).slideUp("slow");
+		$( this ).removeClass('ToggleButtonOn').addClass('ToggleButtonOff');		
 		$( this ).html('+');		
 	});
 	
 	$(document.body).on( "click", '.ToggleButtonOff', function() {		  
 		  var container_id = $( this ).attr('id') + '_container';		  
-		  $('#'+container_id).slideDown("fast");
-		  $( this ).removeClass('ToggleButtonOff').addClass('ToggleButtonOn').addClass('NodeOpen');
+		  $('#'+container_id).slideDown("slow");
+		  $( this ).removeClass('ToggleButtonOff').addClass('ToggleButtonOn');
 		  $( this ).html('-');
 	});	
 });

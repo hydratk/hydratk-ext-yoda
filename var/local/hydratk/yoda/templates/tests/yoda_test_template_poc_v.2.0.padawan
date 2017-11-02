@@ -1,0 +1,112 @@
+######################### METADATA INFORMATION #########################
+Metainfo:
+  Yoda-Template-Version: 2.0
+  Dependencies: 
+    - Module_Name: minimal version
+    
+# Supported content types: text, pickle, binary    
+  Content-Type: text
+
+# Supported content decoders/loaders: yotext, yopickle, yobin  
+  Content-Decoder: yotext
+
+# Template structure and content inheritence  
+  Extend:
+    - template1.jedi
+    - template2.jedi:tc_g1
+
+######################### TEST SUITE DEFINITION #########################
+Test-Suite:
+  Id: tsu_01
+  Path: /path/to/file.jedi
+  Name:  Project XYZ Test suite  
+  Desc: | 
+     Complex test suite for covering project tests
+     With long description
+     
+  Author: Name Surname <email@contact>
+  Version: 0.1.0
+  
+# Test scenario default execution flow  
+  Flow: 
+        - 1        
+  Events:
+    before_start: |
+      #Before start test suite execution code
+      
+    after_finish: |
+      #After finish test suite execution code
+       
+  Pre-Req: |
+    #Test Suite custom prerequisities
+
+######################### TEST SCENARIOS #########################     
+  Test-Scenarios:
+  
+    Test-Scenario-1:
+      Id: ts_01
+      Name: Test scenario name
+      Desc: Some detailed description
+    
+      Events:
+        before_start: |
+          #Before start test scenario execution code
+      
+        after_finish: |
+          #After finish test scenario execution code
+       
+      Pre-Req: |
+        #Test scenario custom prerequisities
+    
+      Flow:
+        #Test case groups
+        - 1       #Will execute all test cases from test case group number 1
+        - tcg_02  #Will execute all test cases from test case group id tcg_02
+    
+    Test-Scenario-2:    
+      Flow:
+        #Test case id's
+        -   #Will execute test case id tca01 from test case group id tcg_01
+        - 1:tca02      #Will execute test case id tca02 from test case group number 1 
+        - 1:tca03      #Will execute test case id tca03 from test case group number 1
+
+    Test-Scenario-3:    
+      Flow:
+        #Test case identification supported filtering
+        - 1:tca01:1           #Will execute test group 1, test case id tca01, test condition number 1
+        - 2:2:tco01           #Will execute test group 1, test case number 2, test condition id tco01
+        - tgc_03:tca03:tco01  #Will execute test group tgc_03, test case id tca03, test condition id tco01
+    
+######################### GROUPED TEST CASES #########################    
+Test-Case-Group-1:  
+  Id: tcg_01
+  Name: Test cases group name
+  Desc: Some detailed description
+    
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_prepare
+    Desc: Prepare data
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: Test condition example
+      Desc: Some description
+      
+      Test: |
+        print('Hello') 
+        
+      Validate: |
+        assert 1 > 0, 'Impossible' 
+        
+######################### MINIMAL VERSION #########################
+Test-Condition-1: 
+  Id: tco_01
+  Name: Test condition example
+  Desc: Some description
+  
+  Test: |
+    print('Hello') 
+    
+  Validate: |
+    assert 1 > 0, 'Impossible'                  
