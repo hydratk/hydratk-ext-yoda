@@ -40,6 +40,7 @@ Test-Scenario-2:
   Pre-Req: |
     from hydratk.extensions.yoda.testengine import TestEngine
     from os import system
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -52,7 +53,7 @@ Test-Scenario-2:
       Desc: Absolute file path
       
       Test: |             
-        file = '/var/local/hydratk/test.jedi'
+        file = prefix+'/var/local/hydratk/test.jedi'
         cont = 'test'
         with open(file, 'w+') as f:
             f.write(cont)
@@ -70,7 +71,7 @@ Test-Scenario-2:
       Desc: Relative file path
       
       Test: |        
-        te._templates_repo = '/var/local/hydratk/'
+        te._templates_repo = prefix+'/var/local/hydratk/'
         res = te._h_include('test.jedi')
       
       Validate: |
@@ -101,6 +102,7 @@ Test-Scenario-3:
   
   Pre-Req: |
     from hydratk.extensions.yoda.testengine import TestEngine
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -114,7 +116,7 @@ Test-Scenario-3:
       
       Test: |
         te = TestEngine()
-        file = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi'
+        file = prefix+'/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi'
         res = te.load_tset_from_file(file)
       
       Validate: |                       
@@ -146,6 +148,7 @@ Test-Scenario-4:
   Pre-Req: |
     from hydratk.extensions.yoda.testengine import TestEngine
     from yodahelpers.hydratk.extensions.yoda.tscript import dummy_method
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -158,7 +161,7 @@ Test-Scenario-4:
       Desc: Load test set
       
       Test: |                       
-        file = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi'
+        file = prefix+'/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi'
         with open(file, 'r') as f:
             file = f.read()
             
@@ -187,7 +190,7 @@ Test-Scenario-4:
       Desc: Load test set with macro
       
       Test: |        
-        file = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_02.jedi'
+        file = prefix+'/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_02.jedi'
         with open(file, 'r') as f:
             file = f.read()
         
@@ -370,7 +373,8 @@ Test-Scenario-9:
   
   Pre-Req: |
     from hydratk.extensions.yoda.testengine import TestEngine
-    from yodalib.hydratk.core.testhead import TestHead  
+    from yodalib.hydratk.core.testhead import TestHead
+    from sys import prefix  
   
   Test-Case-1:
     Id: tc_01
@@ -386,7 +390,7 @@ Test-Scenario-9:
         th = TestHead() 
         ext = th._ext['Yoda'] 
         te = ext._test_engine = TestEngine()              
-        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi'
+        path = prefix+'/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi'
         res = te.get_all_tests_from_path(path)[0]
       
       Validate: |  
@@ -400,7 +404,7 @@ Test-Scenario-9:
       Desc: Directory path
       
       Test: |            
-        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda'
+        path = prefix+'/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda'
         res = te.get_all_tests_from_path(path)[0]
       
       Validate: |  
@@ -414,7 +418,7 @@ Test-Scenario-9:
       Desc: Path with filter
       
       Test: |           
-        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi'
+        path = prefix+'/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi'
         res = te.get_all_tests_from_path(path+':ts_01:tc_01:tco_01')[0]
       
       Validate: |  
@@ -428,7 +432,7 @@ Test-Scenario-9:
       Desc: Invalid path
       
       Test: |           
-        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda2/tset_01.jedi'
+        path = prefix+'/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda2/tset_01.jedi'
         res = te.get_all_tests_from_path(path)[0]
       
       Validate: |  
@@ -442,7 +446,7 @@ Test-Scenario-9:
       Desc: Directory tree
       
       Test: |           
-        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions'
+        path = prefix+'/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions'
         res = te.get_all_tests_from_path(path)[0]
       
       Validate: |  
@@ -461,7 +465,8 @@ Test-Scenario-10:
   
   Pre-Req: |
     from hydratk.extensions.yoda.testengine import TestEngine
-    from yodalib.hydratk.core.testhead import TestHead  
+    from yodalib.hydratk.core.testhead import TestHead
+    from sys import prefix  
   
   Test-Case-1:
     Id: tc_01
@@ -477,13 +482,24 @@ Test-Scenario-10:
         th = TestHead() 
         ext = th._ext['Yoda'] 
         te = ext._test_engine = TestEngine()                                          
-        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda'
+        path = prefix+'/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda'
+        
+        with open(path+'/tset.cont', 'r') as f:
+            content = f.read()        
+        with open(path+'/tset.cont', 'w') as f:
+            content = content.format(prefix=prefix)
+            f.write(content)
+        
         res = te.get_all_tests_from_container(path+'/tset.cont')[0]
         
       Validate: |  
         this.test_result = str(res)
         exp = [path+'/tset_01.jedi', path+'/tset_02.jedi']
         assert (sorted(res) == exp), 'get_all_tests_from_container = {0}'.format(exp)    
+                
+        with open(path+'/tset.cont', 'w') as f:
+            content = content.replace(prefix, '{prefix}')
+            f.write(content)
         
     Test-Condition-2: 
       Id: tco_02
@@ -491,8 +507,8 @@ Test-Scenario-10:
       Desc: Tests with relative path
       
       Test: |
-        te._templates_repo = '/var/local/hydratk/yoda/helpers/'                                        
-        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda'
+        te._templates_repo = prefix+'/var/local/hydratk/yoda/helpers/'                                        
+        path = prefix+'/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda'
         res = te.get_all_tests_from_container(path+'/tset2.cont')[0]
         
       Validate: |  
@@ -506,7 +522,7 @@ Test-Scenario-10:
       Desc: Invalid path
       
       Test: |           
-        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset3.cont'
+        path = prefix+'/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset3.cont'
         res = te.get_all_tests_from_container(path)[0]
       
       Validate: |  
@@ -528,7 +544,8 @@ Test-Scenario-11:
     from hydratk.extensions.yoda.testobject import TestRun
     from yodalib.hydratk.core.testhead import TestHead 
     from hydratk.lib.database.dbo.dbo import DBO
-    from os import remove     
+    from os import remove
+    from sys import prefix     
   
   Test-Case-1:
     Id: tc_01
@@ -543,8 +560,8 @@ Test-Scenario-11:
       Test: |
         th = TestHead() 
         ext = th._ext['Yoda']
-        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
-        file, query = '/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
+        path = prefix+'/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
+        file, query = prefix+'/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
         dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
         te = ext._test_engine = TestEngine()   
         te._test_results_db = ext.create_test_results_db()  
@@ -565,7 +582,7 @@ Test-Scenario-11:
       Desc: Test with relative path
       
       Test: |
-        te._templates_repo = '/var/local/hydratk/yoda/helpers/' 
+        te._templates_repo = prefix+'/var/local/hydratk/yoda/helpers/' 
         te.exec_test('yodahelpers/hydratk/extensions/yoda/tset_01.jedi')   
         recs = c.execute(query).fetchall()              
         

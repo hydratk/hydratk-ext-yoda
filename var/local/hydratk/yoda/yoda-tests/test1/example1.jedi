@@ -13,7 +13,7 @@ Test-Scenario-1:
   
     pre-req: |
        print("Initializing Test Scenario prerequirements...")
-       from hydratk.lib.network.ftp import client
+       from hydratk.extensions.yoda.util.data import gen_number
        
        test_var = 1
        
@@ -129,7 +129,7 @@ Test-Scenario-2:
   
     pre-req: |
        print("Initializing Test Scenario prerequirements...")
-       from hydratk.lib.network.ftp import client
+       from hydratk.extensions.yoda.util.data import gen_number
        print("BEFORE test {0}".format(test_var))
        test_var = 3
        

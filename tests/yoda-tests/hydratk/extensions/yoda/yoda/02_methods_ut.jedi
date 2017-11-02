@@ -9,7 +9,8 @@ Test-Scenario-1:
   Pre-Req: |
     from yodalib.hydratk.core.testhead import TestHead 
     from hydratk.extensions.yoda.testengine import TestEngine
-    from hydratk.extensions.yoda.testobject import TestRun    
+    from hydratk.extensions.yoda.testobject import TestRun
+    from sys import prefix    
   
   Test-Case-1:
     Id: tc_01
@@ -25,7 +26,7 @@ Test-Scenario-1:
         th = TestHead()
         ext = th._ext['Yoda']
         th.pre_replace()
-        val = '/var/local/hydratk'
+        val = prefix+'/var/local/hydratk'
         TestHead.options = {'yoda-test-repo-root-dir': val}
         ext.init_check(None)
         res = ext._test_repo_root
@@ -70,7 +71,7 @@ Test-Scenario-1:
       Desc: Option database dsn
       
       Test: |
-        val = '/var/local/hydratk/test.db3'
+        val = prefix+'/var/local/hydratk/test.db3'
         TestHead.options = {'yoda-db-results-dsn': val}
         ext.init_check(None)
         res = ext._mh.ext_cfg['Yoda']['db_results_dsn']
@@ -111,7 +112,8 @@ Test-Scenario-2:
     from hydratk.extensions.yoda.testobject import TestRun
     from yodalib.hydratk.core.testhead import TestHead 
     from hydratk.lib.database.dbo.dbo import DBO
-    from os import remove    
+    from os import remove
+    from sys import prefix    
   
   Test-Case-1:
     Id: tc_01
@@ -126,8 +128,8 @@ Test-Scenario-2:
       Test: |
         th = TestHead() 
         ext = th._ext['Yoda']
-        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
-        file, query = '/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
+        path = prefix+'/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
+        file, query = prefix+'/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
         dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
         te = ext._test_engine = TestEngine()   
         te._test_results_db = ext.create_test_results_db()  
@@ -153,7 +155,7 @@ Test-Scenario-2:
       Test: |
         tr = te._test_run = TestRun()  
         tr._te = te       
-        ext._templates_repo = '/var/local/hydratk/yoda/helpers/'
+        ext._templates_repo = prefix+'/var/local/hydratk/yoda/helpers/'
         path = 'yodahelpers/hydratk/extensions/yoda/tset_01.jedi'
         TestHead.options = {'yoda-test-path': path}
         ext.init_tests()
@@ -179,7 +181,8 @@ Test-Scenario-3:
     from hydratk.extensions.yoda.testobject import TestRun
     from yodalib.hydratk.core.testhead import TestHead 
     from hydratk.lib.database.dbo.dbo import DBO
-    from os import remove    
+    from os import remove
+    from sys import prefix    
   
   Test-Case-1:
     Id: tc_01
@@ -194,8 +197,8 @@ Test-Scenario-3:
       Test: |
         th = TestHead() 
         ext = th._ext['Yoda']
-        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
-        file, query = '/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
+        path = prefix+'/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
+        file, query = prefix+'/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
         dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
         te = ext._test_engine = TestEngine()   
         te._test_results_db = ext.create_test_results_db()  
@@ -221,7 +224,7 @@ Test-Scenario-3:
       Test: |
         tr = te._test_run = TestRun()  
         tr._te = te       
-        ext._templates_repo = '/var/local/hydratk/yoda/helpers/'
+        ext._templates_repo = prefix+'/var/local/hydratk/yoda/helpers/'
         path = 'yodahelpers/hydratk/extensions/yoda/tset_01.jedi'
         TestHead.options = {'yoda-test-path': path}
         ext.init_test_simul()
@@ -247,7 +250,8 @@ Test-Scenario-4:
     from hydratk.extensions.yoda.testobject import TestRun
     from yodalib.hydratk.core.testhead import TestHead 
     from hydratk.lib.database.dbo.dbo import DBO
-    from os import remove    
+    from os import remove
+    from sys import prefix    
   
   Test-Case-1:
     Id: tc_01
@@ -262,8 +266,8 @@ Test-Scenario-4:
       Test: |
         th = TestHead() 
         ext = th._ext['Yoda']
-        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
-        file, query = '/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
+        path = prefix+'/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
+        file, query = prefix+'/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
         dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
         te = ext._test_engine = TestEngine()   
         te._test_results_db = ext.create_test_results_db()  
@@ -293,7 +297,8 @@ Test-Scenario-5:
     from hydratk.extensions.yoda.testobject import TestRun
     from yodalib.hydratk.core.testhead import TestHead 
     from hydratk.lib.database.dbo.dbo import DBO
-    from os import remove    
+    from os import remove
+    from sys import prefix    
   
   Test-Case-1:
     Id: tc_01
@@ -308,8 +313,8 @@ Test-Scenario-5:
       Test: |
         th = TestHead() 
         ext = th._ext['Yoda']
-        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
-        file, query = '/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
+        path = prefix+'/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
+        file, query = prefix+'/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
         dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
         te = ext._test_engine = TestEngine()   
         te._test_results_db = ext.create_test_results_db()  
@@ -374,7 +379,8 @@ Test-Scenario-7:
     from hydratk.extensions.yoda.testobject import TestRun
     from yodalib.hydratk.core.testhead import TestHead 
     from hydratk.lib.database.dbo.dbo import DBO
-    from os import remove    
+    from os import remove
+    from sys import prefix    
   
   Test-Case-1:
     Id: tc_01
@@ -389,7 +395,7 @@ Test-Scenario-7:
       Test: |
         th = TestHead() 
         ext = th._ext['Yoda']
-        file, query = '/var/local/hydratk/test.db3', 'SELECT start_time, end_time FROM test_run'
+        file, query = prefix+'/var/local/hydratk/test.db3', 'SELECT start_time, end_time FROM test_run'
         dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
         te = ext._test_engine = TestEngine()   
         te._test_results_db = ext.create_test_results_db()  
@@ -461,7 +467,8 @@ Test-Scenario-9:
     from hydratk.extensions.yoda.testobject import TestRun
     from yodalib.hydratk.core.testhead import TestHead 
     from hydratk.lib.database.dbo.dbo import DBO
-    from os import remove    
+    from os import remove
+    from sys import prefix    
   
   Test-Case-1:
     Id: tc_01
@@ -476,8 +483,8 @@ Test-Scenario-9:
       Test: |
         th = TestHead() 
         ext = th._ext['Yoda']
-        path = '/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
-        file, query = '/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
+        path = prefix+'/var/local/hydratk/yoda/helpers/yodahelpers/hydratk/extensions/yoda/tset_01.jedi' 
+        file, query = prefix+'/var/local/hydratk/test.db3', 'SELECT count(*) FROM test_set'
         dsn = th._config['Extensions']['Yoda']['db_results_dsn'] = 'sqlite:/'+file
         te = ext._test_engine = TestEngine()   
         te._test_results_db = ext.create_test_results_db()  

@@ -9,6 +9,7 @@ Test-Scenario-1:
   Pre-Req: |
     from hydratk.extensions.yoda.testresults.testresults import TestResultsDB  
     from os import path, remove
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -21,7 +22,7 @@ Test-Scenario-1:
       Desc: Initialize
       
       Test: |
-        file = '/var/local/hydratk/test.db3'
+        file = prefix+'/var/local/hydratk/test.db3'
         dsn = 'sqlite:'+file
         trdb = TestResultsDB(dsn)
         res = trdb.__class__.__name__
@@ -48,6 +49,7 @@ Test-Scenario-2:
   Pre-Req: |
     from hydratk.extensions.yoda.testresults.testresults import TestResultsDB  
     from os import remove
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -60,7 +62,7 @@ Test-Scenario-2:
       Desc: Getter trdb
       
       Test: |
-        file = '/var/local/hydratk/test.db3'
+        file = prefix+'/var/local/hydratk/test.db3'
         trdb = TestResultsDB('sqlite:'+file)
         res = trdb.trdb.__class__.__name__
       
@@ -95,6 +97,7 @@ Test-Scenario-3:
     from hydratk.extensions.yoda.testresults.testresults import TestResultsDB  
     from hydratk.lib.database.dbo.dbo import DBO
     from os import remove
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -107,7 +110,7 @@ Test-Scenario-3:
       Desc: Create
       
       Test: |
-        file = '/var/local/hydratk/test.db3'
+        file = prefix+'/var/local/hydratk/test.db3'
         dsn = 'sqlite:'+file
         trdb = TestResultsDB(dsn)
         trdb.create_database()
@@ -159,6 +162,7 @@ Test-Scenario-4:
   Pre-Req: |
     from hydratk.extensions.yoda.testresults.testresults import TestResultsDB  
     from os import remove
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -171,7 +175,7 @@ Test-Scenario-4:
       Desc: Database created
       
       Test: |
-        file = '/var/local/hydratk/test.db3'
+        file = prefix+'/var/local/hydratk/test.db3'
         trdb = TestResultsDB('sqlite:'+file)
         trdb.create_database()
         res = trdb.db_check_ok()      
@@ -207,6 +211,7 @@ Test-Scenario-5:
     from hydratk.extensions.yoda.testresults.testresults import TestResultsDB
     from hydratk.lib.database.dbo.dbo import DBO 
     from os import remove
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -219,7 +224,7 @@ Test-Scenario-5:
       Desc: Write
       
       Test: |
-        file = '/var/local/hydratk/test.db3'
+        file = prefix+'/var/local/hydratk/test.db3'
         dsn = 'sqlite:'+file
         trdb = TestResultsDB(dsn)
         trdb.create_database()  
@@ -243,6 +248,7 @@ Test-Scenario-6:
   Pre-Req: |
     from hydratk.extensions.yoda.testresults.testresults import TestResultsDB
     from os import remove
+    from sys import prefix
   
   Test-Case-1:
     Id: tc_01
@@ -255,7 +261,7 @@ Test-Scenario-6:
       Desc: Read
       
       Test: |
-        file = '/var/local/hydratk/test.db3'
+        file = prefix+'/var/local/hydratk/test.db3'
         trdb = TestResultsDB('sqlite:'+file)
         trdb.create_database()  
         trdb.db_action('create_test_run_record', [1, None, 1, 1, None, None, None, None, None])  
@@ -275,7 +281,8 @@ Test-Scenario-7:
   Version: 0.1
   
   Pre-Req: |
-    from hydratk.extensions.yoda.testresults.testresults import TestResultsOutputFactory  
+    from hydratk.extensions.yoda.testresults.testresults import TestResultsOutputFactory
+    from sys import prefix  
   
   Test-Case-1:
     Id: tc_01
@@ -288,7 +295,7 @@ Test-Scenario-7:
       Desc: Initialize
       
       Test: |
-        file = '/var/local/hydratk/test.db3'
+        file = prefix+'/var/local/hydratk/test.db3'
         trof = TestResultsOutputFactory('sqlite:'+file)  
         res = trof.__class__.__name__           
         
@@ -323,7 +330,8 @@ Test-Scenario-8:
   Version: 0.1
   
   Pre-Req: |
-    from hydratk.extensions.yoda.testresults.testresults import TestResultsOutputFactory  
+    from hydratk.extensions.yoda.testresults.testresults import TestResultsOutputFactory
+    from sys import prefix  
   
   Test-Case-1:
     Id: tc_01
@@ -336,7 +344,7 @@ Test-Scenario-8:
       Desc: Simple handler
       
       Test: |        
-        file, handler = '/var/local/hydratk/test.db3', 'test'
+        file, handler = prefix+'/var/local/hydratk/test.db3', 'test'
         trof = TestResultsOutputFactory('sqlite:'+file)  
         trof._dispatch_handler_def(handler)    
         res = trof._handler_name    
@@ -389,7 +397,8 @@ Test-Scenario-9:
   Version: 0.1
   
   Pre-Req: |
-    from hydratk.extensions.yoda.testresults.testresults import TestResultsOutputFactory  
+    from hydratk.extensions.yoda.testresults.testresults import TestResultsOutputFactory
+    from sys import prefix  
   
   Test-Case-1:
     Id: tc_01
@@ -402,7 +411,7 @@ Test-Scenario-9:
       Desc: Get
       
       Test: |        
-        dsn = 'sqlite:/var/local/hydratk/test.db3'
+        dsn = 'sqlite:{0}/var/local/hydratk/test.db3'.format(prefix)
         trof = TestResultsOutputFactory(dsn)
         res = trof.__getattr__('_db_dsn')                  
         
@@ -419,7 +428,8 @@ Test-Scenario-10:
   Version: 0.1
   
   Pre-Req: |
-    from hydratk.extensions.yoda.testresults.testresults import TestResultsOutputFactory  
+    from hydratk.extensions.yoda.testresults.testresults import TestResultsOutputFactory
+    from sys import prefix  
   
   Test-Case-1:
     Id: tc_01
@@ -432,7 +442,7 @@ Test-Scenario-10:
       Desc: Get
       
       Test: |        
-        dsn = 'sqlite:/var/local/hydratk/test.db3'
+        dsn = 'sqlite:{0}/var/local/hydratk/test.db3'.format(prefix)
         trof = TestResultsOutputFactory(dsn)
         res = trof.__getitem__('_db_dsn')                  
         
@@ -449,7 +459,8 @@ Test-Scenario-11:
   Version: 0.1
   
   Pre-Req: |
-    from hydratk.extensions.yoda.testresults.testresults import TestResultsOutputFactory  
+    from hydratk.extensions.yoda.testresults.testresults import TestResultsOutputFactory
+    from sys import prefix  
   
   Test-Case-1:
     Id: tc_01
@@ -462,7 +473,7 @@ Test-Scenario-11:
       Desc: Handler console
       
       Test: |
-        dsn = 'sqlite:/var/local/hydratk/test.db3'
+        dsn = 'sqlite:{0}/var/local/hydratk/test.db3'.format(prefix)
         trof = TestResultsOutputFactory(dsn)
         res = trof._import_tro_handler('console').__name__    
       
