@@ -120,16 +120,17 @@ class TestObject(object):
 
         # obj_name = 'ObjName'
         have_filter = self._obj_name in test_results_db.custom_data_filter
-        for key, value in self._attr.items():
+     
+        for key, value in self._attr.items():                            
             pickled = 0
             if have_filter:
                 if key in test_results_db.custom_data_filter[self._obj_name]:
                     continue
-            if type(value).__name__ not in ['int', 'float', 'str']:
+            if type(value).__name__ not in ['int', 'float', 'str','unicode','bool']:
                 value = pickle.dumps(value)
                 pickled = 1
             custom_data_id = hashlib.md5(
-                "{0}{1}{2}".format(test_run_id, self._id, key).encode('utf-8')).hexdigest()
+                "{0}{1}{2}".format(test_run_id, self._id, key).encode('utf-8')).hexdigest()               
             test_results_db.db_action(
                 'write_custom_data',
                 [
@@ -147,7 +148,7 @@ class TestObject(object):
             if key in self._attr_opt:
                 for opt_name, opt_value in self._attr_opt[key].items():
                     custom_data_opt_id = hashlib.md5(
-                        "{0}{1}".format(custom_data_id, opt_name).encode('utf-8')).hexdigest()
+                        "{0}{1}".format(custom_data_id, opt_name).encode('utf-8')).hexdigest()                        
                     test_results_db.db_action(
                         'write_custom_data_opt',
                         [
@@ -155,7 +156,7 @@ class TestObject(object):
                             custom_data_id,
                             opt_name,
                             opt_value
-                        ])
+                        ])                    
 
     def setattr_opt(self, attr_key, opt_name, opt_value=None):
         """Method sets attribute option
@@ -556,8 +557,7 @@ class TestRun(TestObject):
         """
 
         test_stats = self._te.test_results_db.db_data(
-            'get_test_stats', {'test_run_id': self._id})[0]
-        # print(test_stats)
+            'get_test_stats', {'test_run_id': self._id})[0]        
 
         self._te.test_results_db.db_action(
             'update_test_run_record',

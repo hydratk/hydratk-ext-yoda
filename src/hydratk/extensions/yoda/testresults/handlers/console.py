@@ -75,8 +75,7 @@ class TestResultsOutputHandler(object):
             test_scenarios = self._db_con.db_data("get_test_scenarios", {
                                                   'test_run_id': test_run.id, 'test_set_id': test_set['id'].decode()})
             for ts in test_scenarios:
-                print("  {0}".format(mh._trn.msg('yoda_test_scenario_summary', ts[
-                      'value'].decode(), ts['total_tests'], ts['failed_tests'], ts['passed_tests'])))
+                print("  {0}".format(mh._trn.msg('yoda_test_scenario_summary', ts['value'].decode(), ts['total_tests'], ts['failed_tests'], ts['passed_tests'])))
                 if ts['failures'] == True:
                     if ts['prereq_passed'] in (True, None):
                         if ts['prereq_passed'] == True:

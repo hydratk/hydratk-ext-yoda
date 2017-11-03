@@ -763,8 +763,8 @@ class TestEngine(MacroParser):
         if tset_str != '':
             if origin_file == False:
                 self._tset_file = '<str>'
-            tset_str = self.mp_parse(tset_str)  # apply macros
-            tset_struct = yaml.load(tset_str)  # tset_struct
+            tset_str = self.mp_parse(tset_str)  # apply macros            
+            tset_struct = yaml.load(tset_str)  # tset_struct            
         return tset_struct
 
     def _parse_ts_node(self, ts_node, ts):

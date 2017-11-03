@@ -359,7 +359,7 @@ class TestResultsDB(object):
 
         dmsg(self._mh._trn.msg('yoda_running_action', action, str(columns)), 3)
         self._trdb.cursor.execute(
-            db_actions[self._trdb.driver_name][action], columns)
+            db_actions[self._trdb.driver_name][action], columns)       
         self._trdb.commit()
 
     def db_data(self, action, columns):

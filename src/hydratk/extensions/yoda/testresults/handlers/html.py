@@ -598,7 +598,7 @@ class TestResultsOutputHandler(object):
                                        <td class="TestSetTableValue">{test_set_log}</td>
                                     </tr>                                                       
                         """.format(
-<<<<<<< HEAD
+
                                    test_set_objid            = test_set['id'].decode() if hasattr(test_set['id'], 'decode') else test_set['id'],
                                    test_set_node_state_class = test_set_node_state_class,
                                    test_set_button_state_class = test_set_button_state_class, 
@@ -611,19 +611,7 @@ class TestResultsOutputHandler(object):
                                    test_set_passed_tests     = test_set['passed_tests'],                                   
                                    test_set_failed_tests     = test_set['failed_tests'],
                                    test_set_log              = test_set['log'].decode().replace("\n","<br>"),
-=======
-                                   test_set_objid              = test_set['id'].decode() if hasattr(test_set['id'], 'decode') else test_set['id'],
-                                   test_set_node_state_class   = test_set_node_state_class,
-                                   test_set_button_state_class = test_set_button_state_class,
-                                   test_set_id                 = test_set['tset_id'].decode() if hasattr(test_set['tset_id'], 'decode') else test_set['tset_id'],
-                                   test_set_start_time         = datetime.datetime.fromtimestamp(int(test_set['start_time'])).strftime('%Y-%m-%d %H:%M:%S'),
-                                   test_set_end_time           = test_set_end_time,
-                                   test_set_total_time         = 0 if int(test_set['end_time']) == -1 else round(test_set['end_time'] - test_set['start_time'],3),
-                                   test_set_total_tests        = test_set['total_tests'],
-                                   test_set_passed_tests       = test_set['passed_tests'],                                   
-                                   test_set_failed_tests       = test_set['failed_tests'],
-                                   test_set_log=test_set['log'].decode().replace("\n", "<br>")
->>>>>>> refs/remotes/origin/develop
+
                                  )
                         
             test_scenarios = self._db_con.db_data("get_test_scenarios", {'test_run_id' : test_run_id, 'test_set_id' : test_set['id'].decode() })                                                             
@@ -654,7 +642,7 @@ class TestResultsOutputHandler(object):
                                                    <td class="TestScenario_TestCaseNode">&nbsp;</td>
                                                    <td class="TestScenario_TestCaseNodeContainer">
                        """.format(
-<<<<<<< HEAD
+
                                    test_scenario_objid              = ts['id'].decode() if hasattr(ts['id'], 'decode') else ts['id'],
                                    test_scenario_node_state_class   = test_scenario_node_state_class,
                                    test_scenario_button_state_class = test_scenario_button_state_class,
@@ -662,14 +650,6 @@ class TestResultsOutputHandler(object):
                                    ts_id                            = ts['ts_id'].decode() if hasattr(ts['ts_id'], 'decode') else ts['ts_id'],
                                    ts_name                          = ts['value'].decode() if hasattr(ts['value'], 'decode') else ts['value'],
                                    ts_opt                           = self._format_custom_ts_opt(ts, ts_opt)
-=======
-                                   test_scenario_objid=ts['id'].decode() if hasattr(ts['id'], 'decode') else ts['id'],
-                                   test_scenario_node_state_class=test_scenario_node_state_class,
-                                   test_scenario_button_state_class=test_scenario_button_state_class,
-                                   ts_id=ts['ts_id'].decode() if hasattr(ts['ts_id'], 'decode') else ts['ts_id'],
-                                   ts_name=ts['value'].decode() if hasattr(ts['value'], 'decode') else ts['value'],
-                                   ts_opt=self._format_custom_ts_opt(ts, ts_opt)
->>>>>>> refs/remotes/origin/develop
                                  )
                 test_cases = self._db_con.db_data("get_test_cases", {'test_run_id' : test_run_id, 'test_set_id' : test_set['id'].decode(), 'test_scenario_id' : ts['id'].decode() })                
                 for tca in test_cases: 
