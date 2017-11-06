@@ -2469,6 +2469,7 @@ class TestCondition(TestObject):
     _action = None
     _failures = False
     _expected_result = None
+    _actual_result = None
     _test_resolution = None
     _test_result = None
     _test_output = ''
@@ -2768,7 +2769,7 @@ class TestCondition(TestObject):
                 parent.tco_failures = True
                 self.log += str(ae)
                 self.test_resolution = 'Failed'
-                self.expected_result = ae
+                self.actual_result = ae
 
             except Exception as exc:
                 test_exception = True
@@ -2925,6 +2926,18 @@ class TestCondition(TestObject):
 
         self._expected_result = result
 
+    @property
+    def actual_result(self):
+        """ expected_result property getter, setter """
+
+        return self._actual_result
+
+    @actual_result.setter
+    def actual_result(self, result):
+        """ expected_result property setter """
+
+        self._actual_result = result
+        
     @property
     def test_resolution(self):
         """ test_resolution property getter, setter """
