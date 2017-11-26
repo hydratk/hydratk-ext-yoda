@@ -94,11 +94,12 @@ class TestResultsOutputHandler(object):
                                         print(
                                             "      {0}".format(mh._trn.msg('yoda_test_condition', tco['value'].decode())))
                                         print("            {0}".format(
-                                            mh._trn.msg('yoda_expected_result', tco['expected_result'].decode().strip())))
+                                            mh._trn.msg('yoda_expected_result', tco['expected_result'].decode().strip()
+                                                         if tco['expected_result'] != None else '')))
                                         print("            {0}".format(mh._trn.msg('yoda_actual_result', tco[
-                                              'test_result'].decode() if tco['test_result'] != None else None)))
+                                              'test_result'].decode() if tco['test_result'] != None else '')))
                                         print("            {0}".format(
-                                            mh._trn.msg('yoda_log', colorize(tco['log'].decode(), rgb=0x00bfff))))
+                                            mh._trn.msg('yoda_log', colorize(tco['log'].decode() if tco['log'] != None else '', rgb=0x00bfff))))
                                     if tco['events_passed'] == False:
                                         print(colorize("    ! {0}".format(mh._trn.msg(
                                             'yoda_test_condition_events_failed', tco['log'].decode())), rgb=0xd70000))
