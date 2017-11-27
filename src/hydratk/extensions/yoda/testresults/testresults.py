@@ -384,7 +384,9 @@ class TestResultsDB(object):
 tro_handlers = {
     'console': 'hydratk.extensions.yoda.testresults.handlers.console',
     'text': 'hydratk.extensions.yoda.testresults.handlers.text',
-    'html': 'hydratk.extensions.yoda.testresults.handlers.html'
+    'html': 'hydratk.extensions.yoda.testresults.handlers.html',
+    'junit': 'hydratk.extensions.yoda.testresults.handlers.junit'
+    
 }
 
 
