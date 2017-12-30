@@ -73,7 +73,8 @@ config = {
 
     'dirs': [
         '/tmp/test_output/html',
-        '/tmp/test_output/text'
+        '/tmp/test_output/text',
+        '/tmp/jenkins'
     ],
 
     'files': {

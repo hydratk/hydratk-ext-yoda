@@ -1,4 +1,4 @@
-Copyright (c) 2015-2017, Petr Czaderna (pc@hydratk.org), HydraTK team (team@hydratk.org)
+Copyright (c) 2015-2018, Petr Czaderna (pc@hydratk.org), HydraTK team (team@hydratk.org)
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 

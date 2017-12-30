@@ -110,7 +110,7 @@ class Extension(extension.Extension):
         self._ext_name='Yoda'
         self._ext_version = '0.2.3'
         self._ext_author = 'Petr Czaderna <pc@hydratk.org>, HydraTK team <team@hydratk.org>'
-        self._ext_year = '2014 - 2017'
+        self._ext_year = '2014 - 2018'
 
         if not self._check_dependencies():
             exit(0)
@@ -187,7 +187,7 @@ class Extension(extension.Extension):
                     templates_repo: {2}
                     helpers_repo: {3}
         '''.format(self._test_repo_root, self._libs_repo, self._templates_repo, self._helpers_repo)
-        self._mh.dmsg('htk_on_debug_info', dmsg, self._mh.fromhere())
+        self._mh.demsg('htk_on_debug_info', dmsg, self._mh.fromhere())
 
     def _update_repos(self):
         """Method updates test repositories
@@ -209,7 +209,7 @@ class Extension(extension.Extension):
                     templates_repo: {2}
                     helpers_repo: {3}
         '''.format(self._test_repo_root, self._libs_repo, self._templates_repo, self._helpers_repo)
-        self._mh.dmsg('htk_on_debug_info', dmsg, self._mh.fromhere())
+        self._mh.demsg('htk_on_debug_info', dmsg, self._mh.fromhere())
 
     def _do_imports(self):
         pass
@@ -516,7 +516,7 @@ class Extension(extension.Extension):
         test_repo = CommandlineTool.get_input_option('yoda-test-repo-root-dir')
         if test_repo != False and os.path.exists(test_repo) and os.path.isdir(test_repo):
             self._test_repo_root = test_repo
-            self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg(
+            self._mh.demsg('htk_on_debug_info', self._mh._trn.msg(
                 'yoda_test_repo_root_override', test_repo), self._mh.fromhere())
             self._update_repos()
 
@@ -658,12 +658,12 @@ class Extension(extension.Extension):
             self.init_helpers()
             if test_path != '' and test_path[0] == '/':  # global test set
                 self._test_engine.run_mode_area = 'global'
-                self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg(
+                self._mh.demsg('htk_on_debug_info', self._mh._trn.msg(
                     'yoda_running_tset_global', test_path), self._mh.fromhere())
             else:
                 self._test_engine.run_mode_area = 'inrepo'
                 test_path = self._templates_repo + test_path
-                self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg(
+                self._mh.demsg('htk_on_debug_info', self._mh._trn.msg(
                     'yoda_running_tset_repo', test_path), self._mh.fromhere())
 
             multiply_tests = CommandlineTool.get_input_option(
@@ -678,7 +678,7 @@ class Extension(extension.Extension):
                         test_path)
                     test_files += tfiles
                     test_file_id += tfile_id
-                self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg(
+                self._mh.demsg('htk_on_debug_info', self._mh._trn.msg(
                     'yoda_multiply_tests', i), self._mh.fromhere())
             else:
                 test_files, test_file_id = self._test_engine.get_all_tests_from_path(
@@ -708,13 +708,13 @@ class Extension(extension.Extension):
 
         if os.path.exists(self._test_repo_root):
             if os.path.exists(self.test_base_path):
-                self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg(
+                self._mh.demsg('htk_on_debug_info', self._mh._trn.msg(
                     'yoda_start_test_from', test_base_path), self._mh.fromhere())
             else:
-                self._mh.dmsg('htk_on_error', self._mh._trn.msg(
+                self._mh.demsg('htk_on_error', self._mh._trn.msg(
                     'yoda_invalid_test_base_path', self._current_test_base_path), self._mh.fromhere())
         else:
-            self._mh.dmsg('htk_on_error', self._mh._trn.msg(
+            self._mh.demsg('htk_on_error', self._mh._trn.msg(
                 ' yoda_invalid_test_repo_root', self._test_repo_root), self._mh.fromhere())
 
     def init_helpers(self):
@@ -742,10 +742,10 @@ class Extension(extension.Extension):
                     '''TODO also check with warning helpers_dir/__init__.py presence to see if it's proper package directory'''
                     if os.path.exists(helpers_dir):
                         sys.path.append(helpers_dir)
-                        self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg(
+                        self._mh.demsg('htk_on_debug_info', self._mh._trn.msg(
                             'yoda_added_helpers_dir', helpers_dir), self._mh.fromhere())
                     else:
-                        self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg(
+                        self._mh.demsg('htk_on_debug_info', self._mh._trn.msg(
                             'yoda_helpers_dir_not_exists', helpers_dir), self._mh.fromhere())
 
     def init_libs(self):
@@ -772,10 +772,10 @@ class Extension(extension.Extension):
                     '''TODO also check with warning lib_dir/__init__.py presence to see if it's proper package directory'''
                     if os.path.exists(lib_dir):
                         sys.path.append(lib_dir)
-                        self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg(
+                        self._mh.demsg('htk_on_debug_info', self._mh._trn.msg(
                             'yoda_added_lib_dir', lib_dir), self._mh.fromhere())
                     else:
-                        self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg(
+                        self._mh.demsg('htk_on_debug_info', self._mh._trn.msg(
                             'yoda_lib_dir_not_exists', lib_dir), self._mh.fromhere())
 
     def process_tests(self, test_files, test_file_id):
@@ -806,7 +806,7 @@ class Extension(extension.Extension):
                     raise Exception(
                         self._mh._trn.msg('yoda_create_test_run_db_error'))
 
-            self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg(
+            self._mh.demsg('htk_on_debug_info', self._mh._trn.msg(
                 'yoda_process_test_sets_total', total_ts), self._mh.fromhere())
             for tf, tfid in zip(test_files, test_file_id):
                 if type(tf).__name__ == 'list':
@@ -862,7 +862,7 @@ class Extension(extension.Extension):
                     raise Exception(
                         self._mh._trn.msg('yoda_update_test_run_db_error'))
         else:
-            self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg(
+            self._mh.demsg('htk_on_debug_info', self._mh._trn.msg(
                 'yoda_no_tests_found_in_path', self._current_test_base_path), self._mh.fromhere())
 
     def pp_process_test_set(self, test_set_file, test_set_file_id):

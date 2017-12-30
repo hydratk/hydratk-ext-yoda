@@ -781,7 +781,7 @@ class TestEngine(MacroParser):
 
         for ts_key, ts_val in ts_node.items():
             if not (re.match('Test-Case', ts_key)):
-                self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg(
+                self._mh.demsg('htk_on_debug_info', self._mh._trn.msg(
                     'yoda_parsing_test_scenario', ts_key, ts_val), self._mh.fromhere(), 5)
                 #print("Test-Scenario {0}={1}").format(ts_key,ts_val)
                 ts.setattr(ts_key.lower(), ts_val)
@@ -800,7 +800,7 @@ class TestEngine(MacroParser):
 
         for tca_key, tca_val in tca_node.items():
             if not (re.match('Test-Condition', tca_key)):
-                self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg(
+                self._mh.demsg('htk_on_debug_info', self._mh._trn.msg(
                     'yoda_parsing_test_case', tca_key, tca_val), self._mh.fromhere(), 5)
                 tca.setattr(tca_key.lower(), tca_val)
 
@@ -819,7 +819,7 @@ class TestEngine(MacroParser):
         for tco_key, tco_val in tco_node.items():
             if tco_key == 'expected-result':
                 tco.expected_result = tco_val
-            self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg(
+            self._mh.demsg('htk_on_debug_info', self._mh._trn.msg(
                 'yoda_parsing_test_condition', tco_key, tco_val), self._mh.fromhere(), 5)
             tco.setattr(tco_key.lower(), tco_val)
 
@@ -932,7 +932,7 @@ class TestEngine(MacroParser):
             else:
                 raise Exception(
                     self._mh._trn.msg('yoda_inline_loop_detected', test_path))
-            self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg(
+            self._mh.demsg('htk_on_debug_info', self._mh._trn.msg(
                 'yoda_inline_test_exec', test_path), self._mh.fromhere())
 
             backup_tset = self._current.tset
@@ -942,12 +942,12 @@ class TestEngine(MacroParser):
 
             if test_path != '' and test_path[0] == '/':  # global test set
                 self.run_mode_area = 'global'
-                self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg(
+                self._mh.demsg('htk_on_debug_info', self._mh._trn.msg(
                     'yoda_running_tset_global', test_path), self._mh.fromhere())
             else:
                 self.run_mode_area = 'inrepo'
                 test_path = self._templates_repo + test_path
-                self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg(
+                self._mh.demsg('htk_on_debug_info', self._mh._trn.msg(
                     'yoda_running_tset_repo', test_path), self._mh.fromhere())
 
             test_files, test_file_id = self.get_all_tests_from_path(test_path)
@@ -1071,11 +1071,11 @@ class TestEngine(MacroParser):
                 tca_filter = None if tokens[2] == '' else tokens[2]
             if len(tokens) > 3:
                 tco_filter = None if tokens[3] == '' else tokens[3]
-            self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg(
+            self._mh.demsg('htk_on_debug_info', self._mh._trn.msg(
                 'yoda_filter_parameters', test_path, ts_filter, tca_filter, tco_filter), self._mh.fromhere())
 
         if os.path.exists(test_path) == False:
-            self._mh.dmsg('htk_on_warning', self._mh._trn.msg(
+            self._mh.demsg('htk_on_warning', self._mh._trn.msg(
                 'yoda_unknown_test_path', test_path), self._mh.fromhere())
             # TODO throw exception here
         else:
@@ -1119,7 +1119,7 @@ class TestEngine(MacroParser):
                     test_files.append(test_path)
                     test_file_id.append(test_path_id)
             else:
-                self._mh.dmsg('htk_on_debug_info', self._mh._trn.msg(
+                self._mh.demsg('htk_on_debug_info', self._mh._trn.msg(
                     'yoda_unknown_test_path', file_ext, test_path), self._mh.fromhere())
         else:
             self.run_mode_src = 'folder'
