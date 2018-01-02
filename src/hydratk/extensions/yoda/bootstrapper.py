@@ -32,5 +32,5 @@ def run_app():
     mh.set_cli_cmdopt_profile('yoda')
     mh.run_fn_hook('h_bootstrap')
     trn = mh.get_translator()
-    mh.dmsg('htk_on_debug_info', trn.msg('htk_app_exit'), mh.fromhere())
+    mh.demsg('htk_on_debug_info', trn.msg('htk_app_exit'), mh.fromhere())
     sys.exit(0)
