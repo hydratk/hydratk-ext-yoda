@@ -1,9 +1,9 @@
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as MD
 
-from src.hydratk.extensions.yoda.testresults.handlers.xjunit.testsuite import TestSuite
-from .testCase import TestCase
-from .utils import forceUnicode, cleanIllegalXmlChars
+from hydratk.extensions.yoda.testresults.handlers.xjunit.testsuite import TestSuite
+from hydratk.extensions.yoda.testresults.handlers.xjunit.testCase import TestCase
+from hydratk.extensions.yoda.testresults.handlers.xjunit.utils import forceUnicode, cleanIllegalXmlChars
 
 
 class TestReport(object):

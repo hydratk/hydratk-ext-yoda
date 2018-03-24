@@ -26,6 +26,7 @@ yoda_before_exec_ts_postreq
 yoda_on_test_run_completed
 
 """
+
 import os
 import yaml
 import traceback
@@ -91,9 +92,30 @@ class Extension(extension.Extension):
     _active_tickets = []
 
     def __getstate__(self):
+        """Method returns state
+
+        Args:
+           none
+
+        Returns:
+           dict
+
+        """
+
         return self.__dict__
 
-    def __setstate__(self, d): self.__dict__.update(d)
+    def __setstate__(self, d):
+        """Method sets state
+
+        Args:
+           d (dict): state
+
+        Returns:
+           void
+
+        """
+
+        self.__dict__.update(d)
 
     def _init_extension(self):
         """Method initializes extension
@@ -211,17 +233,6 @@ class Extension(extension.Extension):
         '''.format(self._test_repo_root, self._libs_repo, self._templates_repo, self._helpers_repo)
         self._mh.demsg('htk_on_debug_info', dmsg, self._mh.fromhere())
 
-    def _do_imports(self):
-        pass
-
-    # def __getstate__(self):
-    #    odict = self.__dict__.copy() # copy the dict since we change it
-    #    odict['_mh'] = None              # remove filehandle entry
-    #    return odict
-
-    # def __setstate__(self, d):
-    #    self.__dict__.update(d)
-
     def _register_actions(self):
         """Method registers event hooks
 
@@ -250,9 +261,6 @@ class Extension(extension.Extension):
 
         self._test_engine = TestEngine()
 
-    # def __getinitargs__(self):
-    #    return (None,)
-
     def check_pp_mode(self, ev):
         """Method registers event hooks for parallel processing 
 
@@ -265,12 +273,8 @@ class Extension(extension.Extension):
         """
 
         if self._mh.run_mode == const.CORE_RUN_MODE_PP_APP:
-            hook = [{'event': 'htk_on_cobserver_ctx_switch', 'callback': self.pp_app_check},
-                    #{'event' : 'htk_on_cobserver_ctx_switch', 'callback' : self.pp_app_check2 }
-                    ]
+            hook = [{'event': 'htk_on_cobserver_ctx_switch', 'callback': self.pp_app_check}]
             self._mh.register_event_hook(hook)
-            #self._mh.register_async_fn('pp_test', worker1)
-            #self._mh.register_async_fn_ex('pp_test2',worker2, Extension.worker_result)
             self.init_libs()
             self.init_helpers()
 
@@ -700,9 +704,6 @@ class Extension(extension.Extension):
                 
                 ev = event.Event('yoda_on_test_run_completed',self._test_engine.test_run.id)
                 self._mh.fire_event(ev)
-
-    def init_global_tests(self, test_base_path):
-        pass
 
     def init_inrepo_tests(self, test_base_path):
 

@@ -7,6 +7,7 @@
 .. moduleauthor:: Petr Czaderna <pc@hydratk.org>
 
 """
+
 from hydratk.lib.debugging.simpledebug import dmsg
 from xtermcolor import colorize
 from hydratk.lib.string.operation import strip_accents

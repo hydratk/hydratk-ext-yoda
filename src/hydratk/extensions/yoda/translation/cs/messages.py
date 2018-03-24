@@ -53,6 +53,7 @@ msg = {
     'yoda_inline_test_exec': ["Spouštím vnořený test: {0}"],
     'yoda_running_tset_global': ["Spouštím globální test set {0}"],
     'yoda_running_tset_repo': ["Spouštím test sety z repozitáře: {0}"],
+    'yoda_running_test_scenario': ["Spouštím test scenario {0}"],
     'yoda_create_tset_db': ["Vytvářím databázový záznam pro test set {0}"],
     'yoda_create_tset_db_error': ["Nastala chyba při vytváření databázového záznamu pro test set"],
     'yoda_update_tset_db_error': ["Nastala chyba při editaci databázového záznamu pro test set"],
@@ -98,6 +99,7 @@ msg = {
     'yoda_test_results_db_init': ["Inicializuji datavází výsledků testů s dsn: {0}"],
     'yoda_test_results_db_check_fail': ["Kontrola databáze výsledků testů s dsn: {0} provedena neúspěšně"],
     'yoda_test_results_db_check_ok': ["Kontrola databáze výsledků testů s dsn: {0} provedena úspěšně."],
+    'yoda_test_results_db_missing': ["Databáze výsledků nebyla vytvořena"],
     'yoda_processing_tests': ["Zpracovávám testy test_simul_mode {0}, run_mode {1}"],
     'yoda_received_break': ["Zachycen break {0}"],
     'yoda_processing_tset': ["Zpracovávám test set {0}"],
@@ -109,6 +111,7 @@ msg = {
     'yoda_running_action': ["Spouštím akci: {0} {1}"],
     'yoda_getting_action_data': ["Získána data pro akci: {0} {1}"],
     'yoda_unknown_handler': ["Neznámý handler: {0}"],
+    'yoda_invalid_handler': ["Jméno handleru musí být neprázdný string, typ: {0}, hodnota: {1}"],
     'yoda_create_output_console': ["Vytvářím výstup testů na konzoli"],
     'yoda_create_output_html': ["Vytvářím výstup testů soubor html: {0}"],
     'yoda_create_testdata_db': ["Vytvářím databázi testovacích dat s dsn: {0}"],
@@ -116,5 +119,12 @@ msg = {
     'yoda_testdata_db_exists': ["Databáze testovacích dat s dsn: {0} již existuje"],
     'yoda_testdata_db_created': ["Databáze testovacích dat úspěšně vytvořena"],
     'yoda_testdata_db_error': ["Nastala chyb při vytváření databáze testovacích dat: {0}"],
-    'yoda_multiply_tests': ["Celkový počet test setů po vynásobení je: {0}"]
+    'yoda_multiply_tests': ["Celkový počet test setů po vynásobení je: {0}"],
+    'yoda_html_path_not_exist': ["Cesta {0} neexistuje, html report nebude vytvořen"],
+    'yoda_html_path_not_writable': ["Cesta {0} nemá právo zápisu, přístup odepřen"],
+    'yoda_html_missing_template': ["Chybí šablona body.html {0}, report nebude vytvořen"],
+    'yoda_data_invalid_value': ["Neplatná hodnota {0}, podporované hodnoty: {1}"],
+    'yoda_data_unknown_type': ["Datový typ {0} neexistuje"],
+    'yoda_unknown_attribute': ["Neznámý atribut '{0}'"],
+    'yoda_unknown_attribute_option': ["Neznámá volba atributu {0}"]
 }

@@ -7,6 +7,7 @@
 .. moduleauthor:: Petr Czaderna <pc@hydratk.org>
 
 """
+
 from hydratk.core.event import Event
 from hydratk.core.masterhead import MasterHead
 import sys
@@ -17,7 +18,6 @@ import hashlib
 import random
 import os
 from hydratk.lib.debugging.simpledebug import dmsg
-#from hydratk.extensions.yoda.testengine import This
 
 try:
     import cPickle as pickle
@@ -28,6 +28,8 @@ except ImportError:
 class TestObject(object):
     """Class TestObject
     """
+
+    _mh = MasterHead.get_head()
     _attr_opt = {}
 
     @property
@@ -185,13 +187,11 @@ class TestObject(object):
                         self._attr_opt[attr_key][opt_name] = opt_value
                     return True
                 else:
-                    raise ValueError(
-                        'Attribute option name cannot be NoneType or an empty string')
+                    raise ValueError(self._mh._trn.msg('yoda_data_invalid_value', 'attribute option name', 'non-empty string'))
             else:
-                raise KeyError(
-                    "Attribute key {0} doesn't exists".format(attr_key))
+                raise KeyError(self._mh._trn.msg('yoda_unknown_attribute', attr_key))
         else:
-            raise ValueError('Attribute key have to be a nonempty string')
+            raise ValueError(self._mh._trn.msg('yoda_data_invalid_value', 'attribute key', 'non-empty string'))
 
     def getattr_opt(self, attr_key, opt):
         """Method gets attribute option
@@ -209,16 +209,14 @@ class TestObject(object):
         """
 
         if attr_key in (None, ''):
-            raise ValueError(
-                'Attribute option name cannot be NoneType or an empty string')
+            raise ValueError(self._mh._trn.msg('yoda_data_invalid_value', 'attribute option name', 'non-empty string'))
         if opt in (None, ''):
-            raise ValueError(
-                'Attribute key cannot be NoneType or an empty string')
+            raise ValueError(self._mh._trn.msg('yoda_data_invalid_value', 'attribute key', 'non-empty string'))
 
         if attr_key not in self._attr_opt:
-            raise KeyError("Undefined attribute key {0}".format(attr_key))
+            raise KeyError(self._mh._trn.msg('yoda_unknown_attribute', attr_key))
         if opt not in self._attr_opt[attr_key]:
-            raise KeyError("Undefined Attribute option {0}".format(opt))
+            raise KeyError(self._mh._trn.msg('yoda_unknown_attribute_option', opt))
 
         result = self._attr_opt[attr_key][opt]
         return result
@@ -260,8 +258,7 @@ class TestObject(object):
             if options is not None:
                 self.setattr_opt(key, options)
         else:
-            raise ValueError(
-                'Attribute key type must be a non empty string, got {0}'.format(type(key).__name__))
+            raise ValueError(self._mh._trn.msg('yoda_data_invalid_value', 'attribute key', 'non-empty string'))
 
     def __getattr__(self, name):
         """Method gets attribute
@@ -291,8 +288,7 @@ class TestObject(object):
 
         """
 
-        m = MasterHead.get_head()
-        return m.ext_cfg['Yoda']['auto_break'] if 'auto_break' in m.ext_cfg['Yoda'] else None
+        return self._mh.ext_cfg['Yoda']['auto_break'] if 'auto_break' in self._mh.ext_cfg['Yoda'] else None
 
     def _explain(self, exc_name, exc_value, test_hierarchy, tb):
         """Method describes exception occurence within test execution
@@ -1185,7 +1181,6 @@ class TestSet(TestObject):
 
         """
 
-        import pprint
         current = self._current
         current.tset = self
         this = self
@@ -1196,7 +1191,7 @@ class TestSet(TestObject):
         for ts in self.ts:
             run_ts = True
 
-            # Test Scenarion filter apply
+            # Test Scenario filter apply
             ts_filter = current.te.get_ts_filter(self.current_test_set_file_id)
             if ts_filter is not None and type(ts_filter).__name__ == 'list' and len(ts_filter) > 0:
                 if ts.id is not None and ts.id != '' and ts.id not in ts_filter:
@@ -1215,9 +1210,9 @@ class TestSet(TestObject):
                         raise Exception(
                             mh._trn.msg('yoda_create_test_scenario_db_error'))
                 else:
-                    raise Exception("No test results db")
+                    raise Exception(mh._trn.msg('yoda_test_results_db_missing'))
 
-                dmsg("Running test scenario {0}".format(ts.id))
+                dmsg(mh._trn.msg('yoda_running_test_scenario', ts.id))
                 ts.status = 'started'
                 self._this = ts
 

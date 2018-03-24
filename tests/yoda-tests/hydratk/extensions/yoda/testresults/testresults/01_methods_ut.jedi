@@ -493,17 +493,4 @@ Test-Scenario-11:
       Validate: |      
         this.test_result = res
         exp = 'hydratk.extensions.yoda.testresults.handlers.html'
-        assert (res == exp), '_import_tro_handler = {0}'.format(exp)     
-        
-    Test-Condition-3: 
-      Id: tco_03
-      Name: tco_text
-      Desc: Handler text
-      
-      Test: |
-        res = trof._import_tro_handler('text').__name__     
-      
-      Validate: |      
-        this.test_result = res
-        exp = 'hydratk.extensions.yoda.testresults.handlers.text'
-        assert (res == exp), '_import_tro_handler = {0}'.format(exp)              
+        assert (res == exp), '_import_tro_handler = {0}'.format(exp)               
