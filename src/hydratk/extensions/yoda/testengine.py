@@ -15,10 +15,8 @@ from hydratk.core.masterhead import MasterHead
 from hydratk.core.event import Event
 import yaml
 from hydratk.extensions.yoda import testobject
-import pprint
 import re
 import time
-import traceback
 from xtermcolor import colorize
 from hydratk.lib.system import fs
 from hydratk.lib.debugging.simpledebug import dmsg
@@ -29,6 +27,7 @@ class This(object):
     """
 
     _obj = None
+    _mh = None
 
     def __init__(self, map_obj=None):
         """Class constructor
@@ -40,6 +39,7 @@ class This(object):
 
         """
 
+        self._mh = MasterHead.get_head()
         if map_obj is not None:
             self._obj = map_obj
 
@@ -81,7 +81,7 @@ class This(object):
             else:
                 return f
         else:
-            raise AttributeError('Undefined attribute "{0}"'.format(name))
+            raise AttributeError(self._mh._trn.msg('yoda_unknown_attribute', name))
 
 
 class Current(object):
@@ -1161,11 +1161,28 @@ class CodeStack():
     _locals = {}
 
     def __init__(self):
+        """Class constructor
+
+        Called when the object is initialized
+
+        Args:
+           none
+
+        """
+
         self._locals = {}
 
     def execute(self, code, loc):
+        """Method executes Python code
+
+        Args:
+           code (str): Python code
+           loc (dict): local scope
+
+        Returns:
+           void
+
+        """
+
         self._locals.update(loc)
         exec(code, globals(), self._locals)
-
-    def compile(self, code):
-        pass

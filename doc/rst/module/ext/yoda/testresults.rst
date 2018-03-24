@@ -89,6 +89,96 @@ Method sets _db_dsn, _options.
 Methods prints summary report of test execution. It reads test results from database. 
 If some test scenario fails the method prints details for error localization (scenario, case, condition, actual and expected result). 
 
+html
+^^^^
+
+Module provides class TestResultsOutputHandler which implements html handler.
+
+**Attributes** :
+
+* _db_dsn - database DSN
+* _db_con - database connection
+* _options - handler options
+* _have_template_header
+* _have_template_footer
+
+**Methods** :
+
+* __init__ 
+
+Method sets _db_dsn, _options.
+
+* bind_data
+
+Method binds input data to request template.
+
+* _register_tpl_hooks
+
+Method registers template hooks.
+
+* create
+
+* _format_custom_tco_opt
+
+Method formats custom test condition options.
+
+* _format_custom_tc_opt
+
+Method formats custom test case options.
+
+* _format_custom_ts_opt
+
+Method formats custom test scenario options.
+
+* _process_custom_data_opt
+
+Method processes custom options.
+
+* get_test_results
+
+Method creates test results.
+
+Methods creates test run output for html report
+
+**Class TemplateHooks**
+
+* __init__ 
+
+Method sets _options.
+
+* _dispatch_options
+
+Method dispatches options.
+
+* get_content_type
+
+Methods gets file specific content type.
+
+* embed
+
+Methods embeds content.
+
+junit
+^^^^^
+
+Module provides class TestResultsOutputHandler which implements junit handler.
+
+**Attributes** :
+
+* _options - handler options
+* _db_dsn - database DSN
+* _db_con - database connection
+
+**Methods** :
+
+* __init__ 
+
+Method sets _db_dsn, _options.
+
+* create
+
+Methods create summary report in junit format.
+
 Database tables
 ^^^^^^^^^^^^^^^
 

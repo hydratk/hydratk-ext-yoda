@@ -7,9 +7,9 @@
 .. moduleauthor:: Petr Czaderna <pc@hydratk.org>
 
 """
+
 from hydratk.lib.debugging.simpledebug import dmsg
 from xtermcolor import colorize
-from hydratk.lib.string.operation import strip_accents
 from hydratk.extensions.yoda.testresults import testresults
 from hydratk.extensions.yoda.testresults.handlers.xjunit.testcase import TestCase
 from hydratk.extensions.yoda.testresults.handlers.xjunit.testreport import TestReport
@@ -52,16 +52,17 @@ class TestResultsOutputHandler(object):
            void
 
         """
+
+        mh = MasterHead.get_head()
         if not os.path.exists(self._options['path']):
-            print("Path {0} doesn't exists html report will be not created").format(self._options['path'])
+            print(mh._trn.msg('yoda_html_path_not_exist', self._options['path']))
             return False
         if not os.access(self._options['path'], os.W_OK):
-            print("Path {0} is not writeable, permission denied").format(self._options['path'])
+            print(mh._trn.msg('yoda_html_path_not_writable', self._options['path']))
             return False 
         
         test_suites_list = []
-        test_cases_list  = []
-        mh = MasterHead.get_head()
+        test_cases_list = []
         self._db_con = testresults.TestResultsDB(self._db_dsn)
         total_test_sets = self._db_con.db_data(
             "get_total_test_sets", {'test_run_id': test_run.id})[0]["total_test_sets"]
@@ -109,7 +110,6 @@ class TestResultsOutputHandler(object):
                                     if tco['validate_exec_passed'] == False:
                                         pass
                                 #tca failures
-                                #test_cases_list.append(TestCase(name=tca['value'].decode(), time=tca['start_time'] - tca['end_time']))
                             else:
                                 #tca ok 
                                 test_cases_list.append(TestCase(name=tca['value'].decode(), time=tca['start_time'] - tca['end_time']))

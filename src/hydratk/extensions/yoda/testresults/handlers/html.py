@@ -7,8 +7,8 @@
 .. moduleauthor:: Petr Czaderna <pc@hydratk.org>
 
 """
+
 from hydratk.lib.debugging.simpledebug import dmsg
-from hydratk.lib.string.operation import strip_accents
 from hydratk.lib.system.fs import file_get_contents, file_put_contents
 from hydratk.extensions.yoda.testresults import testresults
 from hydratk.core.masterhead import MasterHead
@@ -20,13 +20,35 @@ import pickle
 import base64
 
 class TemplateHooks(object):
+    """Class TemplateHooks
+    """
+
     _options = {}
     
     def __init__(self, options):
+        """Class constructor
+
+        Called when object is initialized
+
+        Args:
+           options (dict): options
+
+        """
+
         self._options = options
         self._options['style'] = self._options['style'].format(var_dir=syscfg.HTK_VAR_DIR)
         
-    def _dispatch_options(self,str_opt):
+    def _dispatch_options(self, str_opt):
+        """Methods dispatches options
+
+        Args:
+           str_opt (str): options in str form
+
+        Returns:
+           dict
+
+        """
+
         res = {}
         if str_opt not in (None,''):
             str_opts = str_opt.split(',')
@@ -37,6 +59,16 @@ class TemplateHooks(object):
         return res
     
     def get_content_type(self, file_extension):
+        """Methods gets file specific content type
+
+        Args:
+           file_extension (str): file extension
+
+        Returns:
+           str
+
+        """
+
         res = None        
         if file_extension not in (None,''):
             file_extension = file_extension.strip('.')
@@ -53,9 +85,18 @@ class TemplateHooks(object):
             elif file_extension == 'ttf':
                 res = 'font/truetype'
         return res
-                
             
-    def embed(self,content_opt):                
+    def embed(self, content_opt):
+        """Methods embeds content
+
+        Args:
+           content_opt (str): options in str form
+
+        Returns:
+           str
+
+        """
+
         dcopt = self._dispatch_options(content_opt)
         src_file = dcopt['file']
         encoding = dcopt['encoding'] if 'encoding' in dcopt else 'no'
@@ -88,13 +129,26 @@ class TemplateHooks(object):
         return res     
     
 class TestResultsOutputHandler(object):
+    """Class TestResultsOutputHandler
+    """
+
     _db_dsn               = None
     _db_con               = None
     _options              = {} 
     _have_template_header = False
     _have_template_footer = False
     
-    def __init__(self, db_dsn, options = {}):
+    def __init__(self, db_dsn, options={}):
+        """Class constructor
+
+        Called when object is initialized
+
+        Args:
+           db_dsn (str): dsn
+           options (dict): output options
+
+        """
+
         self._db_dsn  = db_dsn
         self._options = options
 
@@ -122,7 +176,17 @@ class TestResultsOutputHandler(object):
                 content = content.replace(str(bind_var), str(value))                
         return content
     
-    def _register_tpl_hooks(self,mp):
+    def _register_tpl_hooks(self, mp):
+        """Method registers template hooks
+
+        Args:
+           mp (obj): MacroParser
+
+        Returns:
+           void
+
+        """
+
         tplh = TemplateHooks(self._options)
         mp.mp_add_hooks(
                         {
@@ -141,14 +205,14 @@ class TestResultsOutputHandler(object):
             
         """
         
+        mh = MasterHead.get_head()
         if not os.path.exists(self._options['path']):
-            print("Path {0} doesn't exists html report will be not created").format(self._options['path'])
+            print(mh._trn.msg('yoda_html_path_not_exist', self._options['path']))
             return False
         if not os.access(self._options['path'], os.W_OK):
-            print("Path {0} is not writeable, permission denied").format(self._options['path'])
+            print(mh._trn.msg('yoda_html_path_not_writable', self._options['path']))
             return False 
-        
-        mh = MasterHead.get_head()
+
         mp = MacroParser(r'\[(.*):(.*)\]')
         self._register_tpl_hooks(mp)
         
@@ -168,7 +232,7 @@ class TestResultsOutputHandler(object):
         template_footer = None
         
         if not os.path.exists(template_body_file):
-            print("Missing template body.html {0}, report will be not created".format(template_body_file))
+            print(mh._trn.msg('yoda_html_missing_template', template_body_file))
             return False 
         if os.path.exists(template_header_file):
             template_header = file_get_contents(template_header_file)
@@ -209,10 +273,17 @@ class TestResultsOutputHandler(object):
         trf = mp.mp_parse(trf)         
         file_put_contents(test_report_file, trf)
         
-    def _run_tpl_hooks(self, trf):
-        pass
-        
     def _format_custom_tco_opt(self, tco, tco_opt):
+        """Method formats custom test condition options
+
+        Args:
+           tco (dict): test condition
+           tco_opt (list): options
+
+        Returns:
+           str
+
+        """
         
         res = ""
         res += """
@@ -301,6 +372,16 @@ class TestResultsOutputHandler(object):
         return res  
         
     def _format_custom_tc_opt(self, tc, tc_opt):
+        """Method formats custom test case options
+
+        Args:
+           tc (dict): test case
+           tc_opt (list): options
+
+        Returns:
+           str
+
+        """
             
         res = ""
         res += """
@@ -389,7 +470,18 @@ class TestResultsOutputHandler(object):
             
         return res  
     
-    def _format_custom_ts_opt(self, ts, ts_opt):        
+    def _format_custom_ts_opt(self, ts, ts_opt):
+        """Method formats custom test scenario options
+
+        Args:
+           ts (dict): test scenario
+           ts_opt (list): options
+
+        Returns:
+           str
+
+        """
+
         res = ""
         res += """
         <tr>
@@ -523,6 +615,17 @@ class TestResultsOutputHandler(object):
         return res
      
     def _process_custom_data_opt(self, opt_dict, td_class):
+        """Method processes custom options
+
+        Args:
+           opt_dict (dict): options
+           td_class (str): TD element class
+
+        Returns:
+           str
+
+        """
+
         res = ""        
         for _,v in opt_dict.items():                            
             if v['pickled'] == 1:
@@ -542,6 +645,16 @@ class TestResultsOutputHandler(object):
         return res
                
     def get_test_results(self, test_run_id):
+        """Method creates test results
+
+        Args:
+           test_run_id (str): test run id
+
+        Returns:
+           str
+
+        """
+
         res = ""
         
         test_sets = self._db_con.db_data("get_test_sets", {'test_run_id' : test_run_id })
@@ -718,39 +831,6 @@ class TestResultsOutputHandler(object):
                     """ 
         #TODO implement rest of the info
         
-                #print(ts)                
-        #        print("  {0}".format(mh._trn.msg('yoda_test_scenario_summary', ts['value'].decode() ,ts['total_tests'], ts['failed_tests'],ts['passed_tests'])))                                                                                                         
-        #        if ts['failures'] == True:                    
-        #            if ts['prereq_passed'] in (True,None):                        
-        #                if ts['prereq_passed'] == True: print("    + {0}".format(mh._trn.msg('yoda_test_scenario_prereq_passed')))                       
-        #                test_cases = self._db_con.db_data("get_test_cases", {'test_run_id' : test_run.id, 'test_set_id' : test_set['id'].decode(), 'test_scenario_id' : ts['id'].decode() })                                                                                   
-        #                for tca in test_cases:                                                                                                                                                                   
-        #                    if tca['failures'] > 0: #tca.failed_tco
-        #                        print("    {0}".format(mh._trn.msg('yoda_test_case',tca['value'].decode())))
-        #                        test_conditions = self._db_con.db_data("get_test_conditions", {'test_run_id' : test_run.id, 'test_set_id' : test_set['id'].decode(), 'test_scenario_id' : ts['id'].decode(), 'test_case_id' : tca['id'].decode() })                                                                                      
-        #                        for tco in test_conditions:                                                                    
-        #                            if tco['test_resolution'] != None and tco['test_resolution'].decode() == 'failed':
-        #                                print("      {0}".format(mh._trn.msg('yoda_test_condition',tco['value'].decode())))
-        #                                print("            {0}".format(mh._trn.msg('yoda_expected_result',tco['expected_result'].decode().strip())))                                        
-        #                                print("            {0}".format(mh._trn.msg('yoda_actual_result',tco['test_result'].decode() if tco['test_result'] != None else None)))
-        #                                print("            {0}".format(mh._trn.msg('yoda_log',colorize(tco['log'].decode(),rgb=0x00bfff))))
-        #                            if tco['events_passed'] == False:
-        #                                print(colorize("    ! {0}".format(mh._trn.msg('yoda_test_condition_events_failed', tco['log'].decode())),rgb=0xd70000))
-        #                            if tco['test_exec_passed'] == False:
-        #                                print(colorize("    ! {0}".format(mh._trn.msg('yoda_test_condition_test_exec_failed', tco['log'].decode())),rgb=0xd70000))
-        #                            if tco['validate_exec_passed'] == False:
-        #                                print(colorize("    ! {0}".format(mh._trn.msg('yoda_test_condition_validate_exec_failed', tco['log'].decode())),rgb=0xd70000))
-        #                        
-        #                    if tca['events_passed'] == False:
-        #                        print(colorize("    ! {0}".format(mh._trn.msg('yoda_test_case_events_failed', tca['log'].decode())),rgb=0xd70000))                                                                                                                              
-        #            else:
-        #                print(colorize("     ! {0}".format(mh._trn.msg('yoda_test_scenario_prereq_failed', colorize(ts['log'].decode(), rgb=0xd70000))),rgb=0xd70000))
-        #            if ts['events_passed'] == False:
-        #                print(colorize("    ! {0}".format(mh._trn.msg('yoda_test_scenario_events_failed', ts['log'].decode())),rgb=0xd70000))
-        #            if ts['postreq_passed'] == True:
-        #                print("    + {0}".format(mh._trn.msg('yoda_test_scenario_postreq_passed')))
-        #            elif ts['postreq_passed'] == False:
-        #                print(colorize("    ! {0}".format(mh._trn.msg('yoda_test_scenario_postreq_failed', colorize(ts['log'].decode(), rgb=0xd70000))),rgb=0xd70000))
             res += """
               </table> 
               </td>

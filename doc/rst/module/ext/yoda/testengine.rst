@@ -302,3 +302,20 @@ Inherited from testobject.TestCondition.
 * repeat
 
 Method enables test condition to be repeated.
+
+Class CodeStack
+^^^^^^^^^^^^^^^
+
+**Attributes** :
+
+* _locals - local scope
+
+**Methods** :
+
+* __init__
+
+Constructor
+
+* execute
+
+Method executes Python code.

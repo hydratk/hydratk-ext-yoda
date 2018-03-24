@@ -383,10 +383,8 @@ class TestResultsDB(object):
 
 tro_handlers = {
     'console': 'hydratk.extensions.yoda.testresults.handlers.console',
-    'text': 'hydratk.extensions.yoda.testresults.handlers.text',
     'html': 'hydratk.extensions.yoda.testresults.handlers.html',
     'junit': 'hydratk.extensions.yoda.testresults.handlers.junit'
-    
 }
 
 
@@ -444,8 +442,7 @@ class TestResultsOutputFactory(object):
                     self._handler_opt[opt_data[0]] = opt_data[1]
 
         else:
-            raise TypeError("handler_name have to be a nonempty string, got {0}, value: {1}".format(
-                type(handler_def).__name__, handler_def))
+            raise TypeError(self._mh._trn.msg('yoda_invalid_handler', type(handler_def).__name__, handler_def))
 
     def __getattr__(self, name):
         """Method gets attribute

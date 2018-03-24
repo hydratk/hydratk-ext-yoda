@@ -20,6 +20,7 @@ from pytz.exceptions import UnknownTimeZoneError
 from sqlite3 import Error
 from sys import version_info
 
+mh = MasterHead.get_head()
 
 def gen_number(n_int=10, n_frac=0, positive=True, cnt=1):
     """Method generates random number
@@ -39,7 +40,7 @@ def gen_number(n_int=10, n_frac=0, positive=True, cnt=1):
     """
 
     if (n_int < 0 or n_frac < 0):
-        raise ValueError('digits must be positive integer')
+        raise ValueError(mh._trn.msg('yoda_data_invalid_value', 'n_int|n_frac', '> 0'))
 
     recs = [None] * cnt
     for i in range(0, cnt):
@@ -73,9 +74,9 @@ def gen_nondec(n=10, base='hex', cnt=1):
     """
 
     if (n < 0):
-        raise ValueError('digits must be positive integer')
+        raise ValueError(mh._trn.msg('yoda_data_invalid_value', 'n', '> 0'))
     if (base not in ['bin', 'oct', 'hex']):
-        raise ValueError('base must bin|oct|hex')
+        raise ValueError(mh._trn.msg('yoda_data_invalid_value', 'base', 'bin|oct|hex'))
 
     if (base == 'bin'):
         base = (2, 'b')
@@ -108,10 +109,9 @@ def gen_string(n=10, category='alpha', cnt=1):
     """
 
     if (n < 0):
-        raise ValueError('character must be positive integer')
+        raise ValueError(mh._trn.msg('yoda_data_invalid_value', 'n', '> 0'))
     if (category not in ['alpha', 'lower', 'upper', 'numeric', 'alphanumeric', 'special']):
-        raise ValueError(
-            'category must be alpha|lower|upper|numeric|alphanumeric|special')
+        raise ValueError(mh._trn.msg('yoda_data_invalid_value', 'category', 'alpha|lower|upper|numeric|alphanumeric|special'))
 
     if (category == 'alpha'):
         category = ascii_letters
@@ -170,7 +170,7 @@ def gen_date(date_format='iso', start=None, end=None, current=None, time_zone=No
         end = datetime.strptime(end, date_format) if (
             end != None) else datetime.now(time_zone)
         if (end < start):
-            raise ValueError('Invalid interval end < start')
+            raise ValueError(mh._trn.msg('yoda_data_invalid_value', 'start|end', 'start < end'))
         if (version_info[0] == 2 and version_info[1] == 6):
             td = end - start
             delta = int(
@@ -183,7 +183,7 @@ def gen_date(date_format='iso', start=None, end=None, current=None, time_zone=No
 
     elif (current != None):
         if (current not in ['year', 'month', 'day', 'hour', 'minute']):
-            raise ValueError('current must be year|month|day|hour|minute')
+            raise ValueError(mh._trn.msg('yoda_data_invalid_value', 'current', 'year|month|day|hour|minute'))
         else:
             dt = datetime.now()
             year, month, day, hour, minute = dt.year, dt.month, dt.day, dt.hour, dt.minute
@@ -245,7 +245,7 @@ def gen_ip(version=4, cnt=1):
     """
 
     if (version not in [4, 6]):
-        raise ValueError('version must be 4, 6')
+        raise ValueError(mh._trn.msg('yoda_data_invalid_value', 'version', '4|6'))
 
     recs = [None] * cnt
     if (version == 4):
@@ -285,7 +285,7 @@ def gen_birth_no(min_age=18, max_age=30, male=True, delimiter=False, cnt=1):
     """
 
     if (max_age < min_age):
-        raise ValueError('Invalid interval max_age < min_age')
+        raise ValueError(mh._trn.msg('yoda_data_invalid_value', 'min_age|max_age', 'min_age < max_age'))
 
     start = datetime.now() - timedelta(days=max_age * 365)
     delta = (max_age - min_age) * 365
@@ -349,7 +349,7 @@ def gen_tax_no(prefix='CZ', src='reg_no', cnt=1):
     """
 
     if (src not in ['reg_no', 'birth_no']):
-        raise ValueError('src must be in reg_no|birth_no')
+        raise ValueError(mh._trn.msg('yoda_data_invalid_value', 'src', 'reg_no|birth_no'))
 
     recs = [None] * cnt
     src = gen_reg_no if (src == 'reg_no') else gen_birth_no
@@ -380,11 +380,11 @@ def gen_account_no(form='nat', country='CZ', prefix=False, bank=None, base_len=1
     """
 
     if (form not in ['nat', 'iban']):
-        raise ValueError('form must be in nat|iban')
+        raise ValueError(mh._trn.msg('yoda_data_invalid_value', 'form', 'nat|iban'))
     if (base_len < 2 or base_len > 10):
-        raise ValueError('base_len must be in <2,10>')
+        raise ValueError(mh._trn.msg('yoda_data_invalid_value', 'base_len', '<2,10>'))
     if (prefix_len < 2 or prefix_len > 6):
-        raise ValueError('prefix_len must be in <2,6>')
+        raise ValueError(mh._trn.msg('yoda_data_invalid_value', 'prefix_len', '<2,6>'))
 
     if (bank == None):
         db = DBO(_get_dsn())._dbo_driver
@@ -445,7 +445,7 @@ def gen_email(name_len=8, subdomain=None, subdomain_len=6, domain='.com', domain
     """
 
     if (domain_type not in ['original', 'country']):
-        raise ValueError('domain_type must be in original|country')
+        raise ValueError(mh._trn.msg('yoda_data_invalid_value', 'domain', 'originla|country'))
 
     if (domain == None):
         db = DBO(_get_dsn())._dbo_driver
@@ -489,7 +489,7 @@ def gen_name(sex='both', tuple_out=True, cnt=1):
     """
 
     if (sex not in ['both', 'male', 'female']):
-        raise ValueError('sex must be in boty|male|female')
+        raise ValueError(mh._trn.msg('yoda_data_invalid_value', 'sex', 'both|male|female'))
 
     db = DBO(_get_dsn())._dbo_driver
     if (sex == 'both'):
@@ -554,7 +554,7 @@ def gen_phone(form='int', cc=420, country=None, ndc=601, sn_len=6, cnt=1):
     """
 
     if (form not in ['int', 'nat']):
-        raise ValueError('form must be in int|nat')
+        raise ValueError(mh._trn.msg('yoda_data_invalid_value', 'form', 'int|nat'))
 
     if (cc == None):
         db = DBO(_get_dsn())._dbo_driver
@@ -568,7 +568,7 @@ def gen_phone(form='int', cc=420, country=None, ndc=601, sn_len=6, cnt=1):
             country)
         cc = db.execute(query).fetchone()
         if (cc == None):
-            raise ValueError('Unknown country {0}'.format(country))
+            raise ValueError(mh._trn.msg('yoda_data_invalid_value', 'country', 'table cc'))
         cc = cc[0]
 
     recs = [None] * cnt
@@ -607,7 +607,7 @@ def gen_address(param=None, value=None, street_no_full=True, dict_out=True, cnt=
     """
 
     if (param != None and param not in ['region', 'district', 'area', 'locality', 'part']):
-        raise ValueError('param must be in region|district|area|locality|part')
+        raise ValueError(mh._trn.msg('yoda_data_invalid_value', 'param', 'region|district|area|locality|part'))
 
     db = DBO(_get_dsn())._dbo_driver
     if (param == None):
@@ -701,7 +701,6 @@ def _get_dsn():
 
     """
 
-    mh = MasterHead.get_head()
     return mh.ext_cfg['Yoda']['db_testdata_dsn'].format(var_dir=syscfg.HTK_VAR_DIR)
 
 
@@ -723,7 +722,7 @@ def create_type(title, description=None, col_titles=[]):
         cnt = db.execute(
             'SELECT count(*) FROM data_type WHERE TITLE = \'{0}\''.format(title)).fetchone()[0]
         if (cnt > 0):
-            raise Error('Type {0} already exists'.format(title))
+            raise Error(mh._trn.msg('yoda_data_unknown_type', title))
 
         query = """INSERT INTO data_type (title, description, col1_title, col2_title, col3_title, col4_title, col5_title,
                    col6_title, col7_title, col8_title, col9_title, col10_title) VALUES (\'{0}\'""".format(title)
@@ -763,7 +762,7 @@ def update_type(title, title_new=None, description=None, col_titles_new={}):
         cnt = db.execute(
             'SELECT count(*) FROM data_type WHERE title = \'{0}\''.format(title)).fetchone()[0]
         if (cnt == 0):
-            raise Error('Type {0} does not exist'.format(title))
+            raise Error(mh._trn.msg('yoda_data_unknown_type', title))
 
         query = 'UPDATE data_type SET '
         if (title_new != None):
@@ -801,7 +800,7 @@ def delete_type(title, del_records=True):
         cnt = db.execute(
             'SELECT count(*) FROM data_type WHERE title = \'{0}\''.format(title)).fetchone()[0]
         if (cnt == 0):
-            raise Error('Type {0} does not exist'.format(title))
+            raise Error(mh._trn.msg('yoda_data_unknown_type', title))
 
         if (del_records):
             query = 'DELETE FROM data WHERE type = (SELECT id FROM data_type WHERE title = \'{0}\')'.format(
@@ -836,7 +835,7 @@ def read_data(data_type, active=1, col_filter={}):
         res = db.execute(
             'SELECT id FROM data_type WHERE title = \'{0}\''.format(data_type)).fetchone()
         if (res == None):
-            raise Error('Unknown data type {0}'.format(data_type))
+            raise Error(mh._trn.msg('yoda_data_unknown_type', data_type))
         type_id = res[0]
 
         query = """SELECT b.title, a.active, b.col1_title, a.col1, b.col2_title, a.col2, b.col3_title, a.col3, b.col4_title, a.col4,
@@ -887,7 +886,7 @@ def create_data(data_type, active=1, col_values={}):
         res = db.execute(
             'SELECT id FROM data_type WHERE title = \'{0}\''.format(data_type)).fetchone()
         if (res == None):
-            raise Error('Unknown data type {0}'.format(data_type))
+            raise Error(mh._trn.msg('yoda_data_unknown_type', data_type))
         type_id = res[0]
 
         query = """INSERT INTO data (type, active, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10)
@@ -927,7 +926,7 @@ def update_data(data_type, active=None, col_filter={}, col_values_new={}):
         res = db.execute(
             'SELECT id FROM data_type WHERE title = \'{0}\''.format(data_type)).fetchone()
         if (res == None):
-            raise Error('Unknown data type {0}'.format(data_type))
+            raise Error(mh._trn.msg('yoda_data_unknown_type', data_type))
         type_id = res[0]
 
         query = 'UPDATE data SET '
@@ -969,7 +968,7 @@ def delete_data(data_type, active=0, col_filter={}):
         res = db.execute(
             'SELECT id FROM data_type WHERE title = \'{0}\''.format(data_type)).fetchone()
         if (res == None):
-            raise Error('Unknown data type {0}'.format(data_type))
+            raise Error(mh._trn.msg('yoda_data_unknown_type', data_type))
         type_id = res[0]
 
         query = 'DELETE FROM data WHERE type = {0} AND active = {1} AND '.format(

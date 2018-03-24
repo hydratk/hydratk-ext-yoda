@@ -72,6 +72,14 @@ Unit tests available at hydratk/extensions/yoda/yoda/01_methods_ut.jedi, 02_meth
 
 **Methods** :
 
+* __getstate__
+
+Method gets state.
+
+* __setstate__
+
+Method sets state.
+
 * _init_extension
 
 Method sets extension metadata (id, name, version, author, year).
