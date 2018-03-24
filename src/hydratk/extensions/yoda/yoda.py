@@ -177,10 +177,10 @@ class Extension(extension.Extension):
 
         """
 
-        self._test_repo_root = self._mh.cfg['Extensions']['Yoda']['test_repo_root'].format(var_dir=syscfg.HTK_VAR_DIR)
-        self._libs_repo = self._mh.cfg['Extensions']['Yoda']['test_repo_root'].format(var_dir=syscfg.HTK_VAR_DIR) + '/lib'
-        self._templates_repo = self._mh.cfg['Extensions']['Yoda']['test_repo_root'].format(var_dir=syscfg.HTK_VAR_DIR) + '/yoda-tests/'
-        self._helpers_repo = self._mh.cfg['Extensions']['Yoda']['test_repo_root'].format(var_dir=syscfg.HTK_VAR_DIR) + '/helpers'
+        self._test_repo_root = self._mh.config_mp.parse(self._mh.cfg['Extensions']['Yoda']['test_repo_root'])
+        self._libs_repo = self._test_repo_root + '/lib'
+        self._templates_repo = self._test_repo_root + '/yoda-tests/'
+        self._helpers_repo = self._test_repo_root + '/helpers'
         dmsg = '''
         Init repos: test_repo_root: {0}
                     libs_repo: {1}
@@ -449,7 +449,7 @@ class Extension(extension.Extension):
 
         """
 
-        dsn = self._mh.ext_cfg['Yoda']['db_results_dsn'].format(var_dir=syscfg.HTK_VAR_DIR)
+        dsn = self._mh.config_mp.parse(self._mh.ext_cfg['Yoda']['db_results_dsn'])
         dmsg(self._mh._trn.msg('yoda_create_db', dsn))
         trdb = TestResultsDB(dsn)
         trdb.create_database()
@@ -473,7 +473,7 @@ class Extension(extension.Extension):
             dsn = CommandlineTool.get_input_option('yoda-db-testdata-dsn')
             force = CommandlineTool.get_input_option('force')
             if (not dsn):
-                dsn = self._mh.ext_cfg['Yoda']['db_testdata_dsn'].format(var_dir=syscfg.HTK_VAR_DIR)
+                dsn = self._mh.config_mp.parse(self._mh.ext_cfg['Yoda']['db_testdata_dsn'])
             db = DBO(dsn)._dbo_driver
             db._parse_dsn(dsn)
 
@@ -485,7 +485,7 @@ class Extension(extension.Extension):
 
                 print(self._mh._trn.msg('yoda_create_testdata_db', dsn))
                 db.connect()
-                dbdir = os.path.join(self._mh.ext_cfg['Yoda']['test_repo_root'].format(var_dir=syscfg.HTK_VAR_DIR), 'db_testdata')
+                dbdir = os.path.join(self._mh.config_mp.parse(self._mh.ext_cfg['Yoda']['test_repo_root']), 'db_testdata')
                 script = file_get_contents(
                     os.path.join(dbdir, 'db_struct.sql'))
                 db._cursor.executescript(script)
@@ -581,7 +581,7 @@ class Extension(extension.Extension):
 
         """
 
-        dsn = self._mh.ext_cfg['Yoda']['db_results_dsn'].format(var_dir=syscfg.HTK_VAR_DIR)
+        dsn = self._mh.config_mp.parse(self._mh.ext_cfg['Yoda']['db_results_dsn'])
         dmsg(self._mh._trn.msg('yoda_test_results_db_init', dsn))
         trdb = TestResultsDB(dsn)
         if trdb.db_check_ok() == False:
@@ -608,7 +608,7 @@ class Extension(extension.Extension):
 
         """
 
-        dsn = self._mh.ext_cfg['Yoda']['db_results_dsn'].format(var_dir=syscfg.HTK_VAR_DIR)
+        dsn = self._mh.config_mp.parse(self._mh.ext_cfg['Yoda']['db_results_dsn'])
         dmsg(self._mh._trn.msg('yoda_test_results_db_init', dsn))
         trdb = TestResultsDB(dsn)
         if trdb.db_check_ok() == False:
@@ -992,5 +992,5 @@ class Extension(extension.Extension):
         if ev.will_run_default():
             if self._test_results_output_create == True:
                 for output_handler in self._test_results_output_handler:
-                    trof = TestResultsOutputFactory(self._mh.ext_cfg['Yoda']['db_results_dsn'].format(var_dir=syscfg.HTK_VAR_DIR), output_handler)
+                    trof = TestResultsOutputFactory(self._mh.config_mp.parse(self._mh.ext_cfg['Yoda']['db_results_dsn']), output_handler)
                     trof.create(self._test_engine.test_run)
