@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+    # -*- coding: utf-8 -*-
 
 from setuptools import setup as st_setup
 from setuptools import find_packages as st_find_packages
@@ -102,15 +102,15 @@ config = {
                 ],
                 'check': {
                     'python-lxml': {
-                        'cmd': 'dpkg --get-selections | grep python-lxml',
+                        'cmd': 'dpkg --get-selections | grep python-lxml || locate -b lxml | grep {0}'.format(syscfg.HTK_ROOT_DIR),
                         'errmsg': 'Unable to locate package python-lxml'
                     },
                     'libxml2-dev': {
-                        'cmd': 'dpkg --get-selections | grep libxml2-dev',
+                        'cmd': 'dpkg --get-selections | grep libxml2-dev || locate -b libxml2 | grep {0}'.format(syscfg.HTK_ROOT_DIR),
                         'errmsg': 'Unable to locate package libxml2-dev'
                     },
                     'libxslt1-dev': {
-                        'cmd': 'dpkg --get-selections | grep libxslt1-dev',
+                        'cmd': 'dpkg --get-selections | grep libxslt1-dev || locate -b libxslt | grep {0}'.format(syscfg.HTK_ROOT_DIR),
                         'errmsg': 'Unable to locate package libxslt1-dev'
                     }
                 }
@@ -123,15 +123,15 @@ config = {
                 ],
                 'check': {
                     'python-lxml': {
-                        'cmd': 'yum list installed | grep python-lxml',
+                        'cmd': 'yum list installed | grep python-lxml || locate -b lxml | grep {0}'.format(syscfg.HTK_ROOT_DIR),
                         'errmsg': 'Unable to locate package python-lxml'
                     },
                     'libxml2-devel': {
-                        'cmd': 'yum list installed | grep libxml2-devel',
+                        'cmd': 'yum list installed | grep libxml2-devel || locate -b libxml2 | grep {0}'.format(syscfg.HTK_ROOT_DIR),
                         'errmsg': 'Unable to locate package libxml2-devel'
                     },
                     'libxslt-devel': {
-                        'cmd': 'yum list installed | grep libxslt-devel',
+                        'cmd': 'yum list installed | grep libxslt-devel || locate -b libxslt | grep {0}'.format(syscfg.HTK_ROOT_DIR),
                         'errmsg': 'Unable to locate shared library libxslt-devel'
                     }
                 }
@@ -144,15 +144,15 @@ config = {
                 ],
                 'check': {
                     'python-lxml': {
-                        'cmd': 'dnf list installed | grep python-lxml',
+                        'cmd': 'dnf list installed | grep python-lxml || locate -b lxml | grep {0}'.format(syscfg.HTK_ROOT_DIR),
                         'errmsg': 'Unable to locate package python-lxml'
                     },
                     'libxml2-devel': {
-                        'cmd': 'dnf list installed | grep libxml2-devel',
+                        'cmd': 'dnf list installed | grep libxml2-devel || locate -b libxml2 | grep {0}'.format(syscfg.HTK_ROOT_DIR),
                         'errmsg': 'Unable to locate package libxml2-devel'
                     },
                     'libxslt-devel': {
-                        'cmd': 'dnf list installed | grep libxslt-devel',
+                        'cmd': 'dnf list installed | grep libxslt-devel || locate -b libxslt | grep {0}'.format(syscfg.HTK_ROOT_DIR),
                         'errmsg': 'Unable to locate shared library libxslt-devel'
                     }
                 }
@@ -165,15 +165,15 @@ config = {
                 ],
                 'check': {
                     'python-lxml': {
-                        'cmd': 'rpm -qa | grep python-lxml',
+                        'cmd': 'rpm -qa | grep python-lxml || locate -b lxml | grep {0}'.format(syscfg.HTK_ROOT_DIR),
                         'errmsg': 'Unable to locate package python-lxml'
                     },
                     'libxml2-devel': {
-                        'cmd': 'rpm -qa | grep libxml2-devel',
+                        'cmd': 'rpm -qa | grep libxml2-devel || locate -b libxml2 | grep {0}'.format(syscfg.HTK_ROOT_DIR),
                         'errmsg': 'Unable to locate package libxml2-devel'
                     },
                     'libxslt-devel': {
-                        'cmd': 'rpm -qa | grep libxslt-devel',
+                        'cmd': 'rpm -qa | grep libxslt-devel || locate -b libxslt | grep {0}'.format(syscfg.HTK_ROOT_DIR),
                         'errmsg': 'Unable to locate shared library libxslt-devel'
                     }
                 }
@@ -184,11 +184,11 @@ config = {
                 ],
                 'check': {
                     'py27-lxml': {
-                        'cmd': 'pkg info | grep py27-lxml',
+                        'cmd': 'pkg info | grep py27-lxml || locate lxml | grep {0}'.format(syscfg.HTK_ROOT_DIR),
                         'errmsg': 'Unable to locate package py27-lxml'
                     },
                     'py36-lxml': {
-                        'cmd': 'pkg info | grep py36-lxml',
+                        'cmd': 'pkg info | grep py36-lxml || locate lxml | grep {0}'.format(syscfg.HTK_ROOT_DIR),
                         'errmsg': 'Unable to locate package py36-lxml'
                     }                          
                 }
